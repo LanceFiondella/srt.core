@@ -15,3 +15,17 @@ Team:
   Varun Kumar Reddy Garlapati
   Vidhyashree Nagaraju
   
+Dependancies:
+R version >= 3.0
+shiny  R Package
+gdata R Package
+ggplot2 R Package
+These can be resolved using the install.Packages() function from the R command Line
+
+To Run:
+Clone this git
+Resolve the dependancies above
+From the R command line type:
+  >>library(shiny)
+  >>runApp("/Path/To/Dir/SRT/")
+This will launch the app on localhost on some random port and attempt to open your browser.
