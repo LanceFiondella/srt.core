@@ -1,0 +1,117 @@
+[32m[2015-02-26 18:31:28.008] [INFO] shiny-server - [39mShiny Server v0.3.6 (Node.js v0.10.25)
+[32m[2015-02-26 18:31:28.010] [INFO] shiny-server - [39mUsing config file "/usr/local/lib/node_modules/shiny-server/config/default.config"
+[32m[2015-02-26 18:31:28.046] [INFO] shiny-server - [39mStarting listener on 134.88.3.246:80
+[33m[2015-03-01 04:14:58.218] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:15:45.249] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:18:05.100] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:20:41.250] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:20:41.414] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:20:52.684] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:02.953] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:21:09.906] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:13.554] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:13.574] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:15.321] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:18.868] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:21:19.586] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:26.156] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:21:28.388] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:33.494] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:21:59.660] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:22:01.534] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:22:09.093] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:40:05.547] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:40:52.296] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:43:08.252] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:45:47.156] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:45:48.422] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:46:06.985] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:16.614] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:46:24.293] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:28.194] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:28.242] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:29.934] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:38.604] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:46:38.863] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:45.278] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-01 04:46:47.535] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:46:52.967] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:47:12.387] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:47:14.363] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-01 04:47:21.916] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:19:01.579] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:19:48.294] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:22:17.046] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:22:54.985] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:22:56.432] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:23:24.051] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:23:24.062] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:23:24.122] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:23:24.877] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:23:27.548] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:23:42.637] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:23:42.719] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:23:52.319] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:24:01.076] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:24:01.189] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:24:01.840] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:26:07.450] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:26:10.795] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:26:22.950] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:45:27.101] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:46:14.249] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:48:46.054] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:49:07.571] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:49:22.976] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:49:24.679] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:49:48.083] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:49:48.210] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:49:48.291] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:49:49.528] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:49:53.643] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:50:11.916] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:50:12.015] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:50:19.696] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-08 05:50:27.371] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:50:27.402] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:50:28.497] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:52:39.309] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-08 05:52:43.235] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:14:43.915] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:15:30.601] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:18:03.017] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:20:13.411] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:20:15.323] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:20:43.478] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:20:44.059] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:20:44.082] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:20:44.191] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:01.140] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:21:01.672] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:21:07.084] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:08.734] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:13.021] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:21:27.783] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:32.287] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:37.075] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:40.038] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:21:41.010] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:22:04.682] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:22:51.248] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:25:24.039] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:27:55.663] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:28:04.799] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:16.366] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:24.390] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:25.039] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:25.056] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:25.111] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:41.983] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:28:42.372] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:28:47.450] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:49.033] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:28:53.588] [WARN] shiny-server - [39mNo host header sent by user-agent Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+[33m[2015-03-15 05:29:10.657] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:29:14.940] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:29:20.878] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
+[33m[2015-03-15 05:29:24.024] [WARN] shiny-server - [39mNo host header sent by user-agent undefined
