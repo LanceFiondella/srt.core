@@ -32,7 +32,7 @@ shinyServer(function(input, output) {
    value <- c("red","blue") 
    model <- ""
    if (input$OD == TRUE){
-   p <- p + geom_point(data = data,aes(color="blue",group="Original Data"))#adds scatter plot points to plot object
+   p <- p + geom_point(data = data,aes(color="blue",group="Original Data")) + geom_line(data = data,aes(color="blue",group="Original Data"))#adds scatter plot points to plot object
    label <- c("Original Data","")
    value <- c("blue","red")
    }
@@ -45,16 +45,19 @@ shinyServer(function(input, output) {
    if (input$Model == "GEO"){
       newdata <- GeoModel(data)
       p <- p + geom_point(data=newdata,aes(color="red",group="Geometric Model"))
+      p <- p + geom_line(data=newdata,aes(color="red",group="Geometric Model"))
       model <- c("Geometric Model")
         }
   if (input$Model == "GO"){
       newdata <- GoelOkModel(data)
       p <- p + geom_point(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
+      p <- p + geom_line(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
       model <- c("Geol-Okumoto Model")
         }
   if (input$Model == "YS"){
       newdata <- YamadaModel(data)
       p <- p + geom_point(data=newdata,aes(color="red",group="Yamada S-Shaped Model"))
+      p <- p + geom_line(data=newdata,aes(color="red",group="Yamada S-Shaped Model"))
       model <- c("Yamada S-Shaped Model")
    }
    if(input$OD == FALSE){
