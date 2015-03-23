@@ -1,7 +1,7 @@
 fPhi <- function(N0,interfail,n){
 Phi = n/sum((N0-(0:(n-1)))*interfail)
 return(Phi)}
-
+#I commented
 fN0 <- function(N0,interfail,n){
 Nnot = sum(interfail)*fPhi(N0,interfail,n)-sum(1/(N0-(0:(n-1))))
 return(Nnot)}
