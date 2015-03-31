@@ -7,7 +7,7 @@
 
 
 #Define MLE of parameter 'b'
-GO_BM_DDB<-function(b){
+GO_BM_DDB<-function(b,n,tn,sumT){
 	((n*tn*exp(-b*tn))/(1-exp(- b*tn)))+sumT - n/b 
 }
 
@@ -28,16 +28,16 @@ b0 <- n/sumT
 i <- 0 
 maxIterations <- 10
 leftEndPoint <- b0/2
-leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
+leftEndPointMLE <- GO_BM_DDB(leftEndPoint,n,tn,sumT)
 rightEndPoint <- 2*b0
-rightEndPointMLE <- GO_BM_DDB(rightEndPoint)
+rightEndPointMLE <- GO_BM_DDB(rightEndPoint,n,tn,sumT)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	print('In Step 2 while loop of GO_BM_FT.R')
 	leftEndPoint <- leftEndPoint/2
-	leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
+	leftEndPointMLE <- GO_BM_DDB(leftEndPoint,n,tn,sumT)
 	rightEndPoint <- 2*rightEndPoint
-	rightEndPointMLE <- GO_BM_DDB(rightEndPoint)
+	rightEndPointMLE <- GO_BM_DDB(rightEndPoint,n,tn,sumT)
 	i <- i+1	
 }
 
@@ -46,7 +46,7 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	return('nonconvergence')
 } else {
-	bMLE <- uniroot(GO_BM_DDB,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
+	bMLE <- uniroot(function(b) GO_BM_DDB(b,n,tn,sumT),lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
 }
 
 #print(bMLE)
