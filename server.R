@@ -3,6 +3,7 @@ library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
+source("GO_BM.R")
 shinyServer(function(input, output) {
 
   output$distPlot <- renderPlot({ #reactive function, basically Main()
@@ -49,7 +50,7 @@ shinyServer(function(input, output) {
       model <- c("Geometric Model")
         }
   if (input$Model == "GO"){
-      newdata <- GoelOkModel(data)
+      newdata <- GO_BM_MLE(data)
       p <- p + geom_point(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
       p <- p + geom_line(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
       model <- c("Geol-Okumoto Model")
