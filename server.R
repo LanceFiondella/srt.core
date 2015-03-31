@@ -7,9 +7,7 @@ source("GO_BM.R")
 shinyServer(function(input, output) {
 
   output$distPlot <- renderPlot({ #reactive function, basically Main()
-#  if(is.null(input$file))
- #   inFile <- c("testfile.xlsx")
-     
+
   inFile <- input$file #Read of input file
     if (is.null(inFile))#error handling for null file pointer
       return("Please Upload a CSV File")
@@ -18,14 +16,10 @@ shinyServer(function(input, output) {
     if (input$type==2)
       data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
 
-   if (input$reverse == TRUE){
-     temp <- data[,1] 
-     data[,1] <- data[,2]  
-     data[,2] <- temp
-     temp <- names(data[1])
-     names(data[1])<-names(data[2])
-     names(data[2])<-temp
-    }
+  #if (data[1] =="FC")
+    #two coumns
+  #else
+    #one column
 
    Time <- names(data[1])#generic name of column name of data frame (x-axis)
    Failure <- names(data[2])#(y-axis)
