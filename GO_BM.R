@@ -39,7 +39,7 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 #Step-3: Invoke uniroot or report non convergence to calling environment
 
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
-	return('nonconvergence')
+	return(data.frame(X1 = 0,X4 = 0))
 } else {
 	bMLE <- uniroot(GO_BM_DDB,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
 }
@@ -49,7 +49,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 #MLE of parameter 'a'
 	 aMLE <- n/(1-exp(-bMLE*(tn)))
 #	 print(aMLE)
-return(c(aMLE,bMLE))
+return(data.frame(X1 = aMLE,X4 = bMLE))
 }	 
 #NHPP log-likelihood function
 

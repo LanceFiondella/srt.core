@@ -45,6 +45,7 @@ shinyServer(function(input, output) {
         }
   if (input$Model == "GO"){
       newdata <- GO_BM_MLE(data)
+      print(newdata)
       p <- p + geom_point(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
       p <- p + geom_line(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
       model <- c("Geol-Okumoto Model")
