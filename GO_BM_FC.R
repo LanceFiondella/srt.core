@@ -12,20 +12,20 @@ tVec <- c(0,tVec)
 #Define MLE of parameter 'b'
 
 MLEeq<-function(b){
-	tmp_b <- numeric(0)
-	x3 <- numeric(0)
-	x4 <- numeric(0)
-	x1 <- tn*exp(-b*tn)*sum(kVec)
-	x2 <- 1-exp(-b*tn)
-	rhs <- x1/x2
-	
-	for(j  in 1:n+1){
-		x3[j-1] <- (tVec[j]*exp(-b*tVec[j]))-(tVec[j-1]*exp(-b*tVec[j-1]))
-		x4[j-1] <- exp(-b*tVec[j-1])-exp(-b*tVec[j])	
-	}
-lhs <- sum((kVec*x3)/x4)	
-	tmp_b <- lhs-rhs
-	return(tmp_b)
+  tmp_b <- numeric(0)
+  x3 <- numeric(0)
+  x4 <- numeric(0)
+  x1 <- tn*exp(-b*tn)*sum(kVec)
+  x2 <- 1-exp(-b*tn)
+  rhs <- x1/x2
+  
+  for(j  in 1:n+1){
+    x3[j-1] <- (tVec[j]*exp(-b*tVec[j]))-(tVec[j-1]*exp(-b*tVec[j-1]))
+    x4[j-1] <- exp(-b*tVec[j-1])-exp(-b*tVec[j])	
+  }
+  lhs <- sum((kVec*x3)/x4)	
+  tmp_b <- lhs-rhs
+  return(tmp_b)
 }
 
 #Step-1: Determine initial parameter estimate for parameter 'b'
@@ -42,29 +42,29 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-	print('In Step 2 while loop of GO_BM_FC.R')
-	leftEndPoint <- leftEndPoint/2
-	leftEndPointMLE <- MLEeq(leftEndPoint)
-	rightEndPoint <- 1.1*rightEndPoint
-	rightEndPointMLE <- MLEeq(rightEndPoint)
-	i <- i+1	
+  print('In Step 2 while loop of GO_BM_FC.R')
+  leftEndPoint <- leftEndPoint/2
+  leftEndPointMLE <- MLEeq(leftEndPoint)
+  rightEndPoint <- 1.1*rightEndPoint
+  rightEndPointMLE <- MLEeq(rightEndPoint)
+  i <- i+1	
 }
 
 #Step-3: Invoke uniroot or report non convergence to calling environment
 
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
-	return('nonconvergence')
+  return('nonconvergence')
 } else {
-	bMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint,extendInt="yes", tol = 1e-10)$root
-	
+  bMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint,extendInt="yes", tol = 1e-10)$root
+  
 }
 
 print(bMLE)
 #Step-4
 #MLE of parameter 'a'
-	 aMLE <- sum(kVec)/(1-exp(-bMLE*tn))
-	 print(aMLE)
-	 
+aMLE <- sum(kVec)/(1-exp(-bMLE*tn))
+print(aMLE)
+
 #NHPP log-likelihood function
 
 
@@ -72,7 +72,7 @@ ln1 <- sum(kVec*log(aMLE))
 ln2 <- numeric(0)
 ln3 <- aMLE*(1-exp(-bMLE*tn))
 for(i in 1:n+1){
-ln2[i-1] <- exp(-bMLE*tVec[i-1])-exp(-bMLE*tVec[i])
+  ln2[i-1] <- exp(-bMLE*tVec[i-1])-exp(-bMLE*tVec[i])
 }
 
 lnl <- ln1+sum(kVec*log(ln2))-ln3
