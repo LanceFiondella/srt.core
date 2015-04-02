@@ -4,6 +4,7 @@ library(ggplot2)#ggplot function
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("GO_BM.R")
+
 shinyServer(function(input, output) {
   
   output$distPlot <- renderPlot({ #reactive function, basically Main()
@@ -47,10 +48,12 @@ shinyServer(function(input, output) {
       y <- as.vector(data[,2])
       print(y)
       newdata <- GO_BM_MLE(y)
-      print(newdata)
-      newdata <- data + newdata
-      p <- p + geom_point(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
-      p <- p + geom_line(data=newdata,aes(color="red",group="Geol-Okumoto Model"))
+      newdata <- y * as.vector(newdata)
+      newdata <- data.frame(newdata)
+      data[,2] <- newdata[,1]
+      print(data)
+      p <- p + geom_point(data=data,aes(color="red",group="Geol-Okumoto Model"))
+      p <- p + geom_line(data=data,aes(color="red",group="Geol-Okumoto Model"))
       model <- c("Geol-Okumoto Model")
     }
     if (input$Model == "YS"){
