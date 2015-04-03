@@ -5,7 +5,7 @@ source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("GO_BM.R")
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output) {#reactive shiny fuction
   
   output$distPlot <- renderPlot({ #reactive function, basically Main()
     
