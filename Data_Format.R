@@ -1,4 +1,4 @@
-#The purpose of these fuctio
+#The purpose of these fuctions are to convert between failure times and interfailure times
 failureT_to_interF <- function(interfailure)
 {
 
