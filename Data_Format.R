@@ -1,5 +1,5 @@
 
-interF_to_failureT <- function(interfailure)
+failureT_to_interF <- function(interfailure)
 {
 
 failure_T <- c()
@@ -24,7 +24,7 @@ return(failure_T)#return failure times(failure_T)
 
 
 
-failureT_to_interF <- function(failure_T)
+ interF_to_failureT <- function(failure_T)
 {
 
 
