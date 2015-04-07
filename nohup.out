@@ -1,22 +1,26 @@
-[32m[2015-02-25 15:23:28.814] [INFO] shiny-server - [39mShiny Server v0.3.6 (Node.js v0.10.25)
-[32m[2015-02-25 15:23:28.816] [INFO] shiny-server - [39mUsing config file "/usr/local/lib/node_modules/shiny-server/config/default.config"
-[32m[2015-02-25 15:23:28.854] [INFO] shiny-server - [39mStarting listener on 134.88.3.246:80
-[32m[2015-02-25 15:24:35.852] [INFO] shiny-server - [39mStopping listener on 134.88.3.246:80
-[32m[2015-02-25 15:24:35.853] [INFO] shiny-server - [39mShutting down worker processes (with notification)
+[32m[2015-02-25 15:23:28.814] [INFO] shiny-server - [39mShiny Server v0.3.6 (Node.js v0.10.25)
+[32m[2015-02-25 15:23:28.816] [INFO] shiny-server - [39mUsing config file "/usr/local/lib/node_modules/shiny-server/config/default.config"
+[32m[2015-02-25 15:23:28.854] [INFO] shiny-server - [39mStarting listener on 134.88.3.246:80
+[32m[2015-02-25 15:24:35.852] [INFO] shiny-server - [39mStopping listener on 134.88.3.246:80
+[32m[2015-02-25 15:24:35.853] [INFO] shiny-server - [39mShutting down worker processes (with notification)
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   133    0    87  100    46   1225    648 --:--:-- --:--:-- --:--:--  1225
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   133    0    87  100    46   1225    648 --:--:-- --:--:-- --:--:--  1225
 {
   "success": false,
   "message": "Exceeded quota for this phone number. 7747661063"
 }  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   135    0    87  100    48   1470    811 --:--:-- --:--:-- --:--:--  1474
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   135    0    87  100    48   1470    811 --:--:-- --:--:-- --:--:--  1474
 {
-  "success": false,
   "message": "Exceeded quota for this phone number. 7747661063"
-}[32m[2015-02-25 15:28:34.639] [INFO] shiny-server - [39mShiny Server v0.3.6 (Node.js v0.10.25)
-[32m[2015-02-25 15:28:34.641] [INFO] shiny-server - [39mUsing config file "/usr/local/lib/node_modules/shiny-server/config/default.config"
-[32m[2015-02-25 15:28:34.679] [INFO] shiny-server - [39mStarting listener on 134.88.3.246:80
-[32m[2015-02-25 15:31:23.143] [INFO] shiny-server - [39mStopping listener on 134.88.3.246:80
-[32m[2015-02-25 15:31:23.144] [INFO] shiny-server - [39mShutting down worker processes (with notification)
+}[32m[2015-02-25 15:28:34.639] [INFO] shiny-server - [39mShiny Server v0.3.6 (Node.js v0.10.25)
+[32m[2015-02-25 15:28:34.641] [INFO] shiny-server - [39mUsing config file "/usr/local/lib/node_modules/shiny-server/config/default.config"
+[32m[2015-02-25 15:28:34.679] [INFO] shiny-server - [39mStarting listener on 134.88.3.246:80
+[32m[2015-02-25 15:31:23.143] [INFO] shiny-server - [39mStopping listener on 134.88.3.246:80
+[32m[2015-02-25 15:31:23.144] [INFO] shiny-server - [39mShutting down worker processes (with notification)
