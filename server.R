@@ -4,6 +4,7 @@ library(ggplot2)#ggplot function
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("GO_BM.R")
+source("Data_Format.R")
 
 shinyServer(function(input, output) {#reactive shiny fuction
   
