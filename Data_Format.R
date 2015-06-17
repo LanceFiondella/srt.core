@@ -54,26 +54,44 @@ return(interfailure)#return interfailure times(interfailure)
 
 
 
-failureC_to_failureT <- function(failure_Count)
-{
+#failureC_to_failureT <- function(failure_Count)
+#{
 
-failure_T <- c()
+#failure_T <- c()
 
-n = 1
-i = 1
+#n = 1
+#i = 1
 
-while(n<=length(failure_Count))
-{
-  if(failure_Count[n] != 0)
-  {
-    failure_T[i] = n
-    i = i + 1
-  }
+#while(n<=length(failure_Count))
+#{
+#  if(failure_Count[n] != 0)
+#  {
+#    failure_T[i] = n
+#    i = i + 1
+ # }
   
-  n = n + 1;
-}
+ # n = n + 1;
+#}
 
-return(failure_T)#return failure times(failure_t)
-}
+#return(failure_T)#return failure times(failure_t)
+#}
 
+failureC_to_failureT <- function(time_vec,num_count) #failure count to failure time
+{
+  failure_T <- c()
+  time_vec<- c(0,time_vec)
+  m <- 1
+  for(j in 1:(length(time_vec)-1))
+  {
+    for(i in 1:num_count[j])
+    {
+      if(num_count[j]!=0)
+      {
+        failure_T[m] <- time_vec[j]+ ((i-0.5)*((time_vec[j+1]-time_vec[j])/num_count[j]))
+        m <- m+1
+      }
+    }
+  }
+  return(failure_T)
+}
 
