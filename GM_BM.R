@@ -27,14 +27,14 @@ MLEeq<-function(phi){
 #Step-1: Determine initial parameter estimate for parameter 'b0'
 
 #b0 <- n/sum(interFail)
-b0 <- n
-#b0 <- 1.0
+#b0 <- n
+b0 <- 1.0
 
 #Step-2: Bracket root
 
 i <- 0 
 maxIterations <- 10
-leftEndPoint <- b0
+leftEndPoint <- b0/2
 leftEndPointMLE <- MLEeq(leftEndPoint)
 rightEndPoint <- b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
