@@ -133,14 +133,7 @@ models_solution_list <- list(JM_SYS1    = c(141.9029, 3.601259e-05),
                              GM_J4      = c(0,0),
                              GM_J5      = c(0,0))
 
-source("JM_BM.R")        # hardcoded must be changed
-
-
-
-#model <- "JM"
-#data_set <- "SYS1"
-
-epsilon <- 1e-5
+epsilon <- 1e-3
 console_out_u<- function(model,data_set,request){
   begin <- make_style("yellow",bg=TRUE)
   
@@ -148,21 +141,84 @@ console_out_u<- function(model,data_set,request){
   input_data <- read.xls('model_data.xlsx',sheet=data_set)
   #print(model)
   #print(data_set)
-  info <- make_style("blue",bg = TRUE)
-  cat(info(format(paste("TESTING Data: ",data_set),width=50)))
-  #cat('\t',paste("Testing",model,data_set,sep="-"),'\n')
-  sol <- JM_BM_MLE(input_data$IF)
-  names(sol) <- c("N0","phi")
-  cat('\n','\t',blue(format("Result [N0,phi]",width=15),":"),sol,'\n')
-  error <- abs(sol - models_solution_list[[request]])
-  names(error) <- c("N0","phi")
-  cat('\n','\t',blue(format("Error [N0,phi]",width=15),":"),error,'\n')
-  
-  error_check <- error < epsilon
-  names(error_check) <- c("N0","phi")
-  cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
-  PASS <- make_style("green",bg=TRUE)
-  FAIL <- make_style("red",bg=TRUE)
+  if(model=="JM"){
+    if(length(grep("[DATA]",data_set)) > 0){
+      source("Data_Format.R")
+      FC <- CumulativeFailureC_to_failureC(input_data$CFC)
+      FT <-failureC_to_failureT(input_data$T,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      sol <- JM_BM_MLE(IF)
+    }
+    else if(length(grep("J",data_set))>0){
+      source("Data_Format.R")
+      FC <-CumulativeFailureC_to_failureC(input_data$CFC)
+      FT <-failureC_to_failureT(input_data$TI,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      sol <- JM_BM_MLE(IF)
+    }
+    else if(data_set=="CDS"){
+      IF <- failureT_to_interF(input_data$FT)
+      sol <- JM_BM_MLE(IF)
+    }
+    else{
+      sol <- JM_BM_MLE(input_data$IF)
+    }
+    info <- make_style("blue",bg = TRUE)
+    cat(info(format(paste("TESTING Data: ",data_set),width=50)))
+    #cat('\t',paste("Testing",model,data_set,sep="-"),'\n')
+    
+    names(sol) <- c("N0","phi")
+    cat('\n','\t',blue(format("Result [N0,phi]",width=15),":"),sol,'\n')
+    error <- abs(sol - models_solution_list[[request]])
+    names(error) <- c("N0","phi")
+    cat('\n','\t',blue(format("Error [N0,phi]",width=15),":"),error,'\n')
+    
+    error_check <- error < epsilon
+    names(error_check) <- c("N0","phi")
+    cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
+    PASS <- make_style("green",bg=TRUE)
+    FAIL <- make_style("red",bg=TRUE)
+  }
+
+  else if(model=="GM"){
+    if(length(grep("[DATA]",data_set)) >0){
+      source("Data_Format.R")
+      FC <- CumulativeFailureC_to_failureC(input_data$CFC)
+      FT <-failureC_to_failureT(input_data$T,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      sol <- GM_BM_MLE(IF)
+    }
+    else if(length(grep("J",data_set))>0){
+      source("Data_Format.R")
+      FC <-CumulativeFailureC_to_failureC(input_data$CFC)
+      FT <-failureC_to_failureT(input_data$TI,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      sol <- GM_BM_MLE(IF)
+    }
+    else if(data_set=="CDS"){
+      IF <- failureT_to_interF(input_data$FT)
+      sol <- GM_BM_MLE(IF)
+    }
+    else{
+      sol <- GM_BM_MLE(input_data$IF)
+    }
+    info <- make_style("blue",bg = TRUE)
+    cat(info(format(paste("TESTING Data: ",data_set),width=50)))
+    #cat('\t',paste("Testing",model,data_set,sep="-"),'\n')
+    
+    
+    names(sol) <- c("D","phi")
+    cat('\n','\t',blue(format("Result [D,phi]",width=15),":"),sol,'\n')
+    error <- abs(sol - models_solution_list[[request]])
+    names(error) <- c("D","phi")
+    cat('\n','\t',blue(format("Error [D,phi]",width=15),":"),error,'\n')
+    
+    error_check <- error < epsilon
+    names(error_check) <- c("D","phi")
+    cat('\n','\t',blue(format("PASS [D,phi]",width=15),":"),error_check,'\n')
+    PASS <- make_style("green",bg=TRUE)
+    FAIL <- make_style("red",bg=TRUE)
+  }
   if (all(error_check)){
     result <- "PASS"  
     log <- paste(model,data_set,sep="-")
@@ -176,10 +232,14 @@ console_out_u<- function(model,data_set,request){
 }
 
 for(model in model_names){
+  if(model=="JM"){
+    source("JM_BM.R")       # hardcoded must be changed
+  }
+  else if(model =="GM"){
+    source("GM_BM.R")
+  }
   for(data_set in data_set_names){
     request <- paste(model,data_set,sep="_")
     console_out_u(model,data_set,request)
   }
 }
-#console_out_u(model,data_set,request)
-
