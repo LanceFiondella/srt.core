@@ -47,7 +47,14 @@ return(interfailure)#return interfailure times(interfailure)
 
 
 
-
+CumulativeFailureC_to_failureC <- function(x){
+  fc <- c()
+  x <- c(0,x)
+  for(i in 1:(length(x)-1)){
+     fc[i] <- x[i+1] - x[i]   
+  }
+  return(fc)
+}
 
 #################################
 
