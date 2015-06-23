@@ -37,14 +37,14 @@ i <- 0
 maxIterations <- 20
 leftEndPoint <- n
 leftEndPointMLE <- MLEeq(leftEndPoint)
-rightEndPoint <- 2*b0
+rightEndPoint <- 1.1*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	print('In Step 2 while loop of JM_BM.R')
 	#leftEndPoint <- leftEndPoint/2
 	#leftEndPointMLE <- MLEeq(leftEndPoint)
-	rightEndPoint <- 2*rightEndPoint
+	rightEndPoint <- 1.1*rightEndPoint
 	rightEndPointMLE <- MLEeq(rightEndPoint)
 	i <- i+1	
 }
