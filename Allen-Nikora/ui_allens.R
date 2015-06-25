@@ -7,53 +7,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             sidebarLayout(
                               sidebarPanel(h4("Select, Analyze, and Filter Failure Data"),
                                            fluidRow(
-                                             column(10, fileInput("file", label = h5("Select a failure data file"),
-                                              accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
+                                             column(10, fileInput("dataFile", label = h5("Select a failure data file")))
                                            ),
-                                           fluidRow(
-                                             column(12, 
-                                                    h5("Specify the input file format"),
-                                                    
-                                                    radioButtons("type", label = h6("Specify the file format"), 
-                                                                choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2,
-                                                                               "DAT (.DAT)" = 3), selected = 1)
-                                                    )
-                                           ),
-
                                            
-                                           fluidRow(
-                                             column(12, 
-                                                    h5("Choose the data sheet"),
-                                                    
-                                                    selectInput("dataSheetChoice", label = h6("Specify the data sheet"), 
-                                                                choices = list("SYS1" = "SYS1",
-                                                                                 "SYS2" = "SYS2",
-                                                                                 "SYS3" = "SYS3",
-                                                                                 "CSR1" = "CSR1",
-                                                                                 "CSR2" = "CSR2",
-                                                                                 "CSR3" = "CSR3",
-                                                                                 "J1"   = "J1"  ,
-                                                                                 "J2"   = "J2"  ,
-                                                                                 "J3"   = "J3"  ,
-                                                                                 "J4"   = "J4"  ,
-                                                                                 "J5"   = "J5"  ,
-                                                                                 "DATA1"= "DATA1",
-                                                                                 "DATA2"= "DATA2", 
-                                                                                 "DATA3"= "DATA3",
-                                                                                 "DATA4"= "DATA4", 
-                                                                                 "DATA5"= "DATA5", 
-                                                                                 "DATA6"= "DATA6", 
-                                                                                 "DATA7"= "DATA7", 
-                                                                                 "DATA8"= "DATA8", 
-                                                                                 "DATA9"= "DATA9", 
-                                                                                 "DATA10"= "DATA10",
-                                                                                 "DATA11"= "DATA11", 
-                                                                                 "DATA12"= "DATA12",
-                                                                                 "DATA13"= "DATA13",
-                                                                                 "DATA14"= "DATA14"), selected = "SYS1")
-                                                    )
-                                           ),
-                                          
                                            fluidRow(
                                              column(12, 
                                                     h5("Specify how failure data is plotted."),
@@ -77,7 +33,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Examine the data for reliability growth."),
                                                     selectInput("trendPlotChoice", label = h6("Select a trend test"), 
-                                                                choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
+                                                                choices = list("Laplace Test" = 1, "Running Arithmetic Average" = 2))
                                              ),
                                              br(),
                                              column(12,
@@ -116,10 +72,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel(
-                                plotOutput("distPlot", height = "700px")
-   ,width=9))
-                    
+                              mainPanel("Placeholder - data and trend plots go here")
+                            )
                    ),
                    
                    tabPanel("Set Up and Apply Models",

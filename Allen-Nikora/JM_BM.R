@@ -51,9 +51,9 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	return('nonconvergence')
 } else {
-	N0_MLE <- unirootR(MLEeq,interval=c(mpfr(leftEndPoint,300),mpfr(rightEndPoint,300)),tol=1e-20)$root
+	N0_MLE <- unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
 	#N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-24)$root
-	#N0_MLE <- uniroot(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
+	#N0_MLE <- unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
 }
 #print(N0_MLE)
 
