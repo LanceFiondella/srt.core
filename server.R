@@ -113,7 +113,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
     }
     p <- p + scale_color_manual(name = "Legend",  labels = label,values = value)
     
-    q
+    p
     #plot(data) Leave this here to use if ggplot() stops working. 
   } )
 })

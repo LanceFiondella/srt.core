@@ -1,4 +1,4 @@
-library(Rmpfr)
+#library(Rmpfr)
 library(gdata)
 
 library(crayon)
