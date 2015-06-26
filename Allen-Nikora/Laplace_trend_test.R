@@ -30,7 +30,7 @@ laplace_trend_test <- function(inter_failure)
   #print(laplace_score)   #printing laplace score on the console
   #print(laplace_trend) 
   #plot(laplace_trend,type="b")    # ploting laplace function
-  laplace_trend
+  #laplace_trend
   trend_data <- data.frame(c(1:length(laplace_trend)),laplace_trend)
   names(trend_data) <- c("Index","Laplace_factor")
   return(trend_data)

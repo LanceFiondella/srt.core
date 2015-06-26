@@ -191,7 +191,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel("Placeholder - model result plots go here")
+                              mainPanel(plotOutput("MVFPlot", height = "700px"),width=8)
                             )
                    ),
                    tabPanel("Query Model Results",
