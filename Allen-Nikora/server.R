@@ -32,8 +32,8 @@ shinyServer(function(input, output) {#reactive shiny fuction
     
     Time <- names(data[1])#generic name of column name of data frame (x-axis)
     Failure <- names(data[2])#(y-axis)
-    p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
-    value <- c("blue","red")
+    #p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
+    #value <- c("blue","red")
     q <- ggplot(,aes_string(x="index",y="laplace_factor"))
     model <- ""
     if(input$trendPlotChoice=="LP"){
@@ -69,12 +69,23 @@ shinyServer(function(input, output) {#reactive shiny fuction
       plot_data <- sol
       names(plot_data) = c("index","laplace_factor")
       print(plot_data)
-      q <- q + geom_point(data=plot_data,aes(color="blue"))
+      if(input$DataPlotType==1){
+        q <- q + geom_point(data=plot_data,aes(index,laplace_factor))+ geom_line(data=plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
+      }
+      if(input$DataPlotType==2){
+        q <- q + geom_point(data=plot_data,aes(index,laplace_factor))#+ geomline(data=plot_data)
+      }
+      if(input$DataPlotType==3){
+        q <- q + geom_line(data=plot_data,aes(index,laplace_factor))
+      }
+      q <- q+ggtitle(paste(c("Laplace trend of "),data_set))
+      }
+      q <- q + theme(legend.position = c(0.9, 0.9)) 
       #label <- c("Trend test")
       #value <- c("")
-    }
     
-    p <- p + scale_color_manual(name = "Legend",  labels = c("plotx","test"),values = value)
+    #q <- q + scale_color_manual(labels =c("laplace_trend"),values = c("blue","blue"))
+    #p <- p + scale_color_manual(labels = c("plotx","test"),values = c("blue","blue"))
     
     q
     #plot(data) Leave this here to use if ggplot() stops working. 

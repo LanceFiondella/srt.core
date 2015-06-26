@@ -7,11 +7,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             sidebarLayout(
                               sidebarPanel(h4("Select, Analyze, and Filter Failure Data"),
                                            fluidRow(
-                                             column(10, fileInput("file", label = h5("Select a failure data file"),
+                                             column(8, fileInput("file", label = h5("Select a failure data file"),
                                               accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
                                            ),
                                            fluidRow(
-                                             column(12, 
+                                             column(8, 
                                                     h5("Specify the input file format"),
                                                     
                                                     radioButtons("type", label = h6("Specify the file format"), 
@@ -22,7 +22,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
 
                                            
                                            fluidRow(
-                                             column(12, 
+                                             column(8, 
                                                     h5("Choose the data sheet"),
                                                     
                                                     selectInput("dataSheetChoice", label = h6("Specify the data sheet"), 
@@ -55,7 +55,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                           
                                            fluidRow(
-                                             column(12, 
+                                             column(8, 
                                                     h5("Specify how failure data is plotted."),
                                                     
                                                     selectInput("dataPlotChoice", label = h6("Specify the data view"), 
@@ -65,40 +65,40 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
-                                             column(12, 
-                                                    radioButtons("radioDataPlotType", label = h6("Specify how to draw the plot"),
+                                             column(8, 
+                                                    radioButtons("DataPlotType", label = h6("Specify how to draw the plot"),
                                                                  choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
                                                                  selected = 1)
                                              )
                                            ),
 
                                            fluidRow(
-                                             column(12, 
+                                             column(8, 
                                                     br(),
                                                     h5("Examine the data for reliability growth."),
                                                     selectInput("trendPlotChoice", label = h6("Select a trend test"), 
                                                                 choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
                                              ),
                                              br(),
-                                             column(12,
+                                             column(8,
                                                     numericInput("dataTrendSig", 
                                                                  label = h6("Specify the significance level"),
                                                                  min = 0, max = 1, step = 0.001,
                                                                  value = .05)
                                              ),
                                              br(),
-                                             column(12, textOutput("trendMessage"))
+                                             column(8, textOutput("trendMessage"))
                                            ),
                                            
                                            fluidRow(
                                              br(),
-                                             column(12, downloadButton('saveTrendTable', 'Save Trend Test to Disk'))
+                                             column(8, downloadButton('saveTrendTable', 'Save Trend Test to Disk'))
                                            ),
                                            
                                            fluidRow(
                                              br(),
                                              h5("Filter the failure data or change its type."),
-                                             column(12,
+                                             column(8,
                                                     selectInput("dataSubsetChoice", label = h6("Select one or more failure categories to retain"), 
                                                                 choices = list("Category 1" = 1, "Category 2" = 2,
                                                                                "Category 3" = 3, "Category 4" = 4), multiple=TRUE)  
@@ -106,19 +106,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
-                                             column(12,
+                                             column(8,
                                                     actionButton("convertDataType", label = "Convert to Failure Counts") 
                                              ),
                                              br(), br(),
-                                             column(7, downloadButton('saveData', 'Save Data to Disk')),
-                                             column(4, actionButton("undoFilterConvert", label = "Undo"))
+                                             column(8, downloadButton('saveData', 'Save Data to Disk')),
+                                             column(8, actionButton("undoFilterConvert", label = "Undo"))
                                            )
                                            
                               ),
                               
                               mainPanel(
                                 plotOutput("distPlot", height = "700px")
-   ,width=9))
+   ,width=8))
                     
                    ),
                    
@@ -187,7 +187,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
                                                                  selected = 1)
                                              )
-                                           )
+                                           ),width=4
                                            
                               ),
                               
