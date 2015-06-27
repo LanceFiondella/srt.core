@@ -144,11 +144,28 @@ console_out_u<- function(model,data_set,request){
   #print(data_set)
   if(model=="JM"){
     if(length(grep("[DATA]",data_set)) > 0){
-      source("Data_Format.R")
-      FC <- CumulativeFailureC_to_failureC(input_data$CFC)
-      FT <-failureC_to_failureT(input_data$T,FC)
-      IF <- failureT_to_interF(failure_T = FT)
-      sol <- JM_BM_MLE(IF)
+      # if(data_set=="DATA12"){
+      #   new_data <- data.frame()
+      #   j <- 0
+      #   for(i in 1:(length(input_data$T)-1))
+      #   {
+      #     if(input_data$T[i]!=input_data$T[i+1])
+      #     {
+      #       j <- j+1
+      #       new_data$T[j] <- input_data$T[i]#c(new_data$T,input_data$T[i])
+      #       new_data$CFC[j] <- input_data$CFC[i]#c(new_data$CFC,input_data$CFC[i])
+      #     }
+      #   }
+      #   input_data <- new_data
+
+      # }
+      # else{
+        source("Data_Format.R")
+        FC <- CumulativeFailureC_to_failureC(input_data$CFC)
+        FT <-failureC_to_failureT(input_data$T,FC)
+        IF <- failureT_to_interF(failure_T = FT)
+        sol <- JM_BM_MLE(IF)
+      #}
     }
     else if(length(grep("J",data_set))>0){
       source("Data_Format.R")

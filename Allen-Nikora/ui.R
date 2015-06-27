@@ -149,20 +149,29 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
                                            
-                                           fluidRow(
-                                             column(12,
-                                                    actionButton("runModels", label = "Run Models")
-                                             )
-                                           ),
+                                           
                                            
                                            fluidRow(
                                              column(12, 
                                                     br(),
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                choices = list("Musa Basic" = 1, "Musa Okumoto" = 2,
-                                                                               "Geometric" = 3, "Littlewood-Verrall Linear"=4, "Littlewood-Verrall Quadratic"=5), 
-                                                                multiple=TRUE)
+                                                                choices = list("Musa Basic" = 1, 
+                                                                               "Musa Okumoto" = 2,
+                                                                               "Geometric" = 3, 
+                                                                               "Littlewood-Verrall Linear"=4,
+                                                                               "Littlewood-Verrall Quadratic"=5,
+                                                                               "Jelinksi-Moranda"=6,
+                                                                               "Goaloko"=7
+                                                                               ), 
+                                                                multiple=TRUE,
+                                                                selected=6
+                                                                )
+                                             )
+                                           ),
+                                          fluidRow(
+                                             column(12,
+                                                    actionButton("runModels", label = "Run Models")
                                              )
                                            ),
                                            
@@ -180,10 +189,10 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     checkboxInput("checkboxDataOnPlot", label = "Show data on plot", value = TRUE)
                                              )
                                            ),
-                                           
+                                           # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
-                                                    radioButtons("radioModelPlotType", label = h6("Specify how to draw the plot"),
+                                                    radioButtons("DataPlotType", label = h6("Specify how to draw the plot"),
                                                                  choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
                                                                  selected = 1)
                                              )
