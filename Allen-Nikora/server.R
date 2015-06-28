@@ -54,7 +54,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
       else if(length(grep("J",data_set))>0){
         source("Data_Format.R")
         FC <-CumulativeFailureC_to_failureC(input_data$CFC)
-        FT <-failureC_to_failureT(input_data$TI,FC)
+        FT <-failureC_to_failureT(input_data$T,FC)
         IF <- failureT_to_interF(failure_T = FT)
         sol <- laplace_trend_test(IF)
       }
@@ -104,7 +104,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
       else if(length(grep("J",data_set))>0){
         source("Data_Format.R")
         FC <-CumulativeFailureC_to_failureC(input_data$CFC)
-        FT <-failureC_to_failureT(input_data$TI,FC)
+        FT <-failureC_to_failureT(input_data$T,FC)
         IF <- failureT_to_interF(failure_T = FT)
         sol <- running_average_test(IF)
       }
@@ -171,11 +171,25 @@ shinyServer(function(input, output) {#reactive shiny fuction
             # else
             #
             #
-
-            new_params <- JM_BM_MLE(data$IF)
+            if(length(grep("IF",names(data)))){
+              new_params <- JM_BM_MLE(data$IF)
+            }
+            else if(length(grep("FT",names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              new_params <- JM_BM_MLE(IF)
+            }
+            else if(length(grep("CFC",names(data)))){
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              FT <- try(failureC_to_failureT(data$T,FC))
+              IF <- failureT_to_interF(failure_T = FT)
+              new_params <- JM_BM_MLE(IF)
+              data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+            }
+            #new_params <- JM_BM_MLE(data$IF)
             #print(data)
             frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
             print(frame_params)
+            #passed_data <- data.frame(FT,FC)
             mvf_plot_data <- JM_MVF(frame_params,data)
             #names(plot_data) = c("Index","Running_Average")
             
