@@ -36,7 +36,7 @@ data_set_names <- c("SYS1",
                     "J3",
                     #"J4",
                     "J5")
-model_method <- c("bisection","EM","AEM")
+model_method <- c("BM","EM","AEM")
 
 model_method <- c("bisection","EM","AEM")
 

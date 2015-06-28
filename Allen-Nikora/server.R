@@ -5,6 +5,7 @@ source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("JM_BM.R")
 source("GO_BM.R")
+source("GM_BM.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("RA_Test.R")
@@ -25,7 +26,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
       data_global <<- data
     if (input$type==2)
       data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
-    print(data)
+    #print(data)
     #if (data[1] =="FC")
     #two coumns
     #else
@@ -121,7 +122,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
       # ------------------------------------------------------------
       plot_data <- sol
       names(plot_data) = c("Index","Running_Average")
-      print(plot_data)
+      #print(plot_data)
       if(input$DataPlotType==1){
         q <- q + geom_point(data=plot_data,aes(Index,Running_Average))+ geom_line(data=plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
       }
@@ -157,12 +158,14 @@ shinyServer(function(input, output) {#reactive shiny fuction
     if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
       if(length(input$modelResultChoice)>0){
+        p <- ggplot(,aes_string(x=Time,y=Failure))
         for( i in input$modelResultChoice){
+
           if(i==6){
 
-            p <- ggplot(,aes_string(x=Time,y=Failure))
-            print("_____________________________")
-            print(data)
+            
+            #print("_____________________________")
+            #print(data)
 
 
             # if("IF" in names(data))
@@ -180,7 +183,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
             }
             else if(length(grep("CFC",names(data)))){
               FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- try(failureC_to_failureT(data$T,FC))
+              FT <- failureC_to_failureT(data$T,FC)
               IF <- failureT_to_interF(failure_T = FT)
               new_params <- JM_BM_MLE(IF)
               data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
@@ -188,12 +191,12 @@ shinyServer(function(input, output) {#reactive shiny fuction
             #new_params <- JM_BM_MLE(data$IF)
             #print(data)
             frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-            print(frame_params)
+            #print(frame_params)
             #passed_data <- data.frame(FT,FC)
             mvf_plot_data <- JM_MVF(frame_params,data)
             #names(plot_data) = c("Index","Running_Average")
             
-            print(mvf_plot_data)
+            #print(mvf_plot_data)
             if(input$DataPlotType==1){
               p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
             }
@@ -216,8 +219,8 @@ shinyServer(function(input, output) {#reactive shiny fuction
               #
               #
 
-              print("-----------------------------------")
-              print(original_data)
+              #print("-----------------------------------")
+              #print(original_data)
               p <- p + geom_line(data=original_data,aes(Time,Failure))
             }
             p <- p+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))
@@ -225,13 +228,70 @@ shinyServer(function(input, output) {#reactive shiny fuction
             
             #label <- c("Trend test")
       #value <- c(""
-            p("Jelinski Moranda")
+            print("Jelinski Moranda")
           }
           else if(i==3){
-            p("Hello i am Geometric model")
+            #p <- ggplot(,aes_string(x=Time,y=Failure))   # should i reinitiate this ??????????
+        
+            if(length(grep("IF",names(data)))){
+              new_params <- GM_BM_MLE(data$IF)
+            }
+            else if(length(grep("FT",names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              new_params <- GM_BM_MLE(IF)
+            }
+            else if(length(grep("CFC",names(data)))){
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              FT <- failureC_to_failureT(data$T,FC)
+              IF <- failureT_to_interF(failure_T = FT)
+              new_params <- GM_BM_MLE(IF)
+              data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+            }
+            #new_params <- JM_BM_MLE(data$IF)
+            #print(data)
+            frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+            #print(frame_params)
+            #passed_data <- data.frame(FT,FC)
+            mvf_plot_data <- GM_MVF(frame_params,data)
+            #names(plot_data) = c("Index","Running_Average")
+            
+            #print(mvf_plot_data)
+            if(input$DataPlotType==1){
+              p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
+            }
+            if(input$DataPlotType==2){
+              p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+            }
+            if(input$DataPlotType==3){
+              p <- p + geom_line(data=mvf_plot_data,aes(Time,Failure))
+            }
+            if(input$checkboxDataOnPlot){
+              original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+
+
+              # Temporary solution
+              # original data could be arranged in any way
+              # So we should come up with some solution here
+              #
+              #
+              #
+              #
+              #
+
+              #print("-----------------------------------")
+              #print(original_data)
+              p <- p + geom_line(data=original_data,aes(Time,Failure))
+            }
+            p <- p+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))
+            #legend(title="RA"
+            
+            #label <- c("Trend test")
+      #value <- c(""
+            
+            print("Hello i am Geometric model")
           }
           else if(i==8){
-            print("Goalokulo")
+            print("Goel-okumoto")
           }
           else{
             print("Other")
