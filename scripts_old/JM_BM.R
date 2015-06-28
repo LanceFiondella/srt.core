@@ -51,9 +51,9 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	return('nonconvergence')
 } else {
-	#N0_MLE <- unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
+	#N0_MLE <- unirootR(MLEeq,interval=c(mpfr(leftEndPoint,300),mpfr(rightEndPoint,300)),tol=1e-20)$root
 	N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-24)$root
-	#N0_MLE <- unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
+	#N0_MLE <- uniroot(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
 }
 #print(N0_MLE)
 
@@ -63,22 +63,8 @@ tmp_phi <- numeric(0)
 for(i in 1:n-1){
 	tmp_phi[i] <- (N0_MLE-(i-1))*interFail[i]
 }
-#print(tmp_phi)
 phi <- n/sum(tmp_phi)
 
 #         a     b
 return(c(N0_MLE,phi))
-}
-
-JM_MVF <- function(param,d){
-  n <- length(d$FT)
-  r <- data.frame()
-  t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
-  for(i in 1:length(t_index)){
-    r[i,1] <- t_index[i]
-    r[i,2] <- param$N0*(1-exp(-1*t_index[i]*param$Phi))
-  }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
-  r
 }

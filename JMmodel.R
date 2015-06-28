@@ -30,3 +30,4 @@ JMmodel <- function(data){
   
   return(rely)
 }
+
