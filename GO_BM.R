@@ -59,7 +59,22 @@ GO_BM_MLE<-function(x){
   f <- data.frame(x)
   print(x)
   return(x)
-}	 
+}	
+
+
+# nnnnnnnnnnnneeddss modificati8on
+GO_MVF <- function(param,d){
+  n <- length(d$FT)
+  r <- data.frame()
+  t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+  for(i in 1:length(t_index)){
+    r[i,1] <- t_index[i]
+    r[i,2] <- param$N0*(1-exp(-1*t_index[i]*param$Phi))
+  }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Time","Failure")
+  r
+} 
 #NHPP log-likelihood function
 
 #lnl  <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)

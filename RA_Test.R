@@ -1,15 +1,20 @@
-Arithmetic_Mean_Test <- function(inter_failure)
+
+
+running_average_test <- function(inter_failure)
 {
-  n <- length(inter_failure)   # getting the length of the vector
-  ar_mean <- c()
+  n <- length(inter_failure)
+  runningAverage <- c()
   for(i in 1:n)
   {
-    sum1 <=0
-    for(j in 1:i)           # integrating the inter-failure from 1 to i
+    sum1 <-0
+    for(j in 1:i)
     {
       sum1 <- sum1 + inter_failure[j]
     }
-    armean[i] <- (1/i)*sum1;    #finding the running avg
+    runningAverage[i] <- (1/i)*sum1;
   }
-  return(armean)
+  runningAverage <- data.frame(c(1:length(runningAverage)),runningAverage)
+  names(runningAverage) <- c("Index","Running_Average")
+  return(runningAverage)
+  #return(armean)
 }
