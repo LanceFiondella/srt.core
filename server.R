@@ -145,7 +145,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
     
     #plot(data) Leave this here to use if ggplot() stops working. 
   } )
-  output$MVFPlot <- renderPlot({
+  output$ModelPlot <- renderPlot({
     data <- data_global
     #data
     Time <- "Time"
@@ -155,6 +155,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
     #p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
     value <- c("blue","red")
     #p <- ggplot(,aes_string(x=Time,y=Failure))
+
     if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
       if(length(input$modelResultChoice)>0){
@@ -197,13 +198,13 @@ shinyServer(function(input, output) {#reactive shiny fuction
             #names(plot_data) = c("Index","Running_Average")
             
             #print(mvf_plot_data)
-            if(input$DataPlotType==1){
+            if(input$ModelDataPlotType==1){
               p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
             }
-            if(input$DataPlotType==2){
+            if(input$ModelDataPlotType==2){
               p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
             }
-            if(input$DataPlotType==3){
+            if(input$ModelDataPlotType==3){
               p <- p + geom_line(data=mvf_plot_data,aes(Time,Failure))
             }
             if(input$checkboxDataOnPlot){

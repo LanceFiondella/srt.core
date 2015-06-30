@@ -192,7 +192,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
-                                                    radioButtons("DataPlotType", label = h6("Specify how to draw the plot"),
+                                                    radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
                                                                  choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
                                                                  selected = 1)
                                              )
@@ -200,7 +200,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel(plotOutput("MVFPlot", height = "700px"),width=8)
+                              mainPanel(plotOutput("ModelPlot", height = "700px"),width=8)
                             )
                    ),
                    tabPanel("Query Model Results",
