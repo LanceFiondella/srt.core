@@ -88,6 +88,8 @@ return(c(D_MLE,phiMLE))
 #   r
 # } 
 
+
+
 GM_MVF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
@@ -112,27 +114,19 @@ GM_MVF <- function(param,d){
   
 }
 
+
 GM_FR <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
-    r[i,1] <- i
+    r[i,1] <- d$FT[i]
     r[i,2] <- (param$D0*(param$Phi)^i)
-    cumulr[i,1] <- i
-    cumulr[i,2] <- 0
-    
-    for(j in 1:length(r[[1]])){
-      
-      cumulr[i,2] <- cumulr[i,2]+r[j,2]
-
     }
-
-  }
-  g <- data.frame(cumulr[2],cumulr[1])
-  names(g) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Time","Failure")
   #print(r)
-  g
+  r
   
 }
 
@@ -141,9 +135,8 @@ GM_R <- function(param,d){
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
-    r[i,1] <- i
+    r[i,1] <- d$FT[i]
     r[i,2] <- exp((-1*param$D0*(param$Phi)^i)*d$FT[i])
-     #r[i,2] <- exp(-param$Phi*(param$N0-(i-1))*d$FT[i])
     #cumulr[i,1] <- i
     #cumulr[i,2] <- 0
     
@@ -159,5 +152,5 @@ GM_R <- function(param,d){
   #print(r)
   r
   
-  
 }
+
