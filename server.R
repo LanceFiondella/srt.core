@@ -155,16 +155,15 @@ shinyServer(function(input, output) {#reactive shiny fuction
     #p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
     value <- c("blue","red")
     #p <- ggplot(,aes_string(x=Time,y=Failure))
-
+    #mvf_plot_data <- data.frame()
     if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
       if(length(input$modelResultChoice)>0){
-        p <- ggplot(,aes_string(x=Time,y=Failure))
-        for( i in input$modelResultChoice){
+        p <- ggplot(,aes_string(x=Time,y=Failure));
+          for(i in input$modelResultChoice){
+            if(i==6){
 
-          if(i==6){
-
-            
+            #mvf_plot_data <- data.frame()
             #print("_____________________________")
             #print(data)
 
@@ -176,27 +175,91 @@ shinyServer(function(input, output) {#reactive shiny fuction
             #
             #
             if(length(grep("IF",names(data)))){
-              new_params <- JM_BM_MLE(data$IF)
+              if(input$modelPlotChoice==2){
+                new_params <- JM_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_MVF(frame_params,data)
+              }
+              if(input$modelPlotChoice==1){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
+              }
+              if(input$modelPlotChoice==3){
+                new_params <- JM_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_FR(frame_params,data)
+              }
+              if(input$modelPlotChoice==4){
+                new_params <- JM_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_R(frame_params,data)
+              }
             }
             else if(length(grep("FT",names(data)))){
               IF <- failureT_to_interF(data$FT)
-              new_params <- JM_BM_MLE(IF)
+              if(input$modelPlotChoice==2){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_MVF(frame_params,data)
+              }
+              if(input$modelPlotChoice==1){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
+              }
+              if(input$modelPlotChoice==3){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_FR(frame_params,data)
+              }
+              if(input$modelPlotChoice==4){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_R(frame_params,data)
+              }
             }
             else if(length(grep("CFC",names(data)))){
               FC <- CumulativeFailureC_to_failureC(data$CFC)
               FT <- failureC_to_failureT(data$T,FC)
               IF <- failureT_to_interF(failure_T = FT)
-              new_params <- JM_BM_MLE(IF)
-              data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+              if(input$modelPlotChoice==2){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_MVF(frame_params,data)
+              }
+              if(input$modelPlotChoice==1){
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
+              }
+              if(input$modelPlotChoice==3){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_FR(frame_params,data)
+              }
+              if(input$modelPlotChoice==4){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- JM_R(frame_params,data)
+              }
+              #print(data);
             }
+            #print(mvf_plot_data)
             #new_params <- JM_BM_MLE(data$IF)
             #print(data)
-            frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+            
             #print(frame_params)
             #passed_data <- data.frame(FT,FC)
-            mvf_plot_data <- JM_MVF(frame_params,data)
-            #names(plot_data) = c("Index","Running_Average")
             
+            #names(plot_data) = c("Index","Running_Average")
+            #print(mvf_plot_data)
             #print(mvf_plot_data)
             if(input$ModelDataPlotType==1){
               p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
@@ -230,82 +293,164 @@ shinyServer(function(input, output) {#reactive shiny fuction
             #label <- c("Trend test")
       #value <- c(""
             print("Jelinski Moranda")
-          }
+           }
+
           else if(i==3){
-            #p <- ggplot(,aes_string(x=Time,y=Failure))   # should i reinitiate this ??????????
-        
-            if(length(grep("IF",names(data)))){
-              new_params <- GM_BM_MLE(data$IF)
+          #p <- ggplot(,aes_string(x=Time,y=Failure))   # should i reinitiate this ??????????
+          #print("hi i am in gm");
+
+          if(length(grep("IF",names(data)))){
+              if(input$modelPlotChoice==2){
+                new_params <- GM_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_MVF(frame_params,data)
+              }
+              if(input$modelPlotChoice==1){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
+              }
+              if(input$modelPlotChoice==3){
+                new_params <- JM_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_FR(frame_params,data)
+              }
+              if(input$modelPlotChoice==4){
+                new_params <- JM_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_R(frame_params,data)
+              }
             }
             else if(length(grep("FT",names(data)))){
               IF <- failureT_to_interF(data$FT)
-              new_params <- GM_BM_MLE(IF)
+              if(input$modelPlotChoice==2){
+                new_params <- GM_BM_MLE(IF)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_MVF(frame_params,data)
+              }
+              if(input$modelPlotChoice==1){
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=IF)
+              }
+              if(input$modelPlotChoice==3){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_FR(frame_params,data)
+              }
+              if(input$modelPlotChoice==4){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_R(frame_params,data)
+              }
             }
             else if(length(grep("CFC",names(data)))){
               FC <- CumulativeFailureC_to_failureC(data$CFC)
               FT <- failureC_to_failureT(data$T,FC)
               IF <- failureT_to_interF(failure_T = FT)
-              new_params <- GM_BM_MLE(IF)
-              data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+              if(input$modelPlotChoice==2){
+                new_params <- GM_BM_MLE(IF)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_MVF(frame_params,data)
+              }
+              if(input$modelPlotChoice==1){
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
+              }
+              if(input$modelPlotChoice==3){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_FR(frame_params,data)
+              }
+              if(input$modelPlotChoice==4){
+                new_params <- JM_BM_MLE(IF)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                mvf_plot_data <- GM_R(frame_params,data)
+              }
+              #print(data);
             }
-            #new_params <- JM_BM_MLE(data$IF)
-            #print(data)
-            frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-            #print(frame_params)
-            #passed_data <- data.frame(FT,FC)
-            mvf_plot_data <- GM_MVF(frame_params,data)
-            #names(plot_data) = c("Index","Running_Average")
-            
-            #print(mvf_plot_data)
-            if(input$DataPlotType==1){
-              p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
-            }
-            if(input$DataPlotType==2){
-              p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
-            }
-            if(input$DataPlotType==3){
-              p <- p + geom_line(data=mvf_plot_data,aes(Time,Failure))
-            }
-            if(input$checkboxDataOnPlot){
-              original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
 
 
-              # Temporary solution
-              # original data could be arranged in any way
-              # So we should come up with some solution here
-              #
-              #
-              #
-              #
-              #
 
-              #print("-----------------------------------")
-              #print(original_data)
-              p <- p + geom_line(data=original_data,aes(Time,Failure))
-            }
-            p <- p+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))
-            #legend(title="RA"
-            
-            #label <- c("Trend test")
-      #value <- c(""
-            
-            print("Hello i am Geometric model")
+
+
+
+
+
+
+          # if(length(grep("IF",names(data)))){
+          #   new_params <- GM_BM_MLE(data$IF)
+          # }
+          # else if(length(grep("FT",names(data)))){
+          #   IF <- failureT_to_interF(data$FT)
+          #   new_params <- GM_BM_MLE(IF)
+          # }
+          # else if(length(grep("CFC",names(data)))){
+          #   FC <- CumulativeFailureC_to_failureC(data$CFC)
+          #   FT <- failureC_to_failureT(data$T,FC)
+          #   IF <- failureT_to_interF(failure_T = FT)
+          #   new_params <- GM_BM_MLE(IF)
+          #   data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+          # }
+          # #new_params <- JM_BM_MLE(data$IF)
+          # #print(data)
+          # frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+          # #print(frame_params)
+          # #passed_data <- data.frame(FT,FC)
+          # mvf_plot_data <- GM_MVF(frame_params,data)
+          # #names(plot_data) = c("Index","Running_Average")
+          
+          #print(mvf_plot_data)
+          if(input$ModelDataPlotType==1){
+            p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
           }
-          else if(i==8){
-            print("Goel-okumoto")
+          if(input$ModelDataPlotType==2){
+            p <- p + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
           }
-          else{
-            print("Other")
+          if(input$ModelDataPlotType==3){
+            p <- p + geom_line(data=mvf_plot_data,aes(Time,Failure))
           }
-          p <- p + theme(legend.position = c(0.9, 0.9))
+          if(input$checkboxDataOnPlot){
+            original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+            p <- p + geom_line(data=original_data,aes(Time,Failure));
+          }
+          p <- p+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
+          #legend(title="RA"
+          
+          #label <- c("Trend test")
+    #value <- c(""
+          
+          #print("Hello i am Geometric model");
         }
-      }
+        else if(i==8){
+          print("Goel-okumoto");
+        }
+        else{
+          print("Other");
+        }
+        #print("hello i am out");
+        p <- p + theme(legend.position = c(0.9, 0.9));
+        #print("hello i am a out");
+          
+          
+          #print("i ==6")
+        }
+      #print("model selections")
     }
+    #print("i am far out");
     #print(input$runModels)
     #p <- p + scale_color_manual(name = "Legend",  labels = c("Original Data"),values = c("blue"))
     #print(input$modelResultChoice)
-    
+    }
     p
+
 
 
     })

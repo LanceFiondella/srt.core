@@ -180,7 +180,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     h5("Choose the type of plot for model results."),
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
                                                                 choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
-                                                                               "Failure Intensity" = 3, "Reliability" = 4), selected = 1)
+                                                                               "Failure Intensity" = 3, "Reliability" = 4), selected = 2)
                                              )
                                            ),
                                            
@@ -200,7 +200,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel(plotOutput("ModelPlot", height = "700px"),width=8)
+                              mainPanel(
+                                #uiOutput("something"))
+
+
+                                plotOutput("ModelPlot", height = "700px"),width=8)
                             )
                    ),
                    tabPanel("Query Model Results",

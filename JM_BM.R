@@ -70,7 +70,81 @@ phi <- n/sum(tmp_phi)
 return(c(N0_MLE,phi))
 }
 
+
+
 JM_MVF <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/(param$Phi*(param$N0-(i-1)))
+    cumulr[i,1] <- i
+    cumulr[i,2] <- 0
+    
+    for(j in 1:length(r[[1]])){
+      
+      cumulr[i,2] <- cumulr[i,2]+r[j,2]
+
+    }
+
+  }
+  g <- data.frame(cumulr[2],cumulr[1])
+  names(g) <- c("Time","Failure")
+  #print(r)
+  g
+  
+}
+
+JM_FR <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- (param$Phi*(param$N0-(i-1)))
+    cumulr[i,1] <- i
+    cumulr[i,2] <- 0
+    
+    for(j in 1:length(r[[1]])){
+      
+      cumulr[i,2] <- cumulr[i,2]+r[j,2]
+
+    }
+
+  }
+  g <- data.frame(cumulr[2],cumulr[1])
+  names(g) <- c("Time","Failure")
+  #print(r)
+  g
+  
+}
+
+JM_R <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- exp(-param$Phi*(param$N0-(i-1))*d$FT[i])
+    #cumulr[i,1] <- i
+    #cumulr[i,2] <- 0
+    
+    #for(j in 1:length(r[[1]])){
+      
+    #  cumulr[i,2] <- cumulr[i,2]+r[j,2]
+
+    #}
+
+  }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Time","Failure")
+  #print(r)
+  r
+  
+}
+
+JM_MVF_r <- function(param,d){
   n <- length(d$FT)
   r <- data.frame()
   t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
