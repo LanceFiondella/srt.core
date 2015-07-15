@@ -9,23 +9,50 @@ source("GM_BM.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("RA_Test.R")
+source("ErrorMessages.R")  # Text for error messages
+
+# Initialize constants ------------------------------------
+
+K_minDataModelIntervalWidth <- 5
+
+K_CategoryFirst <- 1
+K_CategoryLast <- 5
+
+# Start main program ------------------------------------
+
+openFilename <- ""
 data_global <- data.frame()
-shinyServer(function(input, output) {#reactive shiny fuction
-  
+
+shinyServer(function(input, output, clientData, session) {#reactive shiny function
+
   output$distPlot <- renderPlot({ #reactive function, basically Main()
     
     inFile <- input$file
     #print(inFile)#Read of input file
     if (is.null(inFile))#error handling for null file pointer
       return("Please Upload a CSV File")
-    if (input$type==1)
+    if (input$type==1) {
+      if(inFile$name != openFilename) {
+          tempArray <- c(sheetNames(inFile$datapath))
+        
+          # Populate the list of data sheet names in the Excel file.
+        
+          filelistLength <- length(tempArray)
+          fileList <- list()
+          for (i in 1:filelistLength) {
+            fileList[[tempArray[i]]] <- tempArray[i]
+          }
+          updateSelectInput(session, "dataSheetChoice", choices = fileList)
+          openFilename <<- inFile$name
+      }
       data_set <- input$dataSheetChoice
-      #print(data_set)
+    }
       
       data <- read.xls(inFile$datapath,sheet=data_set)#Reads xls and xlsx files. Error handling needed
       data_global <<- data
-    if (input$type==2)
+    if (input$type==2) {
       data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
+    }
     #print(data)
     #if (data[1] =="FC")
     #two coumns
@@ -154,6 +181,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
     
     #plot(data) Leave this here to use if ggplot() stops working. 
   } )
+  
   output$ModelPlot <- renderPlot({
     data <- data_global
     #data
