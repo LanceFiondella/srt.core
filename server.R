@@ -20,7 +20,7 @@ K_CategoryLast <- 5
 
 # Start main program ------------------------------------
 
-openFilename <- ""
+openFileDatapath <- ""
 data_global <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
@@ -28,11 +28,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   output$distPlot <- renderPlot({ #reactive function, basically Main()
     
     inFile <- input$file
-    #print(inFile)#Read of input file
+    #print(inFile) #Read of input file
     if (is.null(inFile))#error handling for null file pointer
       return("Please Upload a CSV File")
     if (input$type==1) {
-      if(inFile$name != openFilename) {
+      if(inFile$datapath != openFileDatapath) {
           tempArray <- c(sheetNames(inFile$datapath))
         
           # Populate the list of data sheet names in the Excel file.
@@ -43,7 +43,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             fileList[[tempArray[i]]] <- tempArray[i]
           }
           updateSelectInput(session, "dataSheetChoice", choices = fileList)
-          openFilename <<- inFile$name
+          openFileDatapath <<- inFile$datapath
       }
       data_set <- input$dataSheetChoice
     }
