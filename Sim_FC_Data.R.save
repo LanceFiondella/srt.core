@@ -1,6 +1,6 @@
-
-
 library(rootSolve)
+library(ggplot2)
+
 a <- 200
 b <- 0.001
 

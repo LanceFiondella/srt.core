@@ -39,18 +39,18 @@ b0 <- 1.0
 #Step-2: Bracket root
 
 i <- 0 
-maxIterations <- 20
+maxIterations <- 200
 leftEndPoint <- b0/2
 leftEndPointMLE <- MLEeq(leftEndPoint)
-rightEndPoint <- 1.1*b0
+rightEndPoint <- 1.2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
-while(i <= maxIterations){
+while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
   #print('In Step 2 while loop of GM_BM.R')
-  #leftEndPoint <- leftEndPoint/2
-  #leftEndPointMLE <- MLEeq(leftEndPoint)
-  #rightEndPoint <- 1.1*rightEndPoint
-  #rightEndPointMLE <- MLEeq(rightEndPoint)
+  leftEndPoint <- leftEndPoint/2
+  leftEndPointMLE <- MLEeq(leftEndPoint)
+  rightEndPoint <- 1.1*rightEndPoint
+  rightEndPointMLE <- MLEeq(rightEndPoint)
   i <- i+1  
 }
 
@@ -59,7 +59,33 @@ while(i <= maxIterations){
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
   return('nonconvergence')
 } else {
-  phiMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
+
+
+  maxiter <<- 20
+  soln <- function(maxiter){
+    sol <- tryCatch(
+      uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
+      warning = function(w){
+      #print(f.lower)
+        if(length(grep("_NOT_ converged",w[1]))>0){
+          maxiter <<- maxiter+1 
+          print(paste("recursive", maxiter,sep='_'))
+          soln(maxiter)
+        }
+      },
+      error = function(e){
+        print(e)
+        #return(e)
+      })
+    sol
+  }
+  phiMLE <- soln(maxiter)
+
+
+
+
+
+  #phiMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
 }
 #print(phiMLE)
 
@@ -113,6 +139,18 @@ GM_MVF <- function(param,d){
   
 }
 
+GM_T <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/(param$D0*(param$Phi)^i)
+    }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Time","Failure")
+  r  
+}
 
 GM_FR <- function(param,d){
   n <- length(d$FT)
@@ -142,4 +180,3 @@ GM_R <- function(param,d){
   r
   
 }
-

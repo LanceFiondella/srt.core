@@ -25,7 +25,7 @@ return(interfailure)#return failure times(failure_T)
 
 
 
- interF_to_failureT <- function(interfailure) #interfailure to failure times
+interF_to_failureT <- function(interfailure) #interfailure to failure times
 {
 
 

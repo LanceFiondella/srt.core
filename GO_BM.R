@@ -21,7 +21,7 @@ GO_BM_MLE<-function(x){
   #Step-2: Bracket root
   
   i <- 0 
-  maxIterations <- 10
+  maxIterations <- 100
   leftEndPoint <- b0/2
   leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
   rightEndPoint <- 2*b0
@@ -29,9 +29,10 @@ GO_BM_MLE<-function(x){
   
   while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
     print('In Step 2 while loop of GO_BM_FT.R')
-    leftEndPoint <- leftEndPoint/2
-    leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
+    #leftEndPoint <- leftEndPoint/2
+    #leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
     rightEndPoint <- 2*rightEndPoint
+
     rightEndPointMLE <- GO_BM_DDB(rightEndPoint)
     i <- i+1	
   }
@@ -39,11 +40,11 @@ GO_BM_MLE<-function(x){
   #Step-3: Invoke uniroot or report non convergence to calling environment
   f <- x
   if(leftEndPointMLE*rightEndPointMLE > 0 ){
-    f[1] <- 0
-    f[2] <- 0
-   x <- f[1,(1:2)]
-    f <- data.frame(x)
-    return(x)
+   #  f[1] <- 0
+   #  f[2] <- 0
+   # x <- f[1,(1:2)]
+   #  f <- data.frame(x)
+    return('nonconvergence')
   } else {
     bMLE <- uniroot(GO_BM_DDB,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
   }
@@ -57,7 +58,7 @@ GO_BM_MLE<-function(x){
   f[2] <- bMLE
   x <- f[1:2]
   f <- data.frame(x)
-  print(x)
+  #print(x)
   return(x)
 }	
 
