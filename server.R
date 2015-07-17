@@ -11,7 +11,7 @@ source("Laplace_trend_test.R")
 source("RA_Test.R")
 source("ErrorMessages.R")  # Text for error messages
 
-# Initialize constants ------------------------------------
+# Initialize "constants" ------------------------------------
 
 K_minDataModelIntervalWidth <- 5
 
@@ -48,11 +48,30 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data_set <- input$dataSheetChoice
     }
       
-      data <- read.xls(inFile$datapath,sheet=data_set)#Reads xls and xlsx files. Error handling needed
+      data <- read.xls(inFile$datapath,sheet=data_set) #Reads xls and xlsx files. Error handling needed
       data_global <<- data
     if (input$type==2) {
       data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
     }
+    
+    # Set up the initial values for modeling data range and the initial parameter
+    # estimation range
+    
+    DataModelIntervalStart <- 1
+    DataModelIntervalEnd <- length(data[,1])
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      output$InputFileError <- renderText({msgDataFileTooSmall})
+    } else {
+      output$InputFileError <- renderText({""})
+    }
+    
+    updateSliderInput(session, "modelDataRange",
+                      min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
+                      max = DataModelIntervalEnd)
+    updateSliderInput(session, "parmEstIntvl",
+                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                      max = DataModelIntervalEnd-1)    
+    
     #print(data)
     #if (data[1] =="FC")
     #two coumns
@@ -181,6 +200,48 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     #plot(data) Leave this here to use if ggplot() stops working. 
   } )
+  
+  # Here we monitor the model configuration controls in the "Set Up and Apply Models"
+  # tab.  We read the values from the controls, and adjust the controls to make
+  # sure that the modeling intervals and lengths of the modeling data set don't
+  # go below specified minimal values.
+  
+  output$ModelConfigError <- renderText({
+    outputMessage <- ""
+    
+    # Read the slider for the categories to be retained when filtering the data.
+    
+    DataCategoryFirst <- input$sliderDataSubsetChoice[1]
+    DataCategoryLast <- input$sliderDataSubsetChoice[2]
+    
+    # Set the slider for the initial parameter estimation range to be
+    # consistent with the data range over which models are applied
+    
+    dataModelRange <- input$modelDataRange
+    
+    DataModelIntervalStart <- dataModelRange[1]
+    DataModelIntervalEnd <- dataModelRange[2]
+    
+    # Keep the data interval used for modeling to 5 observations or more.
+    
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      outputMessage <- msgDataIntervalTooSmall
+      while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+        if(DataModelIntervalStart > 1){
+          DataModelIntervalStart <- DataModelIntervalStart - 1
+        }
+        if(DataModelIntervalEnd < length(data_global[,1])){
+          DataModelIntervalEnd <- DataModelIntervalEnd + 1
+        }
+      }
+      updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
+    }    
+    updateSliderInput(session, "parmEstIntvl",
+                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                      max = DataModelIntervalEnd-1)    
+    
+    outputMessage
+  })
   
   output$ModelPlot <- renderPlot({
     data <- data_global
