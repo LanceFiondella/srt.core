@@ -70,7 +70,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               ),
                               
                               mainPanel(
-                                plotOutput("distPlot", height = "700px")
+                                textOutput("InputFileError"), plotOutput("distPlot", height = "700px")
    ,width=8))
                     
                    ),
@@ -83,7 +83,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12,
                                                     sliderInput("modelDataRange", h6("Specify the data to which the models will be applied."),
-                                                                min = 1, max = 150, value = c(1, 120))
+                                                                min = 1, max = 5, value = c(1, 5))
                                              )
                                            ),
                                            
@@ -157,7 +157,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 #uiOutput("something"))
 
 
-                                plotOutput("ModelPlot", height = "700px"),width=8)
+                                textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px"),width=8)
                             )
                    ),
                    tabPanel("Query Model Results",
