@@ -10,33 +10,55 @@ source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("RA_Test.R")
 data_global <- data.frame()
+
 shinyServer(function(input, output) {
 
 
   output$sheetChoice <- renderUI({
+    if(input$type==1){
       inFile <- input$file
       if(is.null(inFile)){
-      return("Please upload a file")
+      return("Please upload an excel file")
     }
       sheets_present <- sheetNames(xls=inFile$datapath)
-      print(sheets_present)
-      selectInput("dataSheetChoice","Choose Sheet", sheets_present)
+      # print(sheets_present)
+      selectInput("dataSheetChoice","Choose Sheet", c(NULL,sheets_present))
+    }
+    else{
+      #textInput("dataSheetChoice","Choose Sheet", c("test"))
+      return("Please upload a csv file")
+    }
+    })
+
+  output$message <- renderUI({
+      sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE, format = NULL, locale = NULL, ticks = TRUE, animate = TRUE, width = NULL, sep = ",", pre = NULL, post = NULL)
+
+      animationOptions(interval = 1000, loop = FALSE, playButton = NULL, pauseButton = NULL)
+      #p("HEllO")
     })
   
   output$distPlot <- renderPlot({ #reactive function, basically Main()
 
 
     inFile <- input$file
-    print(inFile)
+
+    
 
     if(is.null(inFile)){
-      return("Please upload a file")
+      return("Please upload an excel file")
     }
 
+
     if(input$type==1){
+
+      if(length(grep(".csv",inFile$name))>0){
+        return("Please upload excel sheet")
+      }
+
       if(is.null(input$dataSheetChoice)){
         return("No sheet selected")
       }
+
       data_set <- input$dataSheetChoice
 
       data <- read.xls(inFile$datapath,sheet=data_set)
@@ -75,8 +97,15 @@ shinyServer(function(input, output) {
   # }
     
 
-    else if (input$type==2)
-      data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
+    else if (input$type==2){
+      if(length(grep(".xls",inFile$name))>0){
+        print(inFile)
+        return("Please upload excel sheet")
+      }
+      print(inFile)
+      data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
+      data_set <- "input data"
+    }
     #print(data)
     #if (data[1] =="FC")
     #two coumns

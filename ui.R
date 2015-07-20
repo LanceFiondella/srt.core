@@ -23,33 +23,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(8,
                                                     uiOutput("sheetChoice")
-                                                    
-                                                    # #selectInput("dataSheetChoice", label = h6("Specify the data sheet"), 
-                                                    #             choices = list("SYS1" = "SYS1",
-                                                    #                              "SYS2" = "SYS2",
-                                                    #                              "SYS3" = "SYS3",
-                                                    #                              "CSR1" = "CSR1",
-                                                    #                              "CSR2" = "CSR2",
-                                                    #                              "CSR3" = "CSR3",
-                                                    #                              "J1"   = "J1"  ,
-                                                    #                              "J2"   = "J2"  ,
-                                                    #                              "J3"   = "J3"  ,
-                                                    #                              "J4"   = "J4"  ,
-                                                    #                              "J5"   = "J5"  ,
-                                                    #                              "DATA1"= "DATA1",
-                                                    #                              "DATA2"= "DATA2", 
-                                                    #                              "DATA3"= "DATA3",
-                                                    #                              "DATA4"= "DATA4", 
-                                                    #                              "DATA5"= "DATA5", 
-                                                    #                              "DATA6"= "DATA6", 
-                                                    #                              "DATA7"= "DATA7", 
-                                                    #                              "DATA8"= "DATA8", 
-                                                    #                              "DATA9"= "DATA9", 
-                                                    #                              "DATA10"= "DATA10",
-                                                    #                              "DATA11"= "DATA11", 
-                                                    #                              "DATA12"= "DATA12",
-                                                    #                              "DATA13"= "DATA13",
-                                                    #                              "DATA14"= "DATA14"), selected = "SYS1")
+                                                   
                                                     )
                                            ),
                                           
@@ -71,6 +45,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
 
+                                           
+
                                            fluidRow(
                                              column(8, 
                                                     br(),
@@ -86,7 +62,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              br(),
                                              column(8, downloadButton('saveTrendTable', 'Save Trend Test to Disk'))
                                            ),
-                                           
+                                           fluidRow(
+                                             column(8,
+                                                    uiOutput("message")
+                                                    )
+                                             ),
                                            fluidRow(
                                              br(),
                                              h5("Filter the failure data or change its type."),
@@ -96,6 +76,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                                "Category 3" = 3, "Category 4" = 4), multiple=TRUE)  
                                              )
                                            )
+
                                            
                               ),
                               
