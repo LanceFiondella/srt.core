@@ -1,6 +1,6 @@
 library(shiny)
 
-source("custom_functions.R")
+#source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
                             
@@ -218,8 +218,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 
                                 tabsetPanel(
                                 
-                                custom_tabPanel('Tables',dataTableOutput('mytable1'),br()),                  #tabPanel('Table',dataTableOutput('mytable1'))
-                                custom_tabPanel("Plots",plotOutput("testingplot"))
+                                tabPanel('Tables',dataTableOutput('mytable1'),br()),                  #tabPanel('Table',dataTableOutput('mytable1'))
+                                tabPanel("Plots",plotOutput("testingplot"))
                                 )
                                 )
                             )
