@@ -982,9 +982,10 @@ shinyServer(function(input, output) {
             #}
           }
         }
+        frame_params
       }
     #}
-  frame_params
+  
   #data_global
   })
 
