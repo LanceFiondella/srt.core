@@ -81,7 +81,9 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   }
   phiMLE <- soln(maxiter)
 
-
+  if(phiMLE < 0){
+    return('nonconvergence')
+  }
 
 
 
