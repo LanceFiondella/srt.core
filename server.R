@@ -33,7 +33,7 @@ shinyServer(function(input, output) {
     })
 
   output$message <- renderUI({
-      sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE,  ticks = TRUE, animate = TRUE, width = NULL, sep = ",", pre = NULL, post = NULL)
+      sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE,  ticks = TRUE, animate = TRUE, width = NULL)
 
       #animationOptions(interval = 1000, loop = FALSE, playButton = NULL, pauseButton = NULL)
       #p("HEllO")
