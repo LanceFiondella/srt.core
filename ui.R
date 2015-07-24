@@ -194,7 +194,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
-                                                    numericInput("modelDetailPredTime", 
+                                                    numericInput("modelDetailPredFailures", 
                                                                  label = h6("Specify the number of failures that are to be observed."),
                                                                  min = 1, value = 1)
                                              ),
@@ -204,7 +204,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
-                                                    numericInput("modelDetailPredFailures", 
+                                                    numericInput("modelDetailPredTime", 
                                                                  label = h6("Specify the amount of additional time for which the software will run."),
                                                                  min = 1, value = 1)
                                              )
