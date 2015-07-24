@@ -1002,7 +1002,7 @@ shinyServer(function(input, output) {
               else if(new_params=="nonconvergence"){
                 print("Entered the Non-conv")
                 table_t[count,1] <- i
-                table_t[count,2] <- length(data$IF)
+                table_t[count,2] <- "NON-CONV"
                 table_t[count,3] <- "NON-CONV"
                 
               }
@@ -1234,7 +1234,7 @@ output$mytable3 <- renderDataTable({
               }
               else if(new_params=="nonconvergence"){
                 table_t[count,1] <- i
-                table_t[count,2] <- length(data$IF)
+                table_t[count,2] <- "NON-CONV"
                 table_t[count,3] <- "NON-CONV"
               
               }
