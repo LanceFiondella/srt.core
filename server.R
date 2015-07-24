@@ -15,8 +15,7 @@ source("RA_Test.R")
 data_global <- data.frame()
 
 shinyServer(function(input, output) {
-
-
+  
   output$sheetChoice <- renderUI({
     if(input$type==1){
       inFile <- input$file
@@ -63,9 +62,12 @@ shinyServer(function(input, output) {
       }
 
       data_set <- input$dataSheetChoice
+      data_react <<- reactive({read.xls(inFile$datapath,sheet=input$dataSheetChoice)})
 
-      data <- read.xls(inFile$datapath,sheet=data_set)
-      data_global <<- data
+      #data_react <<- reactive({read.xls(inFile$datapath,sheet=data_set)})
+      #print(data)
+      data_global <<- data_react()
+      data <- data_global
 
     }
    
@@ -103,7 +105,7 @@ shinyServer(function(input, output) {
     else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
         print(inFile)
-        return("Please upload excel sheet")
+        return("Please upload csv file")
       }
       print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
@@ -315,7 +317,7 @@ shinyServer(function(input, output) {
 
 
   output$ModelPlot <- renderPlot({
-    data <- data_global
+    data <- data_react()
     #data
     Time <- "Time"
     Failure <- "Failure"
@@ -954,38 +956,197 @@ shinyServer(function(input, output) {
   output$mytable1 <- renderDataTable({
 
     inFile <- input$file
-
+    table_t <- data.frame("Model"=NULL, "N0"=NULL, "Time-remaining"=NULL)
     
 
     if(is.null(inFile)){
       return("Please upload an a file")
     }
 
-    data <- data_global
+    data <- data_react()
    
     # frame_params <- "EMPTY"
     #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
-
+    frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
       if(length(input$modelDetailChoice)>0){
-        print(input)
-          for(i in input$modelDetailChoice){
-            if(i==6){
+        count <- 0
+        for(i in input$modelDetailChoice){
+          if(i=="Jelinski-Moranda"){
             if(length(grep("IF",names(data)))){
-              #if(input$modelPlotChoice==2){
-                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
-                new_params <- JM_BM_MLE(data$IF)
+              count <- count + 1
+              source("Detailed_prediction.R")
+              new_params <- JM_BM_MLE(data$IF)
+              print(new_params)
+              if(typeof(new_params)=="double"){
+                print("Entered the double")
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                number_fails  <- get_prediction_n(frame_params,input$modelDetailPredTime)
+
+                table_t[count,1] <- i
+                table_t[count,2] <- frame_params$N0
+                table_t[count,3] <- number_fails
+                
               }
-            #}
+              else if(new_params=="nonconvergence"){
+                print("Entered the Non-conv")
+                table_t[count,1] <- i
+                table_t[count,2] <- "NON-CONV"
+                table_t[count,3] <- "NON-CONV"
+                
+              }
+              else{
+                # to be programmed
+              }
+            }
+            else if(length(grep("FT",names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              count <- count + 1
+              source("Detailed_prediction.R")
+              new_params <- JM_BM_MLE(IF)
+              if(typeof(new_params)=="double"){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                number_fails  <- get_prediction_n(frame_params,input$modelDetailPredTime)
+
+                table_t[count,1] <- i
+                table_t[count,2] <- frame_params$N0
+                table_t[count,3] <- number_fails
+                
+              }
+              else if(new_params=="nonconvergence"){
+                table_t[count,1] <- i
+                table_t[count,2] <- "NON-CONV"
+                table_t[count,3] <- "NON-CONV"
+              
+              }
+              else{
+                # to be programmed
+              }
+
+              
+            }
+            else if(length(grep("CFC",names(data)))){
+
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              FT <- failureC_to_failureT(data$T,FC)
+              IF <- failureT_to_interF(failure_T = FT)
+              count <- count + 1
+              source("Detailed_prediction.R")
+              new_params <- JM_BM_MLE(IF)
+              if(typeof(new_params)=="double"){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                number_fails  <- get_prediction_n(frame_params,input$modelDetailPredTime)
+
+                table_t[count,1] <- i
+                table_t[count,2] <- frame_params$N0
+                table_t[count,3] <- number_fails
+              
+              }
+              else if(new_params=="nonconvergence"){
+                table_t[count,1] <- i
+                table_t[count,2] <- "NON-CONV"
+                table_t[count,3] <- "NON-CONV"
+                
+              }
+              else{
+                # to be programmed
+              }  
+            }
+
           }
-        }
-        frame_params
+
+          else if(i=="Geometric"){
+            if(length(grep("IF",names(data)))){
+              count <- count + 1
+              source("Detailed_prediction.R")
+              new_params <- GM_BM_MLE(data$IF)
+              if(typeof(new_params)=="double"){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                number_fails  <- get_prediction_n(frame_params,input$modelDetailPredTime)
+
+                table_t[count,1] <- i
+                table_t[count,2] <- frame_params$D0
+                table_t[count,3] <- number_fails
+                #t
+              }
+              else if(new_params=="nonconvergence"){
+                table_t[count,1] <- i
+                table_t[count,2] <- "NON-CONV"
+                table_t[count,3] <- "NON-CONV"
+                #t
+              }
+              else{
+                # to be programmed
+              }
+            }
+            else if(length(grep("FT",names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              count <- count + 1
+              source("Detailed_prediction.R")
+              new_params <- GM_BM_MLE(IF)
+              if(typeof(new_params)=="double"){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                number_fails_t  <- get_prediction_n(frame_params,input$modelDetailPredTime)
+
+                table_t[count,1] <- i
+                table_t[count,2] <- frame_params$D0
+                table_t[count,3] <- number_fails_t
+                #t
+              }
+              else if(new_params=="nonconvergence"){
+                table_t[count,1] <- i
+                table_t[count,2] <- "NON-CONV"
+                table_t[count,3] <- "NON-CONV"
+                #t
+              }
+              else{
+                # to be programmed
+              }
+              
+            }
+            else if(length(grep("CFC",names(data)))){
+
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              FT <- failureC_to_failureT(data$T,FC)
+              IF <- failureT_to_interF(failure_T = FT)
+              count <- count + 1
+              source("Detailed_prediction.R")
+              new_params <- GM_BM_MLE(IF)
+              if(typeof(new_params)=="double"){
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                number_fails  <- get_prediction_n(frame_params,input$modelDetailPredTime)
+
+                table_t[count,1] <- i
+                table_t[count,2] <- frame_params$D0
+                table_t[count,3] <- number_fails
+                #t
+              }
+              else if(new_params=="nonconvergence"){
+                table_t[count,1] <- i
+                table_t[count,2] <- "NON-CONV"
+                table_t[count,3] <- "NON-CONV"
+                #t
+              }
+              else{
+                # to be programmed
+              }  
+            }
+          }
+
       }
-    #}
-  
+      table_t <- data.frame(table_t[1],table_t[2],table_t[3])
+      names(table_t) <- c("Model","N0","Time-remaining")
+    }
+    #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
+    #names(table_t) <- c("Model","N0","Time-remaining")
+    table_t
   #data_global
   })
 

@@ -164,10 +164,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel(
-                                #uiOutput("something"))
-
-
+                              mainPanel( 
                                 plotOutput("ModelPlot", height = "700px"),width=8)
                             )
                    ),
@@ -179,12 +176,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
                                                     selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                                choices = list("Musa Basic" = 1, 
+                                                                choices = list("Musa Basic" = "Musa", 
                                                                                "Musa Okumoto" = 2,
-                                                                               "Geometric" = 3, 
+                                                                               "Geometric" = "Geometric", 
                                                                                "Littlewood-Verrall Linear"=4,
                                                                                "Littlewood-Verrall Quadratic"=5,
-                                                                               "Jelinksi-Moranda"=6,
+                                                                               "Jelinksi-Moranda"="Jelinski-Moranda",
                                                                                "Goel-okumoto"=7
                                                                                ), 
                                                                 multiple=TRUE,
