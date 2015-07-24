@@ -215,7 +215,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 
                                 tabsetPanel(
                                 
-                                tabPanel('Tables',dataTableOutput('mytable1'),br()),                  #tabPanel('Table',dataTableOutput('mytable1'))
+                                tabPanel('Tables',dataTableOutput('mytable1'),dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
                                 tabPanel("Plots",plotOutput("testingplot"))
                                 )
                                 )
