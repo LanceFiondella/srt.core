@@ -25,7 +25,11 @@ These can be resolved using the install.Packages() function from the R command L
 To Run:
 Clone this git
 Resolve the dependancies above
-From the R command line type:
-  >>library(shiny)
-  >>runApp("/Path/To/Dir/SRT/")
-This will launch the app on localhost on some random port and attempt to open your browser.
+if you only have the r command line interpreter:
+  From the R command line type:
+    >>library(shiny)
+    >>runApp("/Path/To/Dir/SRT/")
+  This will launch the app on localhost on a random port and attempt to open your browser.
+
+if you have the full RStudio environment:
+  simply click Run App 
