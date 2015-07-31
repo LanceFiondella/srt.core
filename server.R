@@ -22,6 +22,7 @@ K_CategoryLast <- 5
 
 openFileDatapath <- ""
 data_global <- data.frame()
+data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
 
@@ -50,6 +51,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       data <- read.xls(inFile$datapath,sheet=data_set) #Reads xls and xlsx files. Error handling needed
       data_global <<- data
+      data_original <<- data
+    
     if (input$type==2) {
       data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
     }
