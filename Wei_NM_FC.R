@@ -14,8 +14,8 @@ sumT <- sum(tVec)
 sumK <- sum(kVec)
 
 a0 <- sumK
-c0 <- 1.5
-b0 <- 0.01
+c0 <-  1.0
+b0 <- sumK/(sumT*tn)
 
 
 #(*MLE equation of x[1]*)
@@ -35,7 +35,7 @@ model <- function(x) {
     F2 = (-x[1]*exp(-x[2]*tn^x[3])*tn^x[3]) + ((kVec[1]*tVec[1]^x[3])/(exp(x[2]*tVec[1]^x[3])-1)) + sumi[2],
     F3= (-x[1]*x[2]*exp(-x[2]*tn^x[3])*tn^x[3]*log(tn)) + (x[2]*log(tVec[1])*kVec[1]*tVec[1]^x[3])/(-1+exp(x[2]*tVec[1]^x[3]))+sumi[3])
 }
-abc <- multiroot(f=model,start=c(a0,b0,c0), ctol = 1e-24)$root
+abc <- multiroot(f=model,start=c(a0,b0,c0),maxiter = 10000,ctol = 1e-24)$root
 print(abc)
 
 

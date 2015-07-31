@@ -40,7 +40,31 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	return('nonconvergence')
 } else {
-	bMLE <- uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
+
+maxiter <<- 20
+  soln <- function(maxiter){
+    sol <- tryCatch(
+      uniroot(GO_MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
+      warning = function(w){
+      #print(f.lower)
+        if(length(grep("_NOT_ converged",w[1]))>0){
+          maxiter <<- maxiter+1 
+          print(paste("recursive", maxiter,sep='_'))
+          soln(maxiter)
+        }
+      },
+      error = function(e){
+        print(e)
+        #return(e)
+      })
+    sol
+  }
+  bMLE <- soln(maxiter)
+
+
+
+
+	#bMLE <- uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
 	#bMLE <- uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
 }
 

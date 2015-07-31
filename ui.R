@@ -1,6 +1,6 @@
 library(shiny)
 
-
+#source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
                             
@@ -21,10 +21,16 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
 
                                            
                                            fluidRow(
+<<<<<<< HEAD
                                              column(8, 
                                                     h5("Choose a data sheet if an Excel file has been opened"),
                                                     selectInput("dataSheetChoice", label = NULL, 
                                                                 choices = list("Open a data file first" = 1))
+=======
+                                             column(8,
+                                                    uiOutput("sheetChoice")
+                                                   
+>>>>>>> upstream/master
                                                     )
                                            ),
                                           
@@ -45,6 +51,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
 
+                                           
+
                                            fluidRow(
                                              column(8, 
                                                     h5("Examine the data for reliability growth"),
@@ -58,7 +66,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(8, downloadButton('saveTrendTable', 'Save Trend Test to Disk'))
                                            ),
-                                           
+                                           fluidRow(
+                                             column(8,
+                                                    uiOutput("message")
+                                                    )
+                                             ),
                                            fluidRow(
                                              br(),
                                              h5("Filter the failure data by category"),
@@ -66,6 +78,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1))
                                            )
+
                                            
                               ),
                               
@@ -115,7 +128,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                                "Littlewood-Verrall Linear"=4,
                                                                                "Littlewood-Verrall Quadratic"=5,
                                                                                "Jelinksi-Moranda"=6,
-                                                                               "Goaloko"=7
+                                                                               "Goel-okumoto"=7
                                                                                ), 
                                                                 multiple=TRUE,
                                                                 selected=6
@@ -153,11 +166,16 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
+<<<<<<< HEAD
                               mainPanel(
                                 #uiOutput("something"))
 
 
                                 textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px"),width=8)
+=======
+                              mainPanel( 
+                                plotOutput("ModelPlot", height = "700px"),width=8)
+>>>>>>> upstream/master
                             )
                    ),
                    tabPanel("Query Model Results",
@@ -167,10 +185,18 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
-                                                    selectInput("modelDetailPredChoice", label = h6("Choose one or more models"), 
-                                                                choices = list("Musa Basic" = 1, "Musa Okumoto" = 2,
-                                                                               "Geometric" = 3, "Littlewood-Verrall Linear"=4, "Littlewood-Verrall Quadratic"=5), 
-                                                                multiple=TRUE)
+                                                    selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
+                                                                choices = list("Musa Basic" = "Musa", 
+                                                                               "Musa Okumoto" = 2,
+                                                                               "Geometric" = "Geometric", 
+                                                                               "Littlewood-Verrall Linear"=4,
+                                                                               "Littlewood-Verrall Quadratic"=5,
+                                                                               "Jelinksi-Moranda"="Jelinski-Moranda",
+                                                                               "Goel-okumoto"=7
+                                                                               ), 
+                                                                multiple=TRUE,
+                                                              
+                                                                )
                                              ),
                                              
                                              column(12, 
@@ -178,7 +204,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
-                                                    numericInput("modelDetailPredTime", 
+                                                    numericInput("modelDetailPredFailures", 
                                                                  label = h6("Specify the number of failures that are to be observed."),
                                                                  min = 1, value = 1)
                                              ),
@@ -188,14 +214,21 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
-                                                    numericInput("modelDetailPredFailures", 
+                                                    numericInput("modelDetailPredTime", 
                                                                  label = h6("Specify the amount of additional time for which the software will run."),
                                                                  min = 1, value = 1)
                                              )
                                            )
                               ),
                               
-                              mainPanel("Placeholder - model evaluation plots and tables go here")
+                              mainPanel(
+                                
+                                tabsetPanel(
+                                
+                                tabPanel('Tables',dataTableOutput('mytable1'),dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
+                                tabPanel("Plots",plotOutput("testingplot"))
+                                )
+                                )
                             )
                             
                    ),
@@ -278,7 +311,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel("Placeholder - model evaluation plots and tables go here")
+                              mainPanel(
+
+                                
+
+
+                                )
                             )
                    )
 ))

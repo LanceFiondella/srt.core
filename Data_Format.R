@@ -25,7 +25,7 @@ return(interfailure)#return failure times(failure_T)
 
 
 
- interF_to_failureT <- function(interfailure) #interfailure to failure times
+interF_to_failureT <- function(interfailure) #interfailure to failure times
 {
 
 
@@ -128,6 +128,41 @@ failureN_to_failureCount <-function(x)
   histo <- hist(x, breaks = bins, col = 'darkgray', border = 'white')
   r <- data.frame(histo$counts)
   print(r)
-  r$x
+  #r$x
+
+}
+
+failureT_to_failureCount <- function(x){
+
+  print(x)
+  if(x[length(x)]<=60  & x[length(x)] > 0) {
+    bins <- seq(min(x),max(x), length.out = x[length(x)])
+  }
+
+  else if(x[length(x)]<=3600  & x[length(x)] > 60) {
+    bins <- seq(min(x),max(x) + max(x)%%60, length.out = x[length(x)]/60)
+  }
+
+  else if(x[length(x)]>3600 & x[length(x)] <=3600*24) {
+    bins <- seq(min(x), max(x)+ (max(x)%%3600), length.out = x[length(x)]/3600)
+  }
+  else if(x[length(x)]>3600*24 & x[length(x)] <=3600*24*7) {
+    bins <- seq(min(x), max(x)+ (max(x)%%(3600*24)), length.out = x[length(x)]/(3600*24))
+  }
+  else if(x[length(x)]>3600*24*7 & x[length(x)] <=3600*24*7*30) {
+    bins <- seq(min(x), max(x)+ (max(x)%%(3600*24*7)), length.out = x[length(x)]/(3600*24*7))
+  }
+  else {
+    bins <- seq(min(x), max(x)+ (max(x)%%(3600000)), length.out = x[length(x)]/3600000)
+  }
+
+  # else if(x[length(x)]>3600*24 & x[length(x)] <=3600*24*7) {
+  #   bins <- seq(min(x), max(x)+ (max(x)%%(3600*24)), length.out = x[length(x)]/(3600*24))
+  # }
+  histo <- hist(x, breaks = bins, col = 'darkgray', border = 'white')
+  print(cat(paste(histo$counts,sep=""),sep=",",collapse='\n'))
+  #r <- data.frame(histo$counts)
+  #print(r)
+  #r$x
 
 }

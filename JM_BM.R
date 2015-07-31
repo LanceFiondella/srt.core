@@ -27,32 +27,64 @@ b0 <- n
 #print(paste("b): ",b0))
 #Step-2: Bracket root
 
-i <- 0 
-maxIterations <- 50
+i <- 1
+maxIterations <- 100000
 leftEndPoint <- b0
 leftEndPointMLE <- MLEeq(leftEndPoint)
-rightEndPoint <- 1.1*b0
+
+
+
+rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
+
 
 #print(paste("left:",leftEndPointMLE))
 #print(paste("right:",rightEndPointMLE))
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	#print('In Step 2 while loop of JM_BM.R')
-	#leftEndPoint <- leftEndPoint/2
-	#leftEndPointMLE <- MLEeq(leftEndPoint)
-	rightEndPoint <- 1.1*rightEndPoint
+	leftEndPoint <- leftEndPoint/2
+	leftEndPointMLE <- MLEeq(leftEndPoint)
+	rightEndPoint <- 2*rightEndPoint
 	rightEndPointMLE <- MLEeq(rightEndPoint)
 	i <- i+1	
 }
-
+#
+#print(c(leftEndPointMLE,rightEndPointMLE))
 #Step-3: Invoke uniroot or report non convergence to calling environment
 
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	return('nonconvergence')
 } else {
+
+
+
+  maxiter <<- 20
+  soln <- function(maxiter){
+    sol <- tryCatch(
+      uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10)$root,
+      warning = function(w){
+      #print(f.lower)
+        if(length(grep("_NOT_ converged",w[1]))>0){
+          maxiter <<- maxiter+10
+          print(paste("recursive", maxiter,sep='_'))
+          soln(maxiter)
+        }
+      },
+      error = function(e){
+        print(e)
+        #return(e)
+      })
+    sol
+  }
+  N0_MLE <- soln(maxiter)
+  print(N0_MLE)
+
+  if(N0_MLE < n){
+    return("nonconvergence")
+  }
 	#N0_MLE <- unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
-	N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-24)$root
+	#N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes",maxiter=10000, tol = 1e-24)$root
 	#N0_MLE <- unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
 }
 #print(N0_MLE)
@@ -85,9 +117,24 @@ JM_MVF <- function(param,d){
       cumulr[i,2] <- cumulr[i,2]+r[j,2]
     }
   }
+
   g <- data.frame(cumulr[2],cumulr[1])
   names(g) <- c("Time","Failure")
+  print(g)
   g  
+}
+
+JM_T <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/(param$Phi*(param$N0-(i-1)))
+    }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Time","Failure")
+  r  
 }
 
 JM_FR <- function(param,d){

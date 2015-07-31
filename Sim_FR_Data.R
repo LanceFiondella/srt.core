@@ -1,3 +1,8 @@
+
+
+
+generate_FT <- function(){
+
 N0 <- 100
 
 interFail <- c()
@@ -17,6 +22,5 @@ for(i in 1:N0){
 	}
 	interFail[i] <- -log(rand)/JMLambda(100,0.001,i)
 }
-
-print(interFail)
-	
+interFail
+}

@@ -7,9 +7,9 @@ n <- length(tVec)
 tn <- tVec[n]
 sumT <- sum(tVec)
 
-c0 <- 0.9
-b0 <- (n/sumT)*10
-options("scipen"=100, "digits"=6)
+c0 <- 1.0
+b0 <- (n/sumT)
+#options("scipen"=100, "digits"=6)
 #(*MLE equation of x[1]*)
 model1 <- function(x) {
   sumi <- c(0,0)
@@ -24,8 +24,17 @@ model1 <- function(x) {
                          F2 = ((-1*x[1]*n*(tn^x[2])*log(tn))/(exp(x[1]*(tn^x[2]))-1) + sumi[2]))
 }
 ab <- multiroot(f=model1,start=c(b0,c0), ctol = 1e-24)$root
+bMLE <- ab[1]
+cMLE <- ab[2]
 print(ab)
 
 
 #Problem -- need to substitute the value for b0
-# (*Answers x[1]→0.0006960572245800791`,x[2]→0.6767387156441748*)
+# (*Answers x[1]â0.0006960572245800791`,x[2]â0.6767387156441748*)
+
+
+#aMLE equation
+
+aMLE <- (n*exp(bMLE*tn^cMLE))/(exp(bMLE*tn^cMLE)-1)
+
+print(aMLE)
