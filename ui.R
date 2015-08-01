@@ -215,7 +215,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 
                                 tabsetPanel(
                                 
-                                tabPanel('Tables',dataTableOutput('mytable1'),dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
+                                tabPanel('Tables',dataTableOutput('mytable1')),                  #tabPanel('Table',dataTableOutput('mytable1'))
                                 tabPanel("Plots",plotOutput("testingplot"))
                                 )
                                 )
@@ -230,7 +230,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     h5("Select a model evaluation to display."),
                                                     selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
                                                                 choices = list("Kolmogorov-Smirnov GOF Test" = 1, "-ln Prequential Likelihood" = 2,
-                                                                               "Prequential Likelihood Ratio" = 3, "Model Bias" = 4, "Scatter Plot of u(i)" = 5, "Model Bias Trend" = 6, "Model Noise" = 7), selected = 1)
+                                                                               "Prequential Likelihood Ratio" = 3, "Model Bias" = 4, "Scatter Plot of u(i)" = 5, "Model Bias Trend" = 6, "Model Noise" = 7,"AIC"=8,"PSSE"=9), selected = 1)
                                              ),
                                              column(12,
                                                     numericInput("numericEvalSigValue", 
@@ -302,11 +302,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               ),
                               
                               mainPanel(
-
+                                tabsetPanel(
                                 
+                                tabPanel('Table',dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
+                                tabPanel("Plot",plotOutput("Evalationplot"))
+                                )                              
 
 
-                                )
+                              )
                             )
                    )
 ))

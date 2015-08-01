@@ -160,7 +160,7 @@ JM_R <- function(param,d){
   }
   r <- data.frame(r[1],r[2])
   names(r) <- c("Time","Failure")
-  r  
+  r
 }
 
 JM_MVF_r <- function(param,d){
@@ -174,4 +174,9 @@ JM_MVF_r <- function(param,d){
   r <- data.frame(r[1],r[2])
   names(r) <- c("Time","Failure")
   r
+}
+
+JM_lnl  <- function(){
+  t <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
+  t
 }
