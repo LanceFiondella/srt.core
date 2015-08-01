@@ -3,7 +3,7 @@
 
 #Define n, tn and sumT
 
-GO_MLE <- function(x){
+GO_BM_MLE <- function(x){
 n <- length(x)
 tn <- x[n]
 sumT <- sum(x)
@@ -85,30 +85,53 @@ GO_MVF_er <- function(param,d){
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/(param$Phi*(param$N0-(i-1)))
+    r[i,2] <- 1/(param$aMLE*(param$N0-(i-1)))
     cumulr[i,1] <- i
     cumulr[i,2] <- 0    
-    for(j in 1:length(r[[1]])){      
+    for(j in 1:length(r[[1]])){
       cumulr[i,2] <- cumulr[i,2]+r[j,2]
     }
   }
   g <- data.frame(cumulr[2],cumulr[1])
   names(g) <- c("Time","Failure")
-  g  
+  g
 }
 
-GO_MVF <- function(param,d){
+# GO_MVF_er <- function(param,d){
+#   n <- length(d$FT)
+#   r <-data.frame()
+#   cumulr <-data.frame()
+#   for(i in 1:n){
+#     r[i,1] <- i
+#     r[i,2] <- 1/(param$aMLE*(param$N0-(i-1)))
+#     cumulr[i,1] <- i
+#     cumulr[i,2] <- 0
+#     for(j in 1:length(r[[1]])){
+#       cumulr[i,2] <- cumulr[i,2]+r[j,2]
+#     }
+#   }
+#   g <- data.frame(cumulr[2],cumulr[1])
+#   names(g) <- c("Time","Failure")
+#   g
+# }
+GO_BM_MVF <- function(param,d){
+  #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
+  print(param)
+  #t_index <- seq(0,9000,1)
+  # param$aMLE <- 142.8809
+  # param$bMLE <- 3.420379e-05
   t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
   for(i in 1:length(t_index)){
     r[i,1] <- t_index[i]
-    r[i,2] <- param$N0*(1-exp(-1*t_index[i]*param$Phi))
+    r[i,2] <- param$aMLE*(1-exp(-1*t_index[i]*param$bMLE))
   }
   r <- data.frame(r[1],r[2])
   names(r) <- c("Time","Failure")
   r
 }
+
 
 	 
 #NHPP log-likelihood function
