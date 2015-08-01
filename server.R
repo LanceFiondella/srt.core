@@ -25,14 +25,9 @@ K_CategoryLast <- 5
 
 openFileDatapath <- ""
 data_global <- data.frame()
-<<<<<<< HEAD
 data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
-
-=======
-
-shinyServer(function(input, output) {
   
   output$sheetChoice <- renderUI({
     if(input$type==1){
@@ -50,45 +45,44 @@ shinyServer(function(input, output) {
     }
     })
 
-  output$message <- renderUI({
-      sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE,  ticks = TRUE, animate = TRUE, width = NULL)
+  #output$message <- renderUI({
+  #    sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE,  ticks = TRUE, animate = TRUE, width = NULL)
+  #    animationOptions(interval = 1000, loop = FALSE, playButton = NULL, pauseButton = NULL)
+  #    p("HEllO")
+  #  })
 
-      #animationOptions(interval = 1000, loop = FALSE, playButton = NULL, pauseButton = NULL)
-      #p("HEllO")
-    })
   
->>>>>>> upstream/master
-  output$distPlot <- renderPlot({ #reactive function, basically Main()
-
-
+  # Select and read in a data file.  This is a reactive data item.
+  
+  data_global <- reactive({
     inFile <- input$file
-<<<<<<< HEAD
-    #print(inFile) #Read of input file
-    if (is.null(inFile))#error handling for null file pointer
-      return("Please Upload a CSV File")
-    if (input$type==1) {
-      if(inFile$datapath != openFileDatapath) {
-          tempArray <- c(sheetNames(inFile$datapath))
-        
-          # Populate the list of data sheet names in the Excel file.
-        
-          filelistLength <- length(tempArray)
-          fileList <- list()
-          for (i in 1:filelistLength) {
-            fileList[[tempArray[i]]] <- tempArray[i]
-          }
-          updateSelectInput(session, "dataSheetChoice", choices = fileList)
-          openFileDatapath <<- inFile$datapath
-      }
-      data_set <- input$dataSheetChoice
+    if(is.null(inFile)){
+      return("Please upload an excel file")
     }
-      
-      data <- read.xls(inFile$datapath,sheet=data_set) #Reads xls and xlsx files. Error handling needed
-      data_global <<- data
-      data_original <<- data
     
-    if (input$type==2) {
-      data <- read.csv(inFile$datapath, header = input$header, sep = input$sep , quote = " % ")#same as before needs error handling
+    if(input$type==1){
+      
+      if(length(grep(".csv",inFile$name))>0){
+        return("Please upload excel sheet")
+      }
+      
+      if(is.null(input$dataSheetChoice)){
+        return("No sheet selected")
+      }
+      
+      data_set <- input$dataSheetChoice
+      
+      data <- read.xls(inFile$datapath,sheet=data_set)
+      data_original <<- data
+    } else if (input$type==2){
+      if(length(grep(".xls",inFile$name))>0){
+        print(inFile)
+        return("Please upload excel sheet")
+      }
+      print(inFile)
+      data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
+      data_original <<- data
+      data_set <- inFile$filename
     }
     
     # Set up the initial values for modeling data range and the initial parameter
@@ -107,279 +101,142 @@ shinyServer(function(input, output) {
                       max = DataModelIntervalEnd)
     updateSliderInput(session, "parmEstIntvl",
                       min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)    
+                      max = DataModelIntervalEnd-1)
     
-=======
-
+    data
+  })
+  
+  # Draw the plot of input data or selected trend test
+  
+  output$distPlot <- renderPlot({ #reactive function, basically Main()
     
-
-    if(is.null(inFile)){
-      return("Please upload an excel file")
-    }
-
-
-    if(input$type==1){
-
-      if(length(grep(".csv",inFile$name))>0){
-        return("Please upload excel sheet")
-      }
-
-      if(is.null(input$dataSheetChoice)){
-        return("No sheet selected")
-      }
-
+    data <- data.frame(x=data_global())
+    DataColNames <- names(data)
+    names(data) <- gsub("x.", "", DataColNames)
+    if(length(names(data)) > 1) {
+      Time <- names(data[1]) # generic name of column name of data frame (x-axis)
+      Failure <- names(data[2]) # (y-axis)
+      
       data_set <- input$dataSheetChoice
-      data_react <<- reactive({read.xls(inFile$datapath,sheet=input$dataSheetChoice)})
-
-      #data_react <<- reactive({read.xls(inFile$datapath,sheet=data_set)})
-      #print(data)
-      data_global <<- data_react()
-      data <- data_global
-
+      if(input$PlotDataOrTrend == 1){
+        
+        # Plot the raw failure data
+        
+        q <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
+        input_data <- data
+        source("Plot_Raw_Data.R", local=TRUE)
+      } else if (input$PlotDataOrTrend == 2) {
+        
+        # Plot the selected trend test
+        
+        q <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
+        input_data <- data
+        source("Plot_Trend_Tests.R", local=TRUE)
+      }
+      
+      q
+      
+      #plot(data) Leave this here to use if ggplot() stops working. 
     }
-   
-  #   inFile <- input$file
-  #   #
-  #   #print(inFile)#Read of input file
-  #   sheet_count <- sheetCount(xls=inFile$datapath)
-  #   sheets_present <- NULL
-  #   if (is.null(inFile))#error handling for null file pointer
-  #     return("Please Upload a CSV File")
-  #   else if (input$type==1){
+  })
+  
+  
+  # Set up the data and trend test statistics tables for display
+  
+  FailureDataTable <- reactive ({
+    tempDataMatrix <- matrix()
+    if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
+      data <- data.frame(x=data_global())
+      DataColNames <- names(data)
+      names(data) <- gsub("x.", "", DataColNames)
+      NameArray <- names(data)
       
-  #     #print(sheets_present)
-  #     if(is.null(sheets_present)){
-  #       return("No sheets present")
-  #     }
-  #     if(sheet_count > 0){
-  #     output$sheetChoice <- renderUI({
-  #       sheets_present <- sheetNames(xls=inFile$datapath)
-  #       print(sheets_present)
-  #       selectInput("dataSheetChoice", "Choose Sheet", c('',sheets_present),selected=NULL)
-  #     })
-  #  }
-    
-
-  #   if(!is.null(input$dataSheetChoice)){
-  #     data_set <- input$dataSheetChoice
-      
-  #     data <- read.xls(inFile$datapath,sheet=data_set)#Reads xls and xlsx files. Error handling needed
-  #     data_global <<- data
-  #   }
-  # }
-    
-
-    else if (input$type==2){
-      if(length(grep(".xls",inFile$name))>0){
-        print(inFile)
-        return("Please upload csv file")
+      if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
+        if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
+          FN <- data$FN
+          if(input$PlotDataOrTrend == 1) {
+            if(length(grep("IF", names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              FT <- data$FT
+            } else if(length(grep("FT", names(data)))) {
+              FT <- interF_to_failureT(data$IF)
+              IF <- data$IF
+            }
+            NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
+            tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
+          } else if(input$PlotDataOrTrend == 2) {
+            if(length(grep("IF", names(data)))){
+              IF <- failureT_to_interF(data$FT)
+            } else if(length(grep("FT", names(data)))) {
+              IF <- data$IF
+            }
+            
+            if (input$trendPlotChoice == "LP") {
+              sol <- laplace_trend_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
+            } else if (input$trendPlotChoice == "RA") {
+              sol <- running_average_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
+            }
+          }
+        } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
+          if(input$PlotDataOrTrend == 1) {
+            if(length(grep("CFC", names(data)))){
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              CFC <- data$CFC
+            } else if(length(grep("FC", names(data)))) {
+              FC <- data$FC
+              CFC <- FailureC_to_CumulativeFailureC(data$FC)
+            }
+            IntervalNum <- c(1:length(data$T))
+            
+            NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
+            tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
+            
+          } else if(input$PlotDataOrTrend == 2) {
+            if(length(grep("CFC", names(data)))){
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+            } else if(length(grep("FC", names(data)))) {
+              FC <- data$FC
+            }
+            
+            FT <- failureC_to_failureT(data$T,FC)
+            IF <- failureT_to_interF(failure_T = FT)
+            FN <- c(1:length(FT))
+            IntervalTime <- data$T
+            
+            if(input$trendPlotChoice == "LP") {
+              sol <- laplace_trend_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
+            } else if(input$trendPlotChoice == "RA") {
+              sol <- running_average_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
+            }
+          }
+        }
+        colnames(tempDataMatrix) <- NameArray
       }
-      print(inFile)
-      data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
-      data_set <- "input data"
     }
->>>>>>> upstream/master
-    #print(data)
-    #if (data[1] =="FC")
-    #two coumns
-    #else
-    #one column
-    
-    
-    
-    Time <- names(data[1])#generic name of column name of data frame (x-axis)
-    Failure <- names(data[2])#(y-axis)
-    #p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
-    #value <- c("blue","red")
-    
-    model <- ""
-    if(input$trendPlotChoice=="LP"){
-      #-------------------------------------------------------------
-      q <- ggplot(,aes_string(x="index",y="laplace_factor"))
-      input_data <- data
-      print(names(input_data))
-      # if(length(grep("[DATA]",data_set)) >0){
-      #   #input_data <- data
-      #   source("Data_Format.R")
-      #   FC <- CumulativeFailureC_to_failureC(input_data$CFC)
-      #   FT <-failureC_to_failureT(input_data$T,FC)
-      #   IF <- failureT_to_interF(failure_T = FT)
-      #   sol <- laplace_trend_test(IF)
-      # }
-      # else if(length(grep("J",data_set))>0){
-      #   source("Data_Format.R")
-      #   FC <-CumulativeFailureC_to_failureC(input_data$CFC)
-      #   FT <-failureC_to_failureT(input_data$T,FC)
-      #   IF <- failureT_to_interF(failure_T = FT)
-      #   sol <- laplace_trend_test(IF)
-      # }
-      # else if(data_set=="CDS"){
-      #   IF <- failureT_to_interF(input_data$FT)
-      #   sol <- laplace_trend_test(IF)
-      # }
-      # else{
-      #   sol <- laplace_trend_test(input_data$IF)
-      # }
+    tempDataMatrix
+  })
+  
+  # Display the input data or selected trend test in tabular form.
+  
+  output$dataAndTrendTable <- renderDataTable({
+    OutputTable <- data.frame(x=FailureDataTable())
+    if(length(OutputTable) > 1) {
+      DataColNames <- names(OutputTable)
+      names(OutputTable) <- gsub("x.", "", DataColNames)
+    } else {
+      OutputTable <- data.frame()
+    }
+    OutputTable
+  })
 
-      if(length(grep("FT",names(input_data)))>0) {
-        #print("PICKED FT pattern")
-        #FT <- input_data$FT > 0
-        source("Data_Format.R")
-        IF <- failureT_to_interF(input_data$FT)
-        sol <- laplace_trend_test(IF)
-      }
-      else if(length(grep("IF",names(input_data))) > 0) {
-
-        #print("PICKED IF pattern")
-        source("Data_Format.R")
-        #IF <- failureT_to_interF(input_data$FT)
-        IF <- input_data$IF
-        sol <- laplace_trend_test(IF)
-      }
-      else if(length(grep("CFC",names(input_data)))>0) { 
-        #print("PICKED CFC pattern")     
-        source("Data_Format.R")
-        CFC <- input_data$CFC[input_data$CFC > 0]
-        FC <- CumulativeFailureC_to_failureC(CFC)
-        T <- input_data$T[input_data$CFC > 0]
-        FT <-failureC_to_failureT(T,FC)
-        IF <- failureT_to_interF(failure_T = FT)
-        sol <- laplace_trend_test(IF)
-      }
-      else if(length(grep("FC",names(input_data)))>0){
-        #print("PICKED FC pattern")
-        source("Data_Format.R")
-        FC <- input_data$FC[input_data$FC > 0]
-        T <- input_data$T[input_data$CFC > 0]
-        FT <-failureC_to_failureT(T,FC)
-        IF <- failureT_to_interF(failure_T = FT)
-        sol <- laplace_trend_test(IF)
-      }
-      
-      
-      
-      # ------------------------------------------------------------
-      plot_data <- sol
-      names(plot_data) = c("index","laplace_factor")
-      #print(plot_data)
-      if(input$DataPlotType==1){
-        q <- q + geom_point(data=plot_data,aes(index,laplace_factor))+ geom_line(data=plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
-      }
-      if(input$DataPlotType==2){
-        q <- q + geom_point(data=plot_data,aes(index,laplace_factor))#()#+ geomline(data=plot_data)
-      }
-      if(input$DataPlotType==3){
-        q <- q + geom_line(data=plot_data,aes(index,laplace_factor))
-      }
-      #q <- q + geom_smooth()
-
-
-      q <- q+ggtitle(paste(c("Laplace trend of "),data_set))
-      #legend(title="LP")
-
-      
-      q <- q + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),color=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001"),linetype="dotted"),alpha=0.8)
-      #q <- q + scale_color_manual("Signigicance",value=c("0.025"="blue","0.1"="green","0.001"="black","0.0000001"="red","0.0000000001"="g"))
-      }
-
-
-      if(input$trendPlotChoice=="RA"){
-        q <- ggplot(,aes_string(x="Index",y="Running_Average"))
-
-      #-------------------------------------------------------------
-      
-      input_data <- data
-
-
-
-      if(length(grep("FT",names(input_data)))>0) {
-        #print("PICKED FT pattern")
-        #FT <- input_data$FT > 0
-        source("Data_Format.R")
-        IF <- failureT_to_interF(input_data$FT)
-        sol <- running_average_test(IF)
-      }
-      else if(length(grep("IF",names(input_data))) > 0) {
-
-        #print("PICKED IF pattern")
-        source("Data_Format.R")
-        IF <- input_data$IF
-        sol <- running_average_test(IF)
-      }
-      else if(length(grep("CFC",names(input_data)))>0) { 
-        #print("PICKED CFC pattern")     
-        source("Data_Format.R")
-        CFC <- input_data$CFC[input_data$CFC > 0]
-        FC <- CumulativeFailureC_to_failureC(CFC)
-        T <- input_data$T[input_data$CFC > 0]
-        FT <-failureC_to_failureT(T,FC)
-        IF <- failureT_to_interF(failure_T = FT)
-        sol <- running_average_test(IF)
-      }
-      else if(length(grep("FC",names(input_data)))>0){
-        #print("PICKED FC pattern")
-        source("Data_Format.R")
-        FC <- input_data$FC[input_data$FC > 0]
-        T <- input_data$T[input_data$CFC > 0]
-        FT <-failureC_to_failureT(T,FC)
-        IF <- failureT_to_interF(failure_T = FT)
-        sol <- running_average_test(IF)
-      }
-      # if(length(grep("[DATA]",data_set)) >0){
-      #   #input_data <- data
-      #   source("Data_Format.R")
-      #   FC <- CumulativeFailureC_to_failureC(input_data$CFC)
-      #   FT <-failureC_to_failureT(input_data$T,FC)
-      #   IF <- failureT_to_interF(failure_T = FT)
-      #   sol <- running_average_test(IF)
-      # }
-      # else if(length(grep("J",data_set))>0){
-      #   source("Data_Format.R")
-      #   FC <-CumulativeFailureC_to_failureC(input_data$CFC)
-      #   FT <-failureC_to_failureT(input_data$T,FC)
-      #   IF <- failureT_to_interF(failure_T = FT)
-      #   sol <- running_average_test(IF)
-      # }
-      # else if(data_set=="CDS"){
-      #   IF <- failureT_to_interF(input_data$FT)
-      #   sol <- running_average_test(IF)
-      # }
-      # else{
-      #   sol <- running_average_test(input_data$IF)
-      # }
-      
-      
-      
-      # ------------------------------------------------------------
-      plot_data <- sol
-      names(plot_data) = c("Index","Running_Average")
-      #print(plot_data)
-      if(input$DataPlotType==1){
-        q <- q + geom_point(data=plot_data,aes(Index,Running_Average))+ geom_line(data=plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
-      }
-      if(input$DataPlotType==2){
-        q <- q + geom_point(data=plot_data,aes(Index,Running_Average))#+ geomline(data=plot_data)
-      }
-      if(input$DataPlotType==3){
-        q <- q + geom_line(data=plot_data,aes(Index,Running_Average))
-      }
-      q <- q+ggtitle(paste(c("Running Average trend test of "),data_set))
-      #legend(title="RA")
-      }
-      #g <- c(0.025,0.1,0.001,0.0001)
-      
-      #q <- q+geom_hline(aes(yintercept=qnorm(g[1],g[2],g[3],g[4])))
-      q <- q + theme(legend.position = c(0.9, 0.9))
-            #label <- c("Trend test")
-      #value <- c("")
-    q
-    #q <- q + scale_color_manual(labels =c("laplace_trend"),values = c("blue","blue"))
-    #p <- p + scale_color_manual(labels = c("plotx","test"),values = c("blue","blue"))
-   
-    
-    #plot(data) Leave this here to use if ggplot() stops working. 
-  } )
-<<<<<<< HEAD
   
   # Here we monitor the model configuration controls in the "Set Up and Apply Models"
   # tab.  We read the values from the controls, and adjust the controls to make
@@ -423,15 +280,14 @@ shinyServer(function(input, output) {
     outputMessage
   })
   
-=======
 
 
 
-
-
->>>>>>> upstream/master
   output$ModelPlot <- renderPlot({
-    data <- data_react()
+    data <- data.frame(x=data_global())
+    DataColNames <- names(data)
+    names(data) <- gsub("x.", "", DataColNames)
+    data_set <- input$dataSheetChoice
     #data
     Time <- "Time"
     Failure <- "Failure"
