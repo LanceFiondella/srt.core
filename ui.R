@@ -5,87 +5,89 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
                             
                             sidebarLayout(
-                              sidebarPanel(h4("Select, Analyze, and Filter Failure Data"),
+                              sidebarPanel(h4("Select, Analyze, and Subset Failure Data"),
+                                           fluidRow(
+                                             column(10, 
+                                                    h5("Specify the input file format"),
+                                                    
+                                                    radioButtons("type", label = "", 
+                                                                 choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), inline = TRUE, selected = 1)
+                                             )
+                                           ),
+                                           
                                            fluidRow(
                                              column(8, fileInput("file", label = h5("Select a failure data file"),
-                                              accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
+                                                                 accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
                                            ),
                                            
                                            fluidRow(
-                                             column(8, 
-                                                    h5("Specify the input file format"),
-                                                    radioButtons("type", label = NULL, 
-                                                                choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), selected = 1)
-                                                    )
-                                           ),
-
-                                           
-                                           fluidRow(
-<<<<<<< HEAD
-                                             column(8, 
-                                                    h5("Choose a data sheet if an Excel file has been opened"),
-                                                    selectInput("dataSheetChoice", label = NULL, 
-                                                                choices = list("Open a data file first" = 1))
-=======
-                                             column(8,
+                                             column(10,
                                                     uiOutput("sheetChoice")
-                                                   
->>>>>>> upstream/master
-                                                    )
+                                                    
+                                             )
                                            ),
-                                          
+                                           
                                            fluidRow(
-                                             column(8, 
-                                                    h5("Specify how to show failure data"),
-                                                    selectInput("dataPlotChoice", label = NULL, 
+                                             column(11, 
+                                                    h5("Choose a view of the failure data."),
+                                                    
+                                                    selectInput("dataPlotChoice", label = "", 
                                                                 choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
                                                                                "Failure Rates" = 3), selected = 2)
-                                                    )
+                                             )
                                            ),
                                            
                                            fluidRow(
-                                             column(8, 
+                                             column(10, 
                                                     radioButtons("DataPlotType", label = h6("Specify how to draw the plot"),
                                                                  choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
                                                                  selected = 1)
                                              )
                                            ),
-
                                            
-
                                            fluidRow(
-                                             column(8, 
-                                                    h5("Examine the data for reliability growth"),
-                                                    selectInput("trendPlotChoice", label = NULL, 
+                                             column(10,
+                                                    radioButtons("PlotDataOrTrend", label = h6("Plot Data or Trend Test?"),
+                                                                 choices = list("Data" = 1, "Trend test" = 2), inline = TRUE,
+                                                                 selected = 1)
+                                             )
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(11, 
+                                                    h5("Does data show reliability growth?"),
+                                                    selectInput("trendPlotChoice", label = "", 
                                                                 choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
                                              ),
-                                             br(),
                                              column(8, textOutput("trendMessage"))
                                            ),
                                            
                                            fluidRow(
-                                             column(8, downloadButton('saveTrendTable', 'Save Trend Test to Disk'))
+                                             br(),
+                                             column(8, downloadButton('saveTrendTable', 'Save Display'))
                                            ),
                                            fluidRow(
                                              column(8,
                                                     uiOutput("message")
-                                                    )
-                                             ),
+                                             )
+                                           ),
                                            fluidRow(
                                              br(),
-                                             h5("Filter the failure data by category"),
+                                             h5("Subset the failure data by category"),
                                              column(8,
                                                     sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1))
                                            )
-
-                                           
                               ),
                               
                               mainPanel(
-                                textOutput("InputFileError"), plotOutput("distPlot", height = "700px")
-   ,width=8))
-                    
+                                tabsetPanel(
+                                  tabPanel("Plot", textOutput("InputFileError"), plotOutput("distPlot",height="700px")), 
+                                  tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
+                                  id="DataPlotAndTableTabset"),
+                                width=8
+                              )
+                            )
                    ),
                    
                    tabPanel("Set Up and Apply Models",
@@ -166,18 +168,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-<<<<<<< HEAD
                               mainPanel(
-                                #uiOutput("something"))
-
-
-                                textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px"),width=8)
-=======
-                              mainPanel( 
-                                plotOutput("ModelPlot", height = "700px"),width=8)
->>>>>>> upstream/master
+                                textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px"),width=8
+                              )
                             )
                    ),
+                   
                    tabPanel("Query Model Results",
                             sidebarLayout(
                               sidebarPanel(h4("Make Detailed Predictions From Model Results"),
