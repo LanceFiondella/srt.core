@@ -24,7 +24,7 @@ K_CategoryLast <- 5
 # Start main program ------------------------------------
 
 openFileDatapath <- ""
-data_global <- data.frame()
+#data_global <- data.frame()
 data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
@@ -94,6 +94,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       output$InputFileError <- renderText({msgDataFileTooSmall})
     } else {
       output$InputFileError <- renderText({""})
+    }
+    
+    if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
+      updateSelectInput(session, "dataPlotChoice",
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI"), selected = "CF")
+    } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
+      updateSelectInput(session, "dataPlotChoice",
+                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
     }
     
     updateSliderInput(session, "modelDataRange",
