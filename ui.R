@@ -32,15 +32,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     h5("Choose a view of the failure data."),
                                                     
                                                     selectInput("dataPlotChoice", label = "", 
-                                                                choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
-                                                                               "Failure Rates" = 3), selected = 2)
+                                                                choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                                                               "Failure Intensity" = "FI"), selected = "CF")
                                              )
                                            ),
                                            
                                            fluidRow(
-                                             column(10, 
-                                                    radioButtons("DataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
+                                             column(11, 
+                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                                                                  selected = 1)
                                              )
                                            ),

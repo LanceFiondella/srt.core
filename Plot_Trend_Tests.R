@@ -35,13 +35,13 @@ if(input$trendPlotChoice=="LP") {
 names(plot_data) = c("index","trend_test_statistic")
 
 if(input$DataPlotType==1){
-  q <- q + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_line(data=plot_data)
+  q <- q + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_step(data=plot_data)
 }
 if(input$DataPlotType==2){
   q <- q + geom_point(data=plot_data,aes(index,trend_test_statistic))
 }
 if(input$DataPlotType==3){
-  q <- q + geom_line(data=plot_data,aes(index,trend_test_statistic))
+  q <- q + geom_step(data=plot_data,aes(index,trend_test_statistic))
 }
 q <- q + theme(legend.position = "bottom")
 

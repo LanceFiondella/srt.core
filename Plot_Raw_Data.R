@@ -13,7 +13,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     IF <- input_data$IF
   }
   
-  if(input$dataPlotChoice == 1) {
+  if(input$dataPlotChoice == "IF") {
     
     # Interfailure Times vs. Elapsed Test Time
     
@@ -21,7 +21,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     q <- q+ggtitle(paste(c("Interfailure Times vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
-  } else if(input$dataPlotChoice == 2) {
+  } else if(input$dataPlotChoice == "CF") {
     
     # Cumulative Failures vs. Elapsed Test Time
     
@@ -29,7 +29,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     q <- q+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
-  } else if(input$dataPlotChoice == 3) {
+  } else if(input$dataPlotChoice == "FI") {
     
     # Empirical Failure Intensity vs. Elapsed Test Time
     
@@ -61,7 +61,15 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
   IF <- failureT_to_interF(failure_T = FT)
   IntervalTime <- input_data$T
   
-  if((input$dataPlotChoice==1)) {
+  if((input$dataPlotChoice == "FC")) {
+    
+    # Failure Counts vs. Elapsed Test Time
+    
+    plot_data <- data.frame(IntervalTime, FC)
+    q <- q+ggtitle(paste(c("Failure Counts vs. Cumulative Test Time of"),data_set))
+    q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Failure Counts per Test Interval"),values = c("blue","red"))
+    q <- q + xlab("Cumulative Test Time")+ylab("Failure Counts per Test Interval")
+  } else if((input$dataPlotChoice=="IF")) {
     
     # Interfailure Times vs. Elapsed Test Time
     
@@ -69,7 +77,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     q <- q+ggtitle(paste(c("Interfailure Times vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
-  } else if(input$dataPlotChoice==2) {
+  } else if(input$dataPlotChoice=="CF") {
     
     # Cumulative Failures vs. Elapsed Test Time
     
@@ -77,7 +85,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     q <- q+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
-  } else if(input$dataPlotChoice==3) {
+  } else if(input$dataPlotChoice=="FI") {
     
     # Empirical Failure Intensity vs. Elapsed Test Time
     
@@ -96,7 +104,7 @@ if(input$DataPlotType==1) {
   
   # Data points and lines
   
-  q <- q + geom_point(data=plot_data,aes(Index,FailureDisplayType))+ geom_line(data=plot_data)
+  q <- q + geom_point(data=plot_data,aes(Index,FailureDisplayType))+ geom_step(data=plot_data)
 }
 if(input$DataPlotType==2) {
   
@@ -108,7 +116,7 @@ if(input$DataPlotType==3) {
   
   # Lines only
   
-  q <- q + geom_line(data=plot_data,aes(Index,FailureDisplayType))
+  q <- q + geom_step(data=plot_data,aes(Index,FailureDisplayType))
 }
 q <- q + theme(legend.position = "bottom")
 
