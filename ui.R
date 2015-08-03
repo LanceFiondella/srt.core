@@ -213,6 +213,22 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("modelDetailPredTime", 
                                                                  label = h6("Specify the amount of additional time for which the software will run."),
                                                                  min = 1, value = 1)
+                                             ),
+                                             
+                                             column(12, 
+                                                    h5("How much more test time to achieve a specified reliability?")
+                                             ),
+                                             
+                                             column(12,
+                                                    numericInput("modelTargetReliability", 
+                                                                 label = h6("Specify the desired reliability."),
+                                                                 min = 0, max = 1, value = 0.9, step = 0.01)
+                                             ),
+                                             
+                                             column(12,
+                                                    numericInput("modelRelMissionTime", 
+                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                 min = 0, value = 1)
                                              )
                                            )
                               ),
@@ -220,14 +236,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               mainPanel(
                                 
                                 tabsetPanel(
-                                
-                                tabPanel('Tables',dataTableOutput('mytable1'),dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
-                                tabPanel("Plots",plotOutput("testingplot"))
+                                  tabPanel('Tables',dataTableOutput('mytable1'),dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
+                                  tabPanel("Plots",plotOutput("testingplot"))
                                 )
-                                )
+                              )
                             )
-                            
                    ),
+                   
                    tabPanel("Evaluate Models",
                             sidebarLayout(
                               sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
