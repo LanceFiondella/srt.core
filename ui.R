@@ -64,7 +64,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              br(),
-                                             column(8, downloadButton('saveTrendTable', 'Save Display'))
+                                             column(8, downloadButton('saveDataOrTrend', 'Save Display'))
                                            ),
                                            fluidRow(
                                              column(8,
@@ -235,8 +235,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     h5("Select a model evaluation to display."),
                                                     selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
-                                                                choices = list("Kolmogorov-Smirnov GOF Test" = 1, "-ln Prequential Likelihood" = 2,
-                                                                               "Prequential Likelihood Ratio" = 3, "Model Bias" = 4, "Scatter Plot of u(i)" = 5, "Model Bias Trend" = 6, "Model Noise" = 7), selected = 1)
+                                                                choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
+                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC", "Model Bias" = "MB", "Model Bias Trend" = "BT"), selected = "PLR")
                                              ),
                                              column(12,
                                                     numericInput("numericEvalSigValue", 
@@ -245,6 +245,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  value = .05)
                                              )
                                              
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(12, 
+                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                                                                 selected = 1)
+                                             )
                                            ),
                                            
                                            fluidRow(
@@ -264,7 +272,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
+                                                    radioButtons("radioAICRankEvalOrder", label = h6("Akaike Information Criterion"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 2, inline = TRUE)
                                              )
@@ -273,7 +281,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
+                                                    radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 3, inline = TRUE)
                                              )
@@ -282,7 +290,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
+                                                    radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 4, inline = TRUE)
                                              )
@@ -291,17 +299,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioNoiseRankEvalOrder", label = h6("Model Noise"),
+                                                    radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 5, inline = TRUE)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("radioEvalPlotType", label = h5("Specify how to draw plots"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
-                                                                 selected = 1)
                                              )
                                            )
                                            
