@@ -933,6 +933,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
      #p <- multiplot(p1,p1,cols=1)
     
     } ) 
+  
   output$mytable1 <- renderDataTable({
 
     inFile <- input$file
@@ -1144,6 +1145,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     table_t
   #data_global
   })
+  
 output$mytable3 <- renderDataTable({
 
     inFile <- input$file
