@@ -5,103 +5,103 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
                             
                             sidebarLayout(
-                              sidebarPanel(h4("Select, Analyze, and Filter Failure Data"),
+                              sidebarPanel(h4("Select, Analyze, and Subset Failure Data"),
                                            fluidRow(
-                                             column(8, fileInput("file", label = h5("Select a failure data file"),
-                                              accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
-                                           ),
-                                           fluidRow(
-                                             column(8, 
+                                             column(10, 
                                                     h5("Specify the input file format"),
                                                     
-                                                    radioButtons("type", label = h6("Specify the file format"), 
-                                                                choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), selected = 1)
-                                                    )
+                                                    radioButtons("type", label = "", 
+                                                                 choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), inline = TRUE, selected = 1)
+                                             )
                                            ),
-
                                            
                                            fluidRow(
-                                             column(8,
+                                             column(8, fileInput("file", label = h5("Select a failure data file"),
+                                                                 accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(10,
                                                     uiOutput("sheetChoice")
-                                                   
-                                                    )
-                                           ),
-                                          
-                                           fluidRow(
-                                             column(8, 
-                                                    h5("Specify how failure data is plotted."),
                                                     
-                                                    selectInput("dataPlotChoice", label = h6("Specify the data view"), 
-                                                                choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
-                                                                               "Failure Rates" = 3), selected = 2)
-                                                    )
+                                             )
                                            ),
                                            
                                            fluidRow(
-                                             column(8, 
-                                                    radioButtons("DataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
+                                             column(11, 
+                                                    h5("Choose a view of the failure data."),
+                                                    
+                                                    selectInput("dataPlotChoice", label = "", 
+                                                                choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                                                               "Failure Intensity" = "FI"), selected = "CF")
+                                             )
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(11, 
+                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                                                                  selected = 1)
                                              )
                                            ),
-
                                            
-
                                            fluidRow(
-                                             column(8, 
-                                                    br(),
-                                                    h5("Examine the data for reliability growth."),
-                                                    selectInput("trendPlotChoice", label = h6("Select a trend test"), 
+                                             column(10,
+                                                    radioButtons("PlotDataOrTrend", label = h6("Plot Data or Trend Test?"),
+                                                                 choices = list("Data" = 1, "Trend test" = 2), inline = TRUE,
+                                                                 selected = 1)
+                                             )
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(11, 
+                                                    h5("Does data show reliability growth?"),
+                                                    selectInput("trendPlotChoice", label = "", 
                                                                 choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
                                              ),
-                                             br(),
                                              column(8, textOutput("trendMessage"))
                                            ),
                                            
                                            fluidRow(
                                              br(),
-                                             column(8, downloadButton('saveTrendTable', 'Save Trend Test to Disk'))
+                                             column(8, downloadButton('saveDataOrTrend', 'Save Display'))
                                            ),
                                            fluidRow(
                                              column(8,
                                                     uiOutput("message")
-                                                    )
-                                             ),
+                                             )
+                                           ),
                                            fluidRow(
                                              br(),
-                                             h5("Filter the failure data or change its type."),
-                                             column(8,
-                                                    selectInput("dataSubsetChoice", label = h6("Select one or more failure categories to retain"), 
-                                                                choices = list("Category 1" = 1, "Category 2" = 2,
-                                                                               "Category 3" = 3, "Category 4" = 4), multiple=TRUE)  
-                                             )
+                                             column(9, h5("Subset the failure data by category or data range")),
+                                             column(9,
+                                                    sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
+                                                                min = 1, max = 5, value = c(1, 5), step = 1)),
+                                             column(9,
+                                                    sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
+                                                                min = 1, max = 5, value = c(1, 5), step = 1))
                                            )
-
-                                           
                               ),
                               
                               mainPanel(
-                                plotOutput("distPlot", height = "700px")
-   ,width=8))
-                    
+                                tabsetPanel(
+                                  tabPanel("Plot", textOutput("InputFileError"), plotOutput("distPlot",height="700px")), 
+                                  tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
+                                  id="DataPlotAndTableTabset"),
+                                width=8
+                              )
+                            )
                    ),
                    
                    tabPanel("Set Up and Apply Models",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Configure and Apply Models"),
-                                           h5("Set up the modeling data range, the initial parameter estimation interval, and the number of failures for which the models will make predictions"),
-                                           fluidRow(
-                                             column(12,
-                                                    sliderInput("modelDataRange", h6("Specify the data to which the models will be applied."),
-                                                                min = 1, max = 150, value = c(1, 120))
-                                             )
-                                           ),
-                                           
+                                           h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
                                            fluidRow(
                                              column(12,
                                                     sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                                                                min = 1, max = 150, value = 60)
+                                                                min = 1, max = 4, value = 3)
                                              )
                                            ),
                                            
@@ -113,7 +113,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
                                            
-                                           
+                                           fluidRow(
+                                             column(12,
+                                                    actionButton("runModels", label = "Run Models")
+                                             )
+                                           ),
                                            
                                            fluidRow(
                                              column(12, 
@@ -133,11 +137,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                 )
                                              )
                                            ),
-                                          fluidRow(
-                                             column(12,
-                                                    actionButton("runModels", label = "Run Models")
-                                             )
-                                           ),
                                            
                                            fluidRow(
                                              column(12, 
@@ -153,6 +152,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     checkboxInput("checkboxDataOnPlot", label = "Show data on plot", value = TRUE)
                                              )
                                            ),
+                                           
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
@@ -164,10 +164,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                               ),
                               
-                              mainPanel( 
-                                plotOutput("ModelPlot", height = "700px"),width=8)
+                              mainPanel(
+                                tabsetPanel(
+                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px")), 
+                                  tabPanel("Model Result Table", dataTableOutput("ModelResultTable")),
+                                  id="ModelPlotAndTableTabset"), width=8
                             )
+                          )
                    ),
+                   
                    tabPanel("Query Model Results",
                             sidebarLayout(
                               sidebarPanel(h4("Make Detailed Predictions From Model Results"),
@@ -185,7 +190,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                                "Goel-okumoto"=7
                                                                                ), 
                                                                 multiple=TRUE,
-                                                              
                                                                 )
                                              ),
                                              
@@ -207,38 +211,58 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("modelDetailPredTime", 
                                                                  label = h6("Specify the amount of additional time for which the software will run."),
                                                                  min = 1, value = 1)
+                                             ),
+                                             
+                                             column(12, 
+                                                    h5("How much more test time to achieve a specified reliability?")
+                                             ),
+                                             
+                                             column(12,
+                                                    numericInput("modelTargetReliability", 
+                                                                 label = h6("Specify the desired reliability."),
+                                                                 min = 0, max = 1, value = 0.9, step = 0.01)
+                                             ),
+                                             
+                                             column(12,
+                                                    numericInput("modelRelMissionTime", 
+                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                 min = 0, value = 1)
                                              )
                                            )
                               ),
                               
                               mainPanel(
-                                
-                                tabsetPanel(
-                                
-                                tabPanel('Tables',dataTableOutput('mytable1')),                  #tabPanel('Table',dataTableOutput('mytable1'))
-                                tabPanel("Plots",plotOutput("testingplot"))
-                                )
-                                )
+                                dataTableOutput('mytable1')
+                              )
                             )
-                            
                    ),
+                   
                    tabPanel("Evaluate Models",
                             sidebarLayout(
                               sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
                                            fluidRow(
                                              column(12, 
-                                                    h5("Select a model evaluation to display."),
+                                                    h5("Select a model evaluation technique to apply"),
                                                     selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
-                                                                choices = list("Kolmogorov-Smirnov GOF Test" = 1, "-ln Prequential Likelihood" = 2,
-                                                                               "Prequential Likelihood Ratio" = 3, "Model Bias" = 4, "Scatter Plot of u(i)" = 5, "Model Bias Trend" = 6, "Model Noise" = 7,"AIC"=8,"PSSE"=9), selected = 1)
+                                                                choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
+                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
+                                                                               "Model Bias" = "MB", "Model Bias Trend" = "BT"), selected = "PLR")
                                              ),
+                                             
                                              column(12,
                                                     numericInput("numericEvalSigValue", 
                                                                  label = h6("Specify the significance level for the selected test"),
                                                                  min = 0, max = 1, step = 0.001,
                                                                  value = .05)
                                              )
-                                             
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(12, 
+                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                                                                 selected = 1)
+                                             )
                                            ),
                                            
                                            fluidRow(
@@ -258,7 +282,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
+                                                    radioButtons("radioAICRankEvalOrder", label = h6("Akaike Information Criterion"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 2, inline = TRUE)
                                              )
@@ -267,7 +291,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
+                                                    radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 3, inline = TRUE)
                                              )
@@ -276,7 +300,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
+                                                    radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 4, inline = TRUE)
                                              )
@@ -285,30 +309,18 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
-                                                    radioButtons("radioNoiseRankEvalOrder", label = h6("Model Noise"),
+                                                    radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
                                                                  choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
                                                                  selected = 5, inline = TRUE)
                                              )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("radioEvalPlotType", label = h5("Specify how to draw plots"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
-                                                                 selected = 1)
-                                             )
                                            )
-                                           
                               ),
                               
                               mainPanel(
                                 tabsetPanel(
-                                
-                                tabPanel('Table',dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
-                                tabPanel("Plot",plotOutput("Evalationplot"))
+                                  tabPanel('Table',dataTableOutput('mytable2')),
+                                  tabPanel("Plot",plotOutput("Evalationplot"))
                                 )                              
-
-
                               )
                             )
                    )
