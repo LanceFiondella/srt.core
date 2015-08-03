@@ -7,7 +7,6 @@ source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("JM_BM.R")
-source("GO_EM_FT.R")
 source("GO_BM_FT.R")
 source("GM_BM.R")
 source("Data_Format.R")
