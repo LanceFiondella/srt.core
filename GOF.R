@@ -28,7 +28,7 @@ mean_absolute_error <- function(x,y){
 }
 
 aic <- function(l,mle){
-	return 2*p - 2*log(mle)
+	return (2*p - 2*log(mle))
 }
 
 psse <- function(x,y){
