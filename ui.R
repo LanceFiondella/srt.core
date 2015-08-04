@@ -1,5 +1,5 @@
 library(shiny)
-
+models <- c("Musa Basic", "Musa Okumoto","Geometric", "Jelinski-Moranda", "Goel-okumoto")
 #source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
@@ -125,14 +125,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                choices = list("Musa Basic" = 1, 
-                                                                               "Musa Okumoto" = 2,
-                                                                               "Geometric" = 3, 
-                                                                               "Littlewood-Verrall Linear"=4,
-                                                                               "Littlewood-Verrall Quadratic"=5,
-                                                                               "Jelinksi-Moranda"=6,
-                                                                               "Goel-okumoto"=7
-                                                                               ), 
+                                                                models,
+                                                                # choices = list("Musa Basic" = "Musa Basic, 
+                                                                #                "Musa Okumoto" = ,
+                                                                #                "Geometric" = 3, 
+                                                                #                "Littlewood-Verrall Linear"=4,
+                                                                #                "Littlewood-Verrall Quadratic"=5,
+                                                                #                "Jelinksi-Moranda"=6,
+                                                                #                "Goel-okumoto"=7
+                                                                #                ), 
                                                                 multiple=TRUE,
                                                                 selected=6
                                                                 )
@@ -182,14 +183,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
                                                     selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                                choices = list("Musa Basic" = "Musa", 
-                                                                               "Musa Okumoto" = 2,
-                                                                               "Geometric" = "Geometric", 
-                                                                               "Littlewood-Verrall Linear"=4,
-                                                                               "Littlewood-Verrall Quadratic"=5,
-                                                                               "Jelinksi-Moranda"="Jelinski-Moranda",
-                                                                               "Goel-okumoto"=7
-                                                                               ), 
+                                                                models,
                                                                 multiple=TRUE,
                                                                 )
                                              ),

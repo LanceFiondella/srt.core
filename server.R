@@ -149,6 +149,23 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
+  track_models <- reactive({
+    tracked_models <- c()
+    if(!is.null(input$modelResultChoice)) {
+      tracked_models <- input$modelResultChoice
+    }
+    else{
+      if(!is.null(input$modelDetailChoice)){
+        tracked_models <- input$modelDetailChoice
+      }
+      
+    }
+    print(tracked_models)
+    tracked_models
+
+    # Returns indeces of the models selected
+    # The indices should be same throughout the
+  })
   
   # Set up the data and trend test statistics tables for display
   
@@ -309,12 +326,17 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     #q <- ggplot()
     #p1 <- ggplot()
     #p1 <- ggplot()
+    #tracked_models <- track_models()
+    #input$modelResultChoice <- track_models()
     if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(input$modelResultChoice)>0){
+      if(is.null(input$modelResultChoice)){
+        return
+      }
+      if(length(track_models())>0){
         
           for(i in input$modelResultChoice){
-            if(i==6){
+            if(i=="Jelinski-Moranda"){
             if(length(grep("IF",names(data)))){
               if(input$modelPlotChoice==2){
                 p1 <- ggplot(,aes_string(x=Time,y=Failure));
@@ -623,7 +645,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             }
           }
 
-          else if(i==3){
+          else if(i=="Geometric"){
           if(length(grep("IF",names(data)))){
               if(input$modelPlotChoice==2){
                 p1 <- ggplot(,aes_string(x=Time,y=Failure));
@@ -902,7 +924,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
             }          
         }
-        else if(i==7){
+        else if(i=="Goel-okumoto"){
           print("Goel-okumoto");
 
           if(length(grep("IF",names(data)))){
@@ -1239,8 +1261,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         return(data)
       }
       ###################################################
-
-      if(length(input$modelDetailChoice)>0){
+      #input$modelDetailChoice <- track_models()
+      if(is.null(input$modelDetailChoice)){
+        return
+      }
+      if(length(track_models())>0) {
         count <- 0
         for(i in input$modelDetailChoice){
           if(i=="Jelinski-Moranda"){
@@ -1447,7 +1472,7 @@ output$mytable2 <- renderDataTable({
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(input$modelEvalChoice)>0){
+      if(length(track_models())>0){
         count <- 0
         for(i in input$modelEvalChoice){
           if(i=="Jelinski-Moranda"){
@@ -1459,13 +1484,12 @@ output$mytable2 <- renderDataTable({
               if(typeof(new_params)=="double"){
                 print("Entered the double")
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
+                frame_params  <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
                 number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
 
                 table_t[count,1] <- i
                 table_t[count,2] <- length(data$IF)
-                table_t[count,3] <- number_fails
-                
+                table_t[count,3] <- number_fails                
               }
               else if(new_params=="nonconvergence"){
                 print("Entered the Non-conv")
@@ -1495,8 +1519,7 @@ output$mytable2 <- renderDataTable({
               else if(new_params=="nonconvergence"){
                 table_t[count,1] <- i
                 table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-              
+                table_t[count,3] <- "NON-CONV"              
               }
               else{
                 # to be programmed
