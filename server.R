@@ -252,43 +252,43 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # sure that the modeling intervals and lengths of the modeling data set don't
   # go below specified minimal values.
   
-  output$ModelConfigError <- renderText({
-    outputMessage <- ""
+  # output$ModelConfigError <- renderText({
+  #   outputMessage <- ""
     
-    # Read the slider for the categories to be retained when filtering the data.
+  #   # Read the slider for the categories to be retained when filtering the data.
     
-    DataCategoryFirst <- input$sliderDataSubsetChoice[1]
-    DataCategoryLast <- input$sliderDataSubsetChoice[2]
+  #   DataCategoryFirst <- input$sliderDataSubsetChoice[1]
+  #   DataCategoryLast <- input$sliderDataSubsetChoice[2]
     
-    # Set the slider for the initial parameter estimation range to be
-    # consistent with the data range over which models are applied
+  #   # Set the slider for the initial parameter estimation range to be
+  #   # consistent with the data range over which models are applied
     
-    dataModelRange <- input$modelDataRange
+  #   dataModelRange <- input$modelDataRange
     
-    DataModelIntervalStart <- dataModelRange[1]
-    DataModelIntervalEnd <- dataModelRange[2]
+  #   DataModelIntervalStart <- dataModelRange[1]
+  #   DataModelIntervalEnd <- dataModelRange[2]
     
-    # Keep the data interval used for modeling to 5 observations or more.
+  #   # Keep the data interval used for modeling to 5 observations or more.
     
-    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-      outputMessage <- msgDataIntervalTooSmall
-      while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-        if(DataModelIntervalStart > 1){
-          DataModelIntervalStart <- DataModelIntervalStart - 1
-        }
-        if(DataModelIntervalEnd < length(data_global[,1])){
-          DataModelIntervalEnd <- DataModelIntervalEnd + 1
-        }
-      }
+  #   if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+  #     outputMessage <- msgDataIntervalTooSmall
+  #     while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+  #       if(DataModelIntervalStart > 1){
+  #         DataModelIntervalStart <- DataModelIntervalStart - 1
+  #       }
+  #       if(DataModelIntervalEnd < length(data_global[,1])){
+  #         DataModelIntervalEnd <- DataModelIntervalEnd + 1
+  #       }
+  #     }
 
-      updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
-    }    
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)    
+  #     updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
+  #   }    
+  #   updateSliderInput(session, "parmEstIntvl",
+  #                     min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+  #                     max = DataModelIntervalEnd-1)    
     
-    outputMessage
-  })
+  #   outputMessage
+  # })
   
 
   output$ModelPlot <- renderPlot({
