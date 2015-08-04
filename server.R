@@ -1222,7 +1222,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       return("Please upload an a file")
     }
 
-    data <- data_react()
+    data <- data_global()
     
     # frame_params <- "EMPTY"
     #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
@@ -1434,7 +1434,7 @@ output$mytable2 <- renderDataTable({
       return("Please upload an a file")
     }
 
-    data <- data_react()
+    data <- data_global()
      if(!is.numeric(input$modelDetailPredTime)){
         return(data)
       }
