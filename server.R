@@ -7,7 +7,8 @@ source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("JM_BM.R")
-source("GO_BM.R")
+source("GO_EM_FT.R")
+source("GO_BM_FT.R")
 source("GM_BM.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
@@ -51,7 +52,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   #    p("HEllO")
   #  })
 
-  
   # Select and read in a data file.  This is a reactive data item.
   
   data_global <- reactive({
@@ -290,8 +290,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     outputMessage
   })
   
-
-
 
   output$ModelPlot <- renderPlot({
     data <- data.frame(x=data_global())
@@ -904,8 +902,289 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
             }          
         }
-        else if(i==8){
+        else if(i==7){
           print("Goel-okumoto");
+
+          if(length(grep("IF",names(data)))){
+              if(input$modelPlotChoice==2){
+                FT <- interF_to_failureT(data$IF)
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(FT)
+                print(new_params)
+                data <- data.frame("FT"=FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_MVF(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color="lines and dots"))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color="dots"))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure,color="lines"))
+                }
+                if(input$checkboxDataOnPlot){
+                  original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                }
+                p1<- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
+                p1 <- p1 + theme(legend.position = c(0.1, 0.9));
+                p1 <- p1 + scale_color_manual(name = "Legend",  labels = c("GO_MVF","Original Data"),values = c("black","grey"))
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==1){
+
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+
+                new_params <- GO_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_T(frame_params,data)
+                
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                if(input$checkboxDataOnPlot){
+                  original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
+                  p1 <- p1 + geom_point(data=original_data,aes(Time,Failure));
+                }
+                p1 <- p1+ggtitle(paste(c("Time Between Failure function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==3){
+
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_FR(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1+ geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                # if(input$checkboxDataOnPlot){
+                #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                #   p <- p + geom_line(data=original_data,aes(Time,Failure));
+                # }
+                p1 <- p1+ggtitle(paste(c("Failure Intensity function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==4){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(data$IF)
+                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_R(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                # if(input$checkboxDataOnPlot){
+                #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                #   p <- p + geom_line(data=original_data,aes(Time,Failure));
+                # }
+                p1 <- p1 + ggtitle(paste(c("Reliability function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+            }
+            else if(length(grep("FT",names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              if(input$modelPlotChoice==2){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(data$FT)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_MVF(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                if(input$checkboxDataOnPlot){
+                  original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                }
+                p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==1){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=IF)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                if(input$checkboxDataOnPlot){
+                  original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
+                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                }
+                p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==3){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(data$FT)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_FR(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                # if(input$checkboxDataOnPlot){
+                #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                #   p <- p + geom_line(data=original_data,aes(Time,Failure));
+                # }
+                p1 <- p1+ggtitle(paste(c("Failure Intensity function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==4){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(data$FT)
+                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_R(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                # if(input$checkboxDataOnPlot){
+                #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                #   p <- p + geom_line(data=original_data,aes(Time,Failure));
+                # }
+                p1 <- p1+ggtitle(paste(c("Reliability function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+            }
+            else if(length(grep("CFC",names(data)))){
+
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              FT <- failureC_to_failureT(data$T,FC)
+              IF <- failureT_to_interF(failure_T = FT)
+              if(input$modelPlotChoice==2){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(FT)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_MVF(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                if(input$checkboxDataOnPlot){
+                  original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                }
+                p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==1){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                if(input$checkboxDataOnPlot){
+                  original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
+                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                }
+                p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==3){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(FT)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_FR(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1+ geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                # if(input$checkboxDataOnPlot){
+                #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                #   p <- p + geom_line(data=original_data,aes(Time,Failure));
+                # }
+                p1 <- p1+ggtitle(paste(c("Failure Intensity function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+              if(input$modelPlotChoice==4){
+                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                new_params <- GO_BM_MLE(FT)
+                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+                frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
+                mvf_plot_data <- GO_BM_R(frame_params,data)
+                if(input$ModelDataPlotType==1){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)
+                }
+                if(input$ModelDataPlotType==2){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))#+ geomline(data=plot_data)
+                }
+                if(input$ModelDataPlotType==3){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                }
+                # if(input$checkboxDataOnPlot){
+                #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
+                #   p <- p + geom_line(data=original_data,aes(Time,Failure));
+                # }
+                p1 <- p1 +ggtitle(paste(c("Reliability function plot of"),input$dataSheetChoice));
+                #q <- q + p
+              }
+            }          
+        
         }
         else{
           print("Other");
@@ -1146,8 +1425,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   #data_global
   })
   
-output$mytable3 <- renderDataTable({
-
+output$mytable2 <- renderDataTable({
+    source("GOF.R")
     inFile <- input$file
     table_t <- data.frame("Model"=NULL, "N0"=NULL, "Time-remaining"=NULL)
     
@@ -1168,9 +1447,9 @@ output$mytable3 <- renderDataTable({
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(input$modelDetailChoice)>0){
+      if(length(input$modelEvalChoice)>0){
         count <- 0
-        for(i in input$modelDetailChoice){
+        for(i in input$modelEvalChoice){
           if(i=="Jelinski-Moranda"){
             if(length(grep("IF",names(data)))){
               count <- count + 1
@@ -1192,8 +1471,7 @@ output$mytable3 <- renderDataTable({
                 print("Entered the Non-conv")
                 table_t[count,1] <- i
                 table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                
+                table_t[count,3] <- "NON-CONV"             
               }
               else{
                 # to be programmed

@@ -73,12 +73,15 @@ GO_MVF <- function(param,d){
     r[i,2] <- param$N0*(1-exp(-1*t_index[i]*param$Phi))
   }
   r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  names(r) <- c("Time", "Failure")
   r
-} 
+}
 #NHPP log-likelihood function
 
-#lnl  <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
+GO_lnl  <- function(){
+  t <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
+  return t
+}
 
 #Mean Value function
 

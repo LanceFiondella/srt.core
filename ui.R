@@ -73,9 +73,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            fluidRow(
                                              br(),
-                                             h5("Subset the failure data by category"),
-                                             column(8,
+                                             column(9, h5("Subset the failure data by category or data range")),
+                                             column(9,
                                                     sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
+                                                                min = 1, max = 5, value = c(1, 5), step = 1)),
+                                             column(9,
+                                                    sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1))
                                            )
                               ),
@@ -94,18 +97,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Configure and Apply Models"),
-                                           h5("Set up the modeling data range, the initial parameter estimation interval, and the number of failures for which the models will make predictions"),
-                                           fluidRow(
-                                             column(12,
-                                                    sliderInput("modelDataRange", h6("Specify the data to which the models will be applied."),
-                                                                min = 1, max = 5, value = c(1, 5))
-                                             )
-                                           ),
-                                           
+                                           h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
+
                                            fluidRow(
                                              column(12,
                                                     sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                                                                min = 1, max = 150, value = 60)
+                                                                min = 1, max = 4, value = 3)
                                              )
                                            ),
                                            
@@ -117,7 +114,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
                                            
-                                           
+                                           fluidRow(
+                                             column(12,
+                                                    actionButton("runModels", label = "Run Models")
+                                             )
+                                           ),
                                            
                                            fluidRow(
                                              column(12, 
@@ -137,11 +138,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                 )
                                              )
                                            ),
-                                          fluidRow(
-                                             column(12,
-                                                    actionButton("runModels", label = "Run Models")
-                                             )
-                                           ),
                                            
                                            fluidRow(
                                              column(12, 
@@ -157,6 +153,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     checkboxInput("checkboxDataOnPlot", label = "Show data on plot", value = TRUE)
                                              )
                                            ),
+                                           
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
@@ -169,9 +166,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               ),
                               
                               mainPanel(
-                                textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px"),width=8
-                              )
+                                tabsetPanel(
+                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px")), 
+                                  tabPanel("Model Result Table", dataTableOutput("ModelResultTable")),
+                                  id="ModelPlotAndTableTabset"), width=8
                             )
+                          )
                    ),
                    
                    tabPanel("Query Model Results",
@@ -191,7 +191,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                                "Goel-okumoto"=7
                                                                                ), 
                                                                 multiple=TRUE,
-                                                              
                                                                 )
                                              ),
                                              
@@ -234,11 +233,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               ),
                               
                               mainPanel(
-                                
-                                tabsetPanel(
-                                  tabPanel('Tables',dataTableOutput('mytable1'),dataTableOutput('mytable2')),                  #tabPanel('Table',dataTableOutput('mytable1'))
-                                  tabPanel("Plots",plotOutput("testingplot"))
-                                )
+                                dataTableOutput('mytable1')
                               )
                             )
                    ),
@@ -248,18 +243,27 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
                                            fluidRow(
                                              column(12, 
-                                                    h5("Select a model evaluation to display."),
+                                                    h5("Select a model evaluation technique to apply"),
                                                     selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
                                                                 choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
-                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC", "Model Bias" = "MB", "Model Bias Trend" = "BT"), selected = "PLR")
+                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
+                                                                               "Model Bias" = "MB", "Model Bias Trend" = "BT"), selected = "PLR")
                                              ),
+                                             
                                              column(12,
                                                     numericInput("numericEvalSigValue", 
                                                                  label = h6("Specify the significance level for the selected test"),
                                                                  min = 0, max = 1, step = 0.001,
                                                                  value = .05)
                                              )
-                                             
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(12, 
+                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                                                                 selected = 1)
+                                             )
                                            ),
                                            
                                            fluidRow(
@@ -319,15 +323,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = 5, inline = TRUE)
                                              )
                                            )
-                                           
                               ),
                               
                               mainPanel(
-
-                                
-
-
-                                )
+                                tabsetPanel(
+                                  tabPanel('Table',dataTableOutput('mytable2')),
+                                  tabPanel("Plot",plotOutput("Evalationplot"))
+                                )                              
+                              )
                             )
                    )
 ))

@@ -3,7 +3,7 @@ library(gdata)
 
 library(crayon)
 model_names <- c("JM","GM","GO","DSS","Wei")
-#model_names <- c("GO")
+model_names <- c("GO")
 model_types <- c("FT")#,"FC","IF")
 data_set_names <- c("SYS1",
                     "SYS2", 
@@ -169,7 +169,7 @@ models_solution_list <- list(JM_SYS1    = c(141.9029, 3.601259e-05),
                              GO_J5      = c(1625.411154,0.00351365))
 
 epsilon <- 1e-3
-console_out_u<- function(model,data_set,request){
+console_out_u<- function(model,data_set,request,method,type){
   begin <- make_style("yellow",bg=TRUE)
   
   cat(begin(format(model,width=9)))
@@ -357,7 +357,23 @@ console_out_u<- function(model,data_set,request){
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
       FT <- input_data$FT
-      sol <- GO_MLE(FT)
+      #split_name <- unlist(strsplit(request,"_"))
+      #print(split_name)
+      # for(type in model_types){
+      #     if(type %in% split_name){
+      #       for(method in model_method){
+      #         if(method %in% split_name){
+      #            #source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+      #            MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+      #         }
+
+      #       }
+      #     }       
+      #   }
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+
+      sol <- MLE_construct(FT)
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
@@ -365,7 +381,23 @@ console_out_u<- function(model,data_set,request){
       source("Data_Format.R")
       IF <- input_data$IF
       FT <- input_data$FT
-      sol <- GO_MLE(FT)
+      #split_name <- unlist(strsplit(request,"_"))
+      #print(split_name)
+      # for(type in model_types){
+      #     if(type %in% split_name){
+      #       for(method in model_method){
+      #         if(method %in% split_name){
+      #            #source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+      #            MLE_construct <- get(paste(model,method,"MLE",sep="_"))
+      #         }
+
+      #       }
+      #     }       
+      #   }
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+
+      sol <- MLE_construct(FT)
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
       print("PICKED CFC pattern")     
@@ -375,7 +407,11 @@ console_out_u<- function(model,data_set,request){
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      sol <- GO_MLE(FT)
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+
+      sol <- MLE_construct(FT)
+      
     }
     else if(length(grep("FC",names(input_data)))>0){
       print("PICKED FC pattern")
@@ -384,7 +420,10 @@ console_out_u<- function(model,data_set,request){
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      sol <- GO_MLE(FT)
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+
+      sol <- MLE_construct(FT)
     }
 
 
@@ -488,7 +527,8 @@ for(model in model_names){
             #   next
             # }
             request <- paste(model,data_set,sep="_")
-            console_out_u(model,data_set,request)
+
+            console_out_u(model,data_set,request,method,type)
           }          
         }
       }
