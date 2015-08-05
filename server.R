@@ -149,23 +149,28 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
-  track_models <- reactive({
-    tracked_models <- c()
-    if(!is.null(input$modelResultChoice)) {
-      tracked_models <- input$modelResultChoice
-    }
-    else{
-      if(!is.null(input$modelDetailChoice)){
-        tracked_models <- input$modelDetailChoice
-      }
-      
-    }
-    print(tracked_models)
-    tracked_models
+  # There is a serious flaw in tracking the models selected
+  # But there is a strong necessity to track the models 
+  # selected.
 
-    # Returns indeces of the models selected
-    # The indices should be same throughout the
-  })
+
+  # track_models <- reactive({
+  #   tracked_models <- c()
+  #   if(!is.null(input$modelResultChoice)) {
+  #     tracked_models <- input$modelResultChoice
+  #   }
+  #   else{
+  #     if(!is.null(input$modelDetailChoice)){
+  #       tracked_models <- input$modelDetailChoice
+  #     }
+      
+  #   }
+  #   print(tracked_models)
+  #   tracked_models
+
+  #   # Returns indeces of the models selected
+  #   # The indices should be same throughout the
+  # })
   
   # Set up the data and trend test statistics tables for display
   
@@ -320,20 +325,29 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     #Failure <- names(data[2])#(y-axis)
     #p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
     value <- c("blue","red")
-    #p <- ggplot(,aes_string(x=Time,y=Failure))
-    #mvf_plot_data <- data.frame()
-    #p1 <- ggplot(,aes_string(x=Time,y=Failure));
-    #q <- ggplot()
-    #p1 <- ggplot()
-    #p1 <- ggplot()
-    #tracked_models <- track_models()
-    #input$modelResultChoice <- track_models()
-    if(input$runModels!=0){          ###################should think of isolate here
-      plus <- 0
-      if(is.null(input$modelResultChoice)){
+    
+    count <-0
+    # while(is.null(input$modelResultChoice) || length(input$modelResultChoice)==0 ){
+    #   count <- count+1
+    #   print(count)
+    #   return
+    # }
+
+   
+    if(is.null(input$modelResultChoice) || (length(input$modelResultChoice)==0)) {
         return
       }
-      if(length(track_models())>0){
+  
+      
+    if(input$runModels!=0){          ###################should think of isolate here
+      plus <- 0
+      
+      
+      if(length(input$modelResultChoice)>0){
+          
+         print("Outer Zone entered")
+  
+     
         
           for(i in input$modelResultChoice){
             if(i=="Jelinski-Moranda"){
@@ -923,7 +937,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
             }          
-        }
+      }
+
         else if(i=="Goel-okumoto"){
           print("Goel-okumoto");
 
@@ -1215,18 +1230,27 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         #print("hello i am a out");
           
-          
+         
           #print("i ==6")
         }
+        p1
+        
       #print("model selections")
-      p1
+      
+      }
+      
+
     }
+
+
+    
+
     #print("i am far out");
     #print(input$runModels)
     #p <- p + scale_color_manual(name = "Legend",  labels = c("Original Data"),values = c("blue"))
     #print(input$modelResultChoice)
     
-    }
+    
     #plotties <- c(p1,p1)
     #print(plotties$layers)
     #plotSet <- length(plotties$layers)>0
@@ -1246,13 +1270,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
 
     data <- data_global()
-    
+    if(is.null(input$modelDetailChoice)){
+        return
+      }
     # frame_params <- "EMPTY"
     #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-
+      
       ###################################################
       if(!is.numeric(input$modelDetailPredTime)){
         return(data)
@@ -1262,9 +1288,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       ###################################################
       #input$modelDetailChoice <- track_models()
-      if(is.null(input$modelDetailChoice)){
-        return
-      }
+      if(length(input$modelDetailChoice)>0){
       if(length(track_models())>0) {
         count <- 0
         for(i in input$modelDetailChoice){
@@ -1447,6 +1471,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
     #names(table_t) <- c("Model","N0","Time-remaining")
     table_t
+  }
   #data_global
   })
   
@@ -1459,6 +1484,10 @@ output$mytable2 <- renderDataTable({
     if(is.null(inFile)){
       return("Please upload an a file")
     }
+
+    if(is.null(input$modelEvalChoice)){
+        return
+      }
 
     data <- data_global()
      if(!is.numeric(input$modelDetailPredTime)){

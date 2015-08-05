@@ -134,8 +134,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                 #                "Jelinksi-Moranda"=6,
                                                                 #                "Goel-okumoto"=7
                                                                 #                ), 
-                                                                multiple=TRUE,
-                                                                selected=6
+                                                                multiple=TRUE
+                                                              
                                                                 )
                                              )
                                            ),
