@@ -94,13 +94,42 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     } else {
        output$InputFileError <- renderText({""})
     }
+
+    # Complete all columns for FT/IF data, including failure number.
+    # This information will be used later for subsetting the data.
     
     if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
-       updateSelectInput(session, "dataPlotChoice",
+      if (length(grep("FT",names(data))) == 0) {
+        data$FT <- interF_to_failureT(data$IF)
+      } else if (length(grep("IF",names(data))) == 0) {
+        data$IF <- failureT_to_interF(data$FT)
+      }
+      if (length(grep("FN",names(data))) == 0) {
+        data$FN <- c(1:length(data$IF))
+      }
+      
+      # Update failure data view slider for IF/FT data views.
+      
+      updateSelectInput(session, "dataPlotChoice",
                          choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                         "Failure Intensity" = "FI"), selected = "CF")
     } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
-       updateSelectInput(session, "dataPlotChoice",
+      if (length(grep("FC",names(data))) > 0) {
+        if (length(grep("CFC",names(data))) == 0) {
+          data$CFC <- FailureC_to_CumulativeFailureC(data$FC)
+        }
+      } else if (length(grep("CFC",names(data))) > 0) {
+        data$FC <- CumulativeFailureC_to_failureC(data$CFC)
+      }
+      
+      # Add a column for test intervals.
+      
+      data$TI <- c(1:length(data$FC))
+      
+      # Update failure data view slider for CFC/FC data views.
+      # Includes a "failure counts" view which IF/FT data does not.
+      
+      updateSelectInput(session, "dataPlotChoice",
                          choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                         "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
     }
