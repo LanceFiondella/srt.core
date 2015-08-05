@@ -87,30 +87,30 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # Set up the initial values for modeling data range and the initial parameter
     # estimation range
     
-    # DataModelIntervalStart <<- 1
-    # DataModelIntervalEnd <<- length(data[,1])
-    # if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-    #   output$InputFileError <- renderText({msgDataFileTooSmall})
-    # } else {
-    #   output$InputFileError <- renderText({""})
-    # }
+    DataModelIntervalStart <<- 1
+    DataModelIntervalEnd <<- length(data[,1])
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      output$InputFileError <- renderText({msgDataFileTooSmall})
+    } else {
+       output$InputFileError <- renderText({""})
+    }
     
-    # if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
-    #   updateSelectInput(session, "dataPlotChoice",
-    #                     choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
-    #                                    "Failure Intensity" = "FI"), selected = "CF")
-    # } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
-    #   updateSelectInput(session, "dataPlotChoice",
-    #                     choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
-    #                                    "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
-    # }
+    if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
+       updateSelectInput(session, "dataPlotChoice",
+                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                        "Failure Intensity" = "FI"), selected = "CF")
+    } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
+       updateSelectInput(session, "dataPlotChoice",
+                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
+                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+    }
     
-    # updateSliderInput(session, "modelDataRange",
-    #                   min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
-    #                   max = DataModelIntervalEnd)
-    # updateSliderInput(session, "parmEstIntvl",
-    #                   min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-    #                   max = DataModelIntervalEnd-1)
+    updateSliderInput(session, "modelDataRange",
+                     min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
+                     max = DataModelIntervalEnd)
+    updateSliderInput(session, "parmEstIntvl",
+                     min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                     max = DataModelIntervalEnd-1)
     
     data
   })
