@@ -39,11 +39,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(11, 
-                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
-                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                                 selected = 1)
-                                             )
+                                                    h5("Does data show reliability growth?"),
+                                                    selectInput("trendPlotChoice", label = "", 
+                                                                choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
+                                             ),
+                                             column(8, textOutput("trendMessage"))
                                            ),
+                                           
                                            
                                            fluidRow(
                                              column(10,
@@ -53,13 +55,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
                                            
+                                           
                                            fluidRow(
                                              column(11, 
-                                                    h5("Does data show reliability growth?"),
-                                                    selectInput("trendPlotChoice", label = "", 
-                                                                choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
-                                             ),
-                                             column(8, textOutput("trendMessage"))
+                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                                                                 selected = 1)
+                                             )
                                            ),
                                            
                                            fluidRow(
@@ -158,8 +160,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
-                                                    radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
+                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
+                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                                                                  selected = 1)
                                              )
                                            ),width=4
@@ -254,15 +256,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(12, 
-                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
-                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                                 selected = 1)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                                                    radioButtons("radioEvalPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
                                                                  choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                                                                  selected = 1)
                                              )
