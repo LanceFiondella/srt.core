@@ -1,17 +1,11 @@
+DataIntervalStart <- input$modelDataRange[1]
+DataIntervalEnd <- input$modelDataRange[2]
+
 if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data)))>0)) {
   
-  # Plot interfailure times or failure times data.
-  
-  if(length(grep("FT",names(input_data)))>0) {
-    source("Data_Format.R")
-    FT <- input_data$FT
-    IF <- failureT_to_interF(input_data$FT)
-  }
-  else if(length(grep("IF",names(input_data))) > 0) {
-    source("Data_Format.R")
-    FT <- interF_to_failureT(data$IF)
-    IF <- input_data$IF
-  }
+  IF <- subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)
+  FT <- subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)
+  FN <- subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FN)
   
   if(input$dataPlotChoice == "IF") {
     
@@ -25,7 +19,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     
     # Cumulative Failures vs. Elapsed Test Time
     
-    plot_data <- data.frame(FT, c(1:length(FT)))
+    plot_data <- data.frame(FT, FN)
     q <- q+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
@@ -50,22 +44,19 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
   names(plot_data) = c("Index","FailureDisplayType")
   
 } else if(length(grep("CFC",names(input_data))) || length(grep("FC",names(input_data)))) {
-  if(length(grep("CFC", names(input_data)))){
-    FC <- CumulativeFailureC_to_failureC(input_data$CFC)
-    CFC <- input_data$CFC
-  } else if(length(grep("FC", names(input_data)))) {
-    FC <- input_data$FC
-    CFC <- FailureC_to_CumulativeFailureC(input_data$FC)
-  }
   FT <- failureC_to_failureT(input_data$T,FC)
   IF <- failureT_to_interF(failure_T = FT)
-  IntervalTime <- input_data$T
+
+  FC <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)
+  CFC <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)
+  CumT <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)
+  TI <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)
   
   if((input$dataPlotChoice == "FC")) {
     
     # Failure Counts vs. Elapsed Test Time
     
-    plot_data <- data.frame(IntervalTime, FC)
+    plot_data <- data.frame(CumT, FC)
     q <- q+ggtitle(paste(c("Failure Counts vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Failure Counts per Test Interval"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Failure Counts per Test Interval")
@@ -81,7 +72,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     
     # Cumulative Failures vs. Elapsed Test Time
     
-    plot_data <- data.frame(IntervalTime, CFC)
+    plot_data <- data.frame(CumT, CFC)
     q <- q+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
@@ -89,7 +80,7 @@ if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_dat
     
     # Empirical Failure Intensity vs. Elapsed Test Time
     
-    plot_data <- data.frame(IntervalTime, c(FC/IntervalTime))
+    plot_data <- data.frame(CumT, c(FC/CumT))
     q <- q+ggtitle(paste(c("Empirical Failure Intensity vs. Cumulative Test Time of"),data_set))
     q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Number of Failures per Unit Time"),values = c("blue","red"))
     q <- q + xlab("Cumulative Test Time")+ylab("Number of Failures per Unit Time")
