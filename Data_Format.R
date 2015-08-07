@@ -55,10 +55,11 @@ return(failure_T)#return interfailure times(interfailure)
 
 
 
-failureC_to_failureT <- function(time_vec,num_count) #failure count to failure time
+failureC_to_failureT <- function(time_vec_in,num_count_in) #failure count to failure time
 {
   failure_T <- c()
-  time_vec<- c(0,time_vec)
+  time_vec <- c(0,c(unlist(time_vec_in), use.names=FALSE))
+  num_count <- c(unlist(num_count_in), use.names=FALSE)
   m <- 1
   for(j in 1:(length(time_vec)-1))
   {
@@ -74,9 +75,9 @@ failureC_to_failureT <- function(time_vec,num_count) #failure count to failure t
   return(failure_T)
 }
 
-CumulativeFailureC_to_failureC <- function(x){
+CumulativeFailureC_to_failureC <- function(in_x){
   fc <- c()
-  x <- c(0,x)
+  x <- c(0,in_x)
   for(i in 1:(length(x)-1)){
      fc[i] <- x[i+1] - x[i]   
   }
