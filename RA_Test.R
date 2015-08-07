@@ -1,7 +1,8 @@
 
 
-running_average_test <- function(inter_failure)
+running_average_test <- function(inter_failure_in)
 {
+  inter_failure <- c(unlist(inter_failure_in), use.names=FALSE)
   n <- length(inter_failure)
   runningAverage <- c()
   for(i in 1:n)
