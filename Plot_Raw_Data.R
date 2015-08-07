@@ -5,9 +5,9 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   q <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
   if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data)))>0)) {
     
-    IF <- subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)
-    FT <- subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)
-    FN <- subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FN)
+    IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
+    FT <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
+    FN <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FN)), use.names=FALSE)
     
     if(input$dataPlotChoice == "IF") {
       
@@ -46,13 +46,17 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     names(plot_data) = c("Index","FailureDisplayType")
     
   } else if((length(grep("CFC",names(input_data)))>0) || (length(grep("FC",names(input_data)))>0)) {
-    FC <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)
-    CFC <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)
-    CumT <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)
-    TI <- subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)
+    FC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)), use.names=FALSE)
+    CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
+    CumT <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)), use.names=FALSE)
+    TI <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)), use.names=FALSE)
     
-    FT <- failureC_to_failureT(CumT, FC)
-    IF <- failureT_to_interF(failure_T = FT)
+    if(DataIntervalStart > 1) {
+      FT <- c(unlist(failureC_to_failureT((CumT-input_data$T[DataIntervalStart-1]), FC)), use.names=FALSE)
+    } else {
+      FT <- c(unlist(failureC_to_failureT(CumT, FC)), use.names=FALSE)
+    }
+    IF <- c(unlist(failureT_to_interF(failure_T = FT)), use.names=FALSE)
     
     if((input$dataPlotChoice == "FC")) {
       
@@ -67,6 +71,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       # Interfailure Times vs. Elapsed Test Time
       
       plot_data <- data.frame(FT, IF)
+      plot_data$FT <- plot_data$FT + input_data$T[DataIntervalStart]
       q <- q+ggtitle(paste(c("Interfailure Times vs. Cumulative Test Time of"),data_set))
       q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
       q <- q + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
