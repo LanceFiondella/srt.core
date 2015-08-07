@@ -149,6 +149,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$distPlot <- renderPlot({ #reactive function, basically Main()
     
+    q <- NULL   # Set the plot object to NULL to prevent error messages.
     data <- data.frame(x=data_global())
     DataColNames <- names(data)
     names(data) <- gsub("x.", "", DataColNames)
@@ -161,20 +162,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        q <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
         input_data <- data
         source("Plot_Raw_Data.R", local=TRUE)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
         
-        q <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
         input_data <- data
         source("Plot_Trend_Tests.R", local=TRUE)
       }
-      
+
       q
-      
+
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
   })
@@ -294,47 +293,52 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   })
 
   
-  # Here we monitor the model configuration controls in the "Set Up and Apply Models"
-  # tab.  We read the values from the controls, and adjust the controls to make
+  # Here we monitor the data subset and model configuration controls in the
+  # "Select, Analyze, and Subset Failure Data" and "Set Up and Apply Models"
+  # tabs.  We read the values from the controls, and adjust the controls to make
   # sure that the modeling intervals and lengths of the modeling data set don't
   # go below specified minimal values.
   
-  output$ModelConfigError <- renderText({
-   outputMessage <- ""
+  output$DataSubsetError <- renderText({
+    data_local <- data.frame(x=data_global())
+    DataColNames <- names(data_local)
+    names(data_local) <- gsub("x.", "", DataColNames)
     
-   # Read the slider for the categories to be retained when filtering the data.
+    outputMessage <- ""
     
-   DataCategoryFirst <- input$sliderDataSubsetChoice[1]
-   DataCategoryLast <- input$sliderDataSubsetChoice[2]
+    # Read the slider for the categories to be retained when filtering the data.
     
-   # Set the slider for the initial parameter estimation range to be
-   # consistent with the data range over which models are applied
+    DataCategoryFirst <- input$sliderDataSubsetChoice[1]
+    DataCategoryLast <- input$sliderDataSubsetChoice[2]
     
-   dataModelRange <- input$modelDataRange
+    # Set the slider for the initial parameter estimation range to be
+    # consistent with the data range over which models are applied
     
-   DataModelIntervalStart <- dataModelRange[1]
-   DataModelIntervalEnd <- dataModelRange[2]
+    dataModelRange <- input$modelDataRange
     
-   # Keep the data interval used for modeling to 5 observations or more.
+    DataModelIntervalStart <- dataModelRange[1]
+    DataModelIntervalEnd <- dataModelRange[2]
     
-   if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-     outputMessage <- msgDataIntervalTooSmall
-     while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-       if(DataModelIntervalStart > 1){
-         DataModelIntervalStart <- DataModelIntervalStart - 1
-       }
-       if(DataModelIntervalEnd < length(data_global[,1])){
-         DataModelIntervalEnd <- DataModelIntervalEnd + 1
-       }
-     }
+    # Keep the data interval used for modeling to 5 observations or more.
+    
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      outputMessage <- msgDataIntervalTooSmall
+      while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+        if(DataModelIntervalStart > 1){
+          DataModelIntervalStart <- DataModelIntervalStart - 1
+        }
+        if(DataModelIntervalEnd < length(data_local[,1])){
+          DataModelIntervalEnd <- DataModelIntervalEnd + 1
+        }
+      }
 
-     updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
-   }  
-   updateSliderInput(session, "parmEstIntvl",
+      updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
+    }  
+    updateSliderInput(session, "parmEstIntvl",
                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
                      max = DataModelIntervalEnd-1)    
     
-   outputMessage
+    outputMessage
   })
   
 
