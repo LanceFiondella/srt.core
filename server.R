@@ -25,7 +25,7 @@ K_CategoryLast <- 5
 
 openFileDatapath <- ""
 #data_global <- data.frame()
-data_original <- data.frame()
+FC_to_IF_data <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
   
@@ -79,7 +79,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
-      data_original <<- data
       data_set <- inFile$filename
     }
     
@@ -125,6 +124,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       data$TI <- c(1:length(data$FC))
       
+      FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+      
       # Update failure data view slider for CFC/FC data views.
       # Includes a "failure counts" view which IF/FT data does not.
       
@@ -133,8 +134,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                                         "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
     }
 
-    data_original <<- data
-    
     updateSliderInput(session, "modelDataRange",
                      min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                      max = DataModelIntervalEnd)
@@ -199,6 +198,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
+    DataIntervalStart_FDT <- input$modelDataRange[1]
+    DataIntervalEnd_FDT <- input$modelDataRange[2]
     tempDataMatrix <- matrix()
     if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
       data <- data.frame(x=data_global())
@@ -209,23 +210,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
         if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
           FN <- data$FN
+          
+          IF <- c(unlist(subset(subset(data, data$FN >= DataIntervalStart_FDT, select = c(FN, IF, FT)), FN <= DataIntervalEnd_FDT, select = IF)), use.names=FALSE)
+          FT <- c(unlist(subset(subset(data, data$FN >= DataIntervalStart_FDT, select = c(FN, IF, FT)), FN <= DataIntervalEnd_FDT, select = FT)), use.names=FALSE)
+          FN <- c(unlist(subset(subset(data, data$FN >= DataIntervalStart_FDT, select = c(FN, IF, FT)), FN <= DataIntervalEnd_FDT, select = FN)), use.names=FALSE)
+          
           if(input$PlotDataOrTrend == 1) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              FT <- data$FT
-            } else if(length(grep("FT", names(data)))) {
-              FT <- interF_to_failureT(data$IF)
-              IF <- data$IF
-            }
+            
             NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
             tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
           } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-            } else if(length(grep("FT", names(data)))) {
-              IF <- data$IF
-            }
-            
             if (input$trendPlotChoice == "LP") {
               sol <- laplace_trend_test(IF)
               NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
@@ -237,31 +231,20 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             }
           }
         } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
+          FC <- c(unlist(subset(subset(data, data$TI >= DataIntervalStart_FDT, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd_FDT, select = FC)), use.names=FALSE)
+          CFC <- c(unlist(subset(subset(data, data$TI >= DataIntervalStart_FDT, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd_FDT, select = CFC)), use.names=FALSE)
+          CumT <- c(unlist(subset(subset(data, data$TI >= DataIntervalStart_FDT, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd_FDT, select = T)), use.names=FALSE)
+          TI <- c(unlist(subset(subset(data, data$TI >= DataIntervalStart_FDT, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd_FDT, select = TI)), use.names=FALSE)
+          
+          FN <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart_FDT, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd_FDT, select = FC_FN)), use.names=FALSE)
+          FT <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart_FDT, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd_FDT, select = FC_FT)), use.names=FALSE)
+          IF <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart_FDT, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd_FDT, select = FC_IF)), use.names=FALSE)
+          IntervalNum <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart_FDT, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd_FDT, select = FC_TI)), use.names=FALSE)
+          
           if(input$PlotDataOrTrend == 1) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              CFC <- data$CFC
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-              CFC <- FailureC_to_CumulativeFailureC(data$FC)
-            }
-            IntervalNum <- c(1:length(data$T))
-            
             NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
-            tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
-            
+            tempDataMatrix <- matrix(c(TI, CumT, FC, CFC), ncol=4)
           } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-            }
-            
-            FT <- failureC_to_failureT(data$T,FC)
-            IF <- failureT_to_interF(failure_T = FT)
-            FN <- c(1:length(FT))
-            IntervalTime <- data$T
-            
             if(input$trendPlotChoice == "LP") {
               sol <- laplace_trend_test(IF)
               NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")

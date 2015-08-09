@@ -12,12 +12,8 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     CumT <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)), use.names=FALSE)
     TI <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)), use.names=FALSE)
     
-    if(DataIntervalStart > 1) {
-      FT <- c(unlist(failureC_to_failureT((CumT-input_data$T[DataIntervalStart-1]), FC)), use.names=FALSE)
-    } else {
-      FT <- c(unlist(failureC_to_failureT(CumT, FC)), use.names=FALSE)
-    }
-    IF <- c(unlist(failureT_to_interF(failure_T = FT)), use.names=FALSE)
+    FT <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_FT)), use.names=FALSE)
+    IF <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_IF)), use.names=FALSE)
   }
   
   if(input$trendPlotChoice=="LP") {
