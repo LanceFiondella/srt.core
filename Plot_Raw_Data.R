@@ -50,13 +50,9 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
     CumT <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)), use.names=FALSE)
     TI <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)), use.names=FALSE)
-    
-    if(DataIntervalStart > 1) {
-      FT <- c(unlist(failureC_to_failureT((CumT-input_data$T[DataIntervalStart-1]), FC)), use.names=FALSE)
-    } else {
-      FT <- c(unlist(failureC_to_failureT(CumT, FC)), use.names=FALSE)
-    }
-    IF <- c(unlist(failureT_to_interF(failure_T = FT)), use.names=FALSE)
+
+    FT <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_to_IF_data$TI <= DataIntervalEnd, select = FT)), use.names=FALSE)
+    IF <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_to_IF_data$TI <= DataIntervalEnd, select = IF)), use.names=FALSE)
     
     if((input$dataPlotChoice == "FC")) {
       
@@ -87,7 +83,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       
       # Empirical Failure Intensity vs. Elapsed Test Time
       
-      plot_data <- data.frame(CumT, c(FC/CumT))
+      plot_data <- data.frame(FT, c(1/IF))
       q <- q+ggtitle(paste(c("Empirical Failure Intensity vs. Cumulative Test Time of"),data_set))
       q <- q + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Number of Failures per Unit Time"),values = c("blue","red"))
       q <- q + xlab("Cumulative Test Time")+ylab("Number of Failures per Unit Time")
