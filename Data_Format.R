@@ -78,7 +78,7 @@ FCFrame_to_IFFrame <- function(time_vec_in,num_count_in) #transforms FC data to 
     failure_IF[i] <- failure_T[i] - temp[i]
   }
   temp <- c()
-  return(data.frame("FC_FN" = c(1:length(failure_T), "FC_TI" = failure_IntTag, "FC_IF" = failure_IF, "FC_FT" = failure_T)))
+  return(data.frame("FC_FN" = c(1:length(failure_T)), "FC_TI" = failure_IntTag, "FC_IF" = failure_IF, "FC_FT" = failure_T))
 }
 
 
