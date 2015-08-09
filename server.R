@@ -198,6 +198,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
+    DataIntervalStart_FDT <- input$modelDataRange[1]
+    DataIntervalEnd <- input$modelDataRange[2]
     tempDataMatrix <- matrix()
     if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
       data <- data.frame(x=data_global())
@@ -208,23 +210,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
         if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
           FN <- data$FN
+          
+          IF <- c(unlist(subset(subset(data, data$FN >= DataIntervalStart_FDT, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
+          FT <- c(unlist(subset(subset(data, data$FN >= DataIntervalStart_FDT, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
+          FN <- c(unlist(subset(subset(data, data$FN >= DataIntervalStart_FDT, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FN)), use.names=FALSE)
+          
           if(input$PlotDataOrTrend == 1) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              FT <- data$FT
-            } else if(length(grep("FT", names(data)))) {
-              FT <- interF_to_failureT(data$IF)
-              IF <- data$IF
-            }
+            
             NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
             tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
           } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-            } else if(length(grep("FT", names(data)))) {
-              IF <- data$IF
-            }
-            
             if (input$trendPlotChoice == "LP") {
               sol <- laplace_trend_test(IF)
               NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
