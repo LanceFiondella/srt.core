@@ -75,12 +75,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            fluidRow(
                                              br(),
-                                             column(9, h5("Subset the failure data by category or data range")),
-                                             column(9,
-                                                    sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
-                                                                min = 1, max = 5, value = c(1, 5), step = 1)),
+                                             column(9, h5("Subset the failure data by data range or by category")),
                                              column(9,
                                                     sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
+                                                                min = 1, max = 5, value = c(1, 5), step = 1)),
+                                             column(9,
+                                                    sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1))
                                            )
                               ),
