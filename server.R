@@ -25,7 +25,7 @@ K_CategoryLast <- 5
 
 openFileDatapath <- ""
 #data_global <- data.frame()
-data_original <- data.frame()
+FC_to_IF_data <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
   
@@ -79,7 +79,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
-      data_original <<- data
       data_set <- inFile$filename
     }
     
@@ -125,6 +124,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       data$TI <- c(1:length(data$FC))
       
+      FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+      
       # Update failure data view slider for CFC/FC data views.
       # Includes a "failure counts" view which IF/FT data does not.
       
@@ -133,8 +134,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                                         "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
     }
 
-    data_original <<- data
-    
     updateSliderInput(session, "modelDataRange",
                      min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                      max = DataModelIntervalEnd)
