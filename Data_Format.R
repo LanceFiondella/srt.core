@@ -55,6 +55,28 @@ return(failure_T)#return interfailure times(interfailure)
 
 
 
+failureC_to_failureT_BinTag <- function(time_vec_in,num_count_in) #failure count to failure time
+{
+  failure_T <- c()
+  failure_BinTag <- c()
+  time_vec <- c(0,c(unlist(time_vec_in), use.names=FALSE))
+  num_count <- c(unlist(num_count_in), use.names=FALSE)
+  m <- 1
+  for(j in 1:(length(time_vec)-1))
+  {
+    for(i in 1:num_count[j])
+    {
+      if(num_count[j]!=0)
+      {
+        failure_T[m] <- time_vec[j]+ ((i-0.5)*((time_vec[j+1]-time_vec[j])/num_count[j]))
+        failure_BinTag[m] <- j  # specifies the time interval in which the failure occurred.
+        m <- m+1
+      }
+    }
+  }
+  return(data.frame(matrix(c(failure_T, failure_BinTag), ncol=2)), names=c("FC_FT", "FC_TI"))
+}
+
 failureC_to_failureT <- function(time_vec_in,num_count_in) #failure count to failure time
 {
   failure_T <- c()
