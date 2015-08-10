@@ -346,14 +346,23 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       if(length(input$modelResultChoice)>0){
           
          print("Outer Zone entered")
-  
-     
+
+        # Plot initializations
+
+         
+          p1 <- ggplot(,aes_string(x=Time,y=Failure));
+
+        # Plot initializations above
         
           for(i in input$modelResultChoice){
             if(i=="Jelinski-Moranda"){
+
             if(length(grep("IF",names(data)))){
+              
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                 X_label <- "Time"
+                  Y_label <- "Failure"
+                #p1 <- ggplot(,ae_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -362,14 +371,14 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color="lines and dots"))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
                 if(input$ModelDataPlotType==2){
-                  p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time, Failure, color="dots"))
+                  p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time,Failure, color="dots"))
                 }
                 if(input$ModelDataPlotType==3){
                   p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color="lines"))
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time" = data$FT, "Failure" = data$FN)
-                  p1 <- p1 + geom_line(data = original_data,aes(Time, Failure, color = "Original Data"))
+                  p1 <- p1 + geom_line(data = original_data,aes( Time, Failure, color = "Original Data"))
                 }
                 p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"), input$dataSheetChoice))#+ geomline(data=plot_data)
                 p1 <- p1 + theme(legend.position = c(0.1, 0.9));
@@ -378,7 +387,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
 
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+               
+                #p1 <- ggplot(,aes_string(x=X_label,y=Y_label));
                 new_params <- JM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -406,7 +416,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
 
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                X_label <- c("Time")
+                Y_label <- c("Failure")
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -418,7 +430,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))
                 }
                 if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time, Failure))
 
                 }
                 # if(input$checkboxDataOnPlot){
@@ -430,7 +442,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                X_label <- c("Time")
+                Y_label <- c("Failure")
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -442,7 +456,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))
                 }
                 if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time, Failure))
 
                 }
                 # if(input$checkboxDataOnPlot){
@@ -456,7 +470,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             else if(length(grep("FT",names(data)))){
               IF <- failureT_to_interF(data$FT)
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -478,7 +492,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
                 if(input$ModelDataPlotType==1){
@@ -498,7 +512,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -520,7 +534,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -548,7 +562,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               FT <- failureC_to_failureT(data$T,FC)
               IF <- failureT_to_interF(failure_T = FT)
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 print(new_params)
                 print(typeof(new_params))
@@ -593,7 +607,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p              
               }
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
                 if(input$ModelDataPlotType==1){
@@ -613,7 +627,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -635,7 +649,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -661,8 +675,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
           else if(i=="Geometric"){
           if(length(grep("IF",names(data)))){
+              #p1 <- ggplot(,aes_string(x=Time,y=Failure));
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -687,7 +702,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
               if(input$modelPlotChoice==1){
 
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
 
                 new_params <- GM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
@@ -712,7 +727,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
               if(input$modelPlotChoice==3){
 
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -734,7 +749,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -759,7 +774,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             else if(length(grep("FT",names(data)))){
               IF <- failureT_to_interF(data$FT)
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -781,7 +796,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=IF)
                 if(input$ModelDataPlotType==1){
@@ -801,7 +816,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -823,7 +838,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -851,7 +866,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               FT <- failureC_to_failureT(data$T,FC)
               IF <- failureT_to_interF(failure_T = FT)
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(IF)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -873,7 +888,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
                 if(input$ModelDataPlotType==1){
@@ -893,7 +908,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(IF)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -915,7 +930,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GM_BM_MLE(IF)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
@@ -941,11 +956,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
         else if(i=="Goel-okumoto"){
           print("Goel-okumoto");
-
+          #p1 <- ggplot(,aes_string(x=Time,y=Failure))
           if(length(grep("IF",names(data)))){
               if(input$modelPlotChoice==2){
                 FT <- interF_to_failureT(data$IF)
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(FT)
                 print(new_params)
                 data <- data.frame("FT"=FT,"IF"=data$IF,"FN"=1:length(data$FT))
@@ -971,7 +986,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
               if(input$modelPlotChoice==1){
 
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
 
                 new_params <- GO_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
@@ -996,7 +1011,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               }
               if(input$modelPlotChoice==3){
 
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1018,7 +1033,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1043,7 +1058,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             else if(length(grep("FT",names(data)))){
               IF <- failureT_to_interF(data$FT)
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(data$FT)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1065,7 +1080,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=IF)
                 if(input$ModelDataPlotType==1){
@@ -1085,7 +1100,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(data$FT)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1107,7 +1122,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(data$FT)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1135,7 +1150,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
               FT <- failureC_to_failureT(data$T,FC)
               IF <- failureT_to_interF(failure_T = FT)
               if(input$modelPlotChoice==2){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(FT)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1157,7 +1172,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==1){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
                 if(input$ModelDataPlotType==1){
@@ -1177,7 +1192,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==3){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(FT)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1199,7 +1214,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
               }
               if(input$modelPlotChoice==4){
-                p1 <- ggplot(,aes_string(x=Time,y=Failure));
+                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- GO_BM_MLE(FT)
                 data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
                 frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
@@ -1501,7 +1516,7 @@ output$mytable2 <- renderDataTable({
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(input$modelEvalChoice)>0){
+      if(length(input$EvalResultChoice)>0){
         count <- 0
         for(i in input$modelEvalChoice){
           if(i=="Jelinski-Moranda"){
