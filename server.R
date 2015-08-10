@@ -146,9 +146,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   # Draw the plot of input data or selected trend test
   
-  output$distPlot <- renderPlot({ #reactive function, basically Main()
+  output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
     
-    q <- NULL   # Set the plot object to NULL to prevent error messages.
+    DataAndTrendPlot <- NULL   # Set the plot object to NULL to prevent error messages.
     data <- data.frame(x=data_global())
     DataColNames <- names(data)
     names(data) <- gsub("x.", "", DataColNames)
@@ -171,7 +171,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         source("Plot_Trend_Tests.R", local=TRUE)
       }
 
-      q
+      DataAndTrendPlot
 
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
