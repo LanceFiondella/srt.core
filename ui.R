@@ -65,8 +65,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
-                                             br(),
-                                             column(8, downloadButton('saveDataOrTrend', 'Save Display'))
+                                             column(12, 
+                                                    radioButtons("saveDataFileType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
+                                                                 choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                                                                 selected = "JPG")
+                                             ),
+                                             column(8, downloadButton(outputId = "saveDataOrTrend", label = "Save"))
                                            ),
                                            fluidRow(
                                              column(8,
@@ -87,7 +91,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("distPlot",height="700px")), 
+                                  tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot",height="700px")), 
                                   tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
                                   id="DataPlotAndTableTabset"),
                                 width=8
