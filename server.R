@@ -177,6 +177,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
+  
+  # Download handler for saving data and trend plots or tables.
+  
+  output$saveDataOrTrend <- downloadHandler(
+    filename = function() {
+      paste("temp", input$saveDataFileType, sep=".")
+    },
+    content = function(file) {
+      ggsave(file)
+    }
+  )
+    
   track_models <- reactive({
     tracked_models <- c()
     if(!is.null(input$modelResultChoice)) {
