@@ -185,32 +185,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveDataOrTrend <- downloadHandler(
     filename = function() {
-      if(input$DataPlotAndTableTabset == "Plot") {
-        if(input$PlotDataOrTrend == 1) {
-          paste(paste0(data_set_global, "_Data"), input$saveDataFileType, sep=".")
-        } else {
-          paste(paste0(data_set_global, "_Trend"), input$saveDataFileType, sep=".")
-        }
-      } else {
-        if(input$PlotDataOrTrend == 1) {
-          paste(paste0(data_set_global, "_Data"), "txt", sep=".")
-        } else {
-          paste(paste0(data_set_global, "_Trend"), "txt", sep=".")
-        }
+      if(input$PlotDataOrTrend == 1) {
+        paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
+      } else if(input$PlotDataOrTrend == 2) {
+        paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
       }
     },
     content = function(filespec) {
-      if(input$PlotDataOrTrend == 1) {
-        ggsave(filespec)
-      } else {
-        data <- data.frame(x=data_global())
-        DataColNames <- names(data)
-        names(data) <- gsub("x.", "", DataColNames)
-        write.table(data, file=filespec)
-      }
+      ggsave(filespec)
     }
   )
- # DataPlotAndTableTabset   
+
+  
   track_models <- reactive({
     tracked_models <- c()
     if(!is.null(input$modelResultChoice)) {
