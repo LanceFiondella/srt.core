@@ -65,9 +65,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
-                                             br(),
                                              column(12, 
-                                                    radioButtons("saveDataFileType", label = h6("Choose the type of file to save"),
+                                                    radioButtons("saveDataFileType", label = h6("Choose the type of file to save plots.  Tables are saved as text."),
                                                                  choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                                                                  selected = "JPG")
                                              ),
