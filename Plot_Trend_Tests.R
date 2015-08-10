@@ -2,7 +2,7 @@ DataIntervalStart <- input$modelDataRange[1]
 DataIntervalEnd <- input$modelDataRange[2]
 
 if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
-  q <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
+  DataAndTrendPlot <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
   if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data))) > 0)) {
     IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
     FT <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
@@ -25,10 +25,10 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
         plot_data$Index <- plot_data$Index + input_data$CFC[DataIntervalStart - 1]
       }
     }
-    q <- q + xlab("Failure Number")+ylab("Laplace Test Statistic")
-    q <- q+ggtitle(paste(c("Laplace trend test of"),data_set))
-    q <- q + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),color=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001"),linetype="dotted"),alpha=0.8)
-    q <- q+xlab("Failure Number")+ylab("Laplace Test Statistic")
+    DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Laplace Test Statistic")
+    DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Laplace trend test of"),data_set))
+    DataAndTrendPlot <- DataAndTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),color=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001"),linetype="dotted"),alpha=0.8)
+    DataAndTrendPlot <- DataAndTrendPlot+xlab("Failure Number")+ylab("Laplace Test Statistic")
   } else if(input$trendPlotChoice=="RA") {
     plot_data <- running_average_test(IF)
     if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data))) > 0)) {
@@ -38,21 +38,21 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
         plot_data$Index <- plot_data$Index + input_data$CFC[DataIntervalStart - 1]
       }
     }
-    q <- q + xlab("Failure Number")+ylab("Running Average of Interfailure Times")
-    q <- q+ggtitle(paste(c("Running Average trend test of"),data_set))
+    DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Running Average of Interfailure Times")
+    DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Running Average trend test of"),data_set))
   }
   
   names(plot_data) = c("index","trend_test_statistic")
   
   if(input$DataPlotType==1){
-    q <- q + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_step(data=plot_data)
+    DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_step(data=plot_data)
   }
   if(input$DataPlotType==2){
-    q <- q + geom_point(data=plot_data,aes(index,trend_test_statistic))
+    DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))
   }
   if(input$DataPlotType==3){
-    q <- q + geom_step(data=plot_data,aes(index,trend_test_statistic))
+    DataAndTrendPlot <- DataAndTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
   }
-  q <- q + theme(legend.position = "bottom")
+  DataAndTrendPlot <- DataAndTrendPlot + theme(legend.position = "bottom")
 }
 
