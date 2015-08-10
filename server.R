@@ -362,18 +362,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color="lines and dots"))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
                 if(input$ModelDataPlotType==2){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color="dots"))
+                  p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time, Failure, color="dots"))
                 }
                 if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure,color="lines"))
+                  p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color="lines"))
                 }
                 if(input$checkboxDataOnPlot){
-                  original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure,color="Original Data"))
+                  original_data <- data.frame("Time" = data$FT, "Failure" = data$FN)
+                  p1 <- p1 + geom_line(data = original_data,aes(Time, Failure, color = "Original Data"))
                 }
-                p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))#+ geomline(data=plot_data)
+                p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"), input$dataSheetChoice))#+ geomline(data=plot_data)
                 p1 <- p1 + theme(legend.position = c(0.1, 0.9));
-                p1 <- p1 + scale_color_manual(name = "JM",  labels = c("MVF","Original Data"),values = c("blue","red"))
+                p1 <- p1 + scale_color_manual(name = "JM", labels = c("MVF","Original Data"),values = c("blue","red"))
                 #q <- q + p
               }
 
@@ -1289,7 +1289,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       ###################################################
       #input$modelDetailChoice <- track_models()
       if(length(input$modelDetailChoice)>0){
-      if(length(track_models())>0) {
+      #if(length(track_models())>0) {
         count <- 0
         for(i in input$modelDetailChoice){
           if(i=="Jelinski-Moranda"){
@@ -1467,7 +1467,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       table_t <- data.frame(table_t[1],table_t[2],table_t[3])
       names(table_t) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
-    }
+    #}
     #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
     #names(table_t) <- c("Model","N0","Time-remaining")
     table_t
@@ -1501,7 +1501,7 @@ output$mytable2 <- renderDataTable({
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(track_models())>0){
+      if(length(input$modelEvalChoice)>0){
         count <- 0
         for(i in input$modelEvalChoice){
           if(i=="Jelinski-Moranda"){
