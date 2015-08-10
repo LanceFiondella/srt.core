@@ -25,6 +25,7 @@ K_CategoryLast <- 5
 
 openFileDatapath <- ""
 #data_global <- data.frame()
+data_set_global <- ""
 FC_to_IF_data <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
@@ -81,6 +82,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
       data_set <- inFile$filename
     }
+    
+    data_set_global <<- data_set
     
     # Set up the initial values for modeling data range and the initial parameter
     # estimation range
@@ -182,13 +185,32 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveDataOrTrend <- downloadHandler(
     filename = function() {
-      paste("temp", input$saveDataFileType, sep=".")
+      if(input$DataPlotAndTableTabset == "Plot") {
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data"), input$saveDataFileType, sep=".")
+        } else {
+          paste(paste0(data_set_global, "_Trend"), input$saveDataFileType, sep=".")
+        }
+      } else {
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data"), "txt", sep=".")
+        } else {
+          paste(paste0(data_set_global, "_Trend"), "txt", sep=".")
+        }
+      }
     },
-    content = function(file) {
-      ggsave(file)
+    content = function(filespec) {
+      if(input$PlotDataOrTrend == 1) {
+        ggsave(filespec)
+      } else {
+        data <- data.frame(x=data_global())
+        DataColNames <- names(data)
+        names(data) <- gsub("x.", "", DataColNames)
+        write.table(data, file=filespec)
+      }
     }
   )
-    
+ # DataPlotAndTableTabset   
   track_models <- reactive({
     tracked_models <- c()
     if(!is.null(input$modelResultChoice)) {
