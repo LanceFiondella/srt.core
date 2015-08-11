@@ -146,8 +146,23 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     data
   })
+
+  # A reactive data item that is used to control the height of the raw data and trend
+  # plot.  The height is computed based on the width - it the plot is not as high
+  # as it is wide, and if the width exceeds a minimum, then the height catches up with
+  # the width to make a square plot.
   
-  # Draw the plot of input data or selected trend test
+  DTP_height <- reactive({
+    Width <- session$clientData$output_DataAndTrendPlot_width
+    Height <- session$clientData$output_DataAndTrendPlot_height
+    if((Width > Height) && (Width > 400)) {
+      Height <- Width
+    }
+    Height
+  })
+  
+  # Draw the plot of input data or selected trend test.  The height is controlled by the
+  # reactive data item specified above.
   
   output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
     
@@ -178,7 +193,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
-  })
+  }, height=DTP_height)
   
   
   # Download handler for saving data and trend plots or tables.
