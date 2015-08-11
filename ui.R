@@ -126,14 +126,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
                                                                 models,
-                                                                # choices = list("Musa Basic" = "Musa Basic, 
-                                                                #                "Musa Okumoto" = ,
-                                                                #                "Geometric" = 3, 
-                                                                #                "Littlewood-Verrall Linear"=4,
-                                                                #                "Littlewood-Verrall Quadratic"=5,
-                                                                #                "Jelinksi-Moranda"=6,
-                                                                #                "Goel-okumoto"=7
-                                                                #                ), 
                                                                 multiple=TRUE
                                                               
                                                                 )
@@ -235,6 +227,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Evaluate Models",
                             sidebarLayout(
                               sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
+                                            fluidRow(
+                                             column(12, 
+                                                    br(),
+                                                    h5("Choose the model results to display."),
+                                                    selectInput("EvalResultChoice", label = h6("Choose one or more sets of model results"), 
+                                                                models,
+                                                                multiple=TRUE
+                                                              
+                                                                )
+                                             )
+                                           ),
                                            fluidRow(
                                              column(12, 
                                                     h5("Select a model evaluation technique to apply"),
