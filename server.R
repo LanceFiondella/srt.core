@@ -14,6 +14,20 @@ source("Laplace_trend_test.R")
 source("RA_Test.R")
 source("ErrorMessages.R")  # Text for error messages
 
+
+# Initialize global variables -------------------------------
+
+openFileDatapath <- ""
+#data_global <- data.frame()
+data_set_global <- ""
+FC_to_IF_data <- data.frame()
+
+# These two lists are used to keep track of models
+# that executed successfully and those that did not.
+
+ModelsExecutedList <- list()
+ModelsFailedExecutionList <- list()
+
 # Initialize "constants" ------------------------------------
 
 K_minDataModelIntervalWidth <- 5
@@ -21,12 +35,14 @@ K_minDataModelIntervalWidth <- 5
 K_CategoryFirst <- 1
 K_CategoryLast <- 5
 
+# These lists identify the models used for each data type
+
+K_IF_ModelsList <- list("JM"="JM", "GM"="GM", "GO"="GO", "DSS"="DSS", "WEI"="WEI")
+K_FC_ModelsList <- list("JM"="JM", "GM"="GM", "GO"="GO", "DSS"="DSS", "WEI"="WEI")
+
+
 # Start main program ------------------------------------
 
-openFileDatapath <- ""
-#data_global <- data.frame()
-data_set_global <- ""
-FC_to_IF_data <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
   
@@ -241,12 +257,21 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   output$dataAndTrendTable <- renderDataTable({
     OutputTable <- data.frame(x=FailureDataTable())
     if(length(OutputTable) > 1) {
-      DataColNames <- names(OutputTable)
-      names(OutputTable) <- gsub("x.", "", DataColNames)
+      names(OutputTable) <- gsub("x.", "", names(OutputTable))
+      names(OutputTable) <- gsub("value.", "", names(OutputTable))
+      names(OutputTable) <- gsub("Failure.Number", "Failure Number", names(OutputTable))
+      names(OutputTable) <- gsub("Times.Between.Failures", "Times Between Failures", names(OutputTable))
+      names(OutputTable) <- gsub("Failure.Time", "Failure Time", names(OutputTable))
+      names(OutputTable) <- gsub("Test.Interval", "Test Interval", names(OutputTable))
+      names(OutputTable) <- gsub("Cumulative.Test.Time", "Cumulative Test Time", names(OutputTable))
+      names(OutputTable) <- gsub("Failure.Counts", "Failure Counts", names(OutputTable))
+      names(OutputTable) <- gsub("Cumulative.Failure.Count", "Cumulative Failure Count", names(OutputTable))
+      names(OutputTable) <- gsub("Laplace.Test.Statistic", "Laplace Test Statistic", names(OutputTable))
+      names(OutputTable) <- gsub("Running.Average.IF.Time", "Running Average IF Time", names(OutputTable))
     } else {
       OutputTable <- data.frame()
     }
-    OutputTable
+    OutputTable[,1:(length(names(OutputTable))-1)]
   })
 
   
