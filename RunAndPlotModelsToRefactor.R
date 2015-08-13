@@ -35,13 +35,39 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     # These are the data sets that will be input directly into the models.
     
     if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data)))>0)) {
-      IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
-      FT <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
       FN <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FN)), use.names=FALSE)
+      FT <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
+      IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
+      
       tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
       ResultsList[["Data"]] <- tempResultsFrame
       
-      ModelsToRunList <- K_IF_ModelsList
+      # Now run all of the models for the current data type and put the results
+      # the list of results.
+      
+      for(ModelName in 1:length(K_IF_ModelsList)) {
+        if(K_IF_ModelsList[index] == "JM") {
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            
+          }
+        } else if(K_IF_ModelsList[index] == "GM") {
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            
+          }
+        } else if(K_IF_ModelsList[index] == "GO") {
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            
+          }
+        } else if(K_IF_ModelsList[index] == "DSS") {
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            
+          }
+        } else if(K_IF_ModelsList[index] == "WEI") {
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            
+          }
+        }
+      }
     } else if((length(grep("CFC",names(input_data)))>0) || (length(grep("FC",names(input_data)))>0)) {
       FC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)), use.names=FALSE)
       CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
@@ -54,19 +80,52 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       FN <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_FN)), use.names=FALSE)
       IF <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_IF)), use.names=FALSE)
       FT <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_FT)), use.names=FALSE)
+      IF_TI <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_TI)), use.names=FALSE)
+      
+      # Since we're using FC data converted to IF, we also have to find the failure numbers which most closely
+      # matches the test intervals specified by DataIntervalStart and InitialParmEndObs.
+      
+      for (j in 1:length(IF_TI)) {
+        if(IF_TI[j] == InitialParmEndObs) {
+          break
+        }
+      }
+      IF_InitialParmEndObs <- j
+      for (k in 1:length(IF_TI)) {
+        if(IF_TI[j] >= DataIntervalStart) {
+          break
+        }
+      }
+      IF_DataIntervalStart <- k
       
       tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
       ResultsList[["Data"]] <- tempResultsFrame
       
-      ModelsToRunList <- K_FC_ModelsList
-    }
-    
-    # Now run all of the models for the current data type and put the results
-    # the list of results.
-    
-    for(ModelName in 1:length(ModelsToRunList)) {
-      for (index in InitialParmEndObs:length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
-        
+      # Now run all of the models for the current data type and put the results
+      # the list of results.
+      
+      for(ModelName in 1:length(K_FC_ModelsList)) {
+        if(K_FC_ModelsList[index] == "JM") {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+            
+          }
+        } else if(K_FC_ModelsList[index] == "GM") {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+            
+          }
+        } else if(K_FC_ModelsList[index] == "GO") {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+            
+          }
+        } else if(K_FC_ModelsList[index] == "DSS") {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+            
+          }
+        } else if(K_FC_ModelsList[index] == "WEI") {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+            
+          }
+        }
       }
     }
     
