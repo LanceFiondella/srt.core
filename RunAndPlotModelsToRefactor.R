@@ -88,7 +88,7 @@ ModelResults <- reactive({
       # matches the test intervals specified by DataIntervalStart and InitialParmEndObs.
       
       for (j in 1:length(IF_TI)) {
-        if(IF_TI[j] == InitialParmEndObs) {
+        if(IF_TI[j] >= InitialParmEndObs) {
           break
         }
       }
@@ -100,32 +100,34 @@ ModelResults <- reactive({
       }
       IF_DataIntervalStart <- k
       
-      tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
-      ResultsList[["Data"]] <- tempResultsFrame
-      
-      # Now run all of the models for the current data type and put the results
-      # the list of results.
-      
-      for(ModelName in 1:length(K_FC_ModelsList)) {
-        if(K_FC_ModelsList[index] == "JM") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
-            
-          }
-        } else if(K_FC_ModelsList[index] == "GM") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
-            
-          }
-        } else if(K_FC_ModelsList[index] == "GO") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
-            
-          }
-        } else if(K_FC_ModelsList[index] == "DSS") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
-            
-          }
-        } else if(K_FC_ModelsList[index] == "WEI") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
-            
+      if((IF_InitialParmEndObs > IF_DataIntervalStart) && (IF_InitialParmEndObs < length(IF))) {
+        tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
+        ResultsList[["Data"]] <- tempResultsFrame
+        
+        # Now run all of the models for the current data type and put the results
+        # the list of results.
+        
+        for(ModelName in 1:length(K_FC_ModelsList)) {
+          if(K_FC_ModelsList[index] == "JM") {
+            for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
+              
+            }
+          } else if(K_FC_ModelsList[index] == "GM") {
+            for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
+              
+            }
+          } else if(K_FC_ModelsList[index] == "GO") {
+            for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
+              
+            }
+          } else if(K_FC_ModelsList[index] == "DSS") {
+            for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
+              
+            }
+          } else if(K_FC_ModelsList[index] == "WEI") {
+            for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
+              
+            }
           }
         }
       }
