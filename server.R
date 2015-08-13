@@ -28,6 +28,12 @@ FC_to_IF_data <- data.frame()
 ModelsExecutedList <- list()
 ModelsFailedExecutionList <- list()
 
+# This is a list that will hold the list of model results.
+# Each set of model results is a data frame - there's a
+# separate data frame for each model that's run.
+
+ModelResultsList <- list()
+
 # Initialize "constants" ------------------------------------
 
 K_minDataModelIntervalWidth <- 5
@@ -326,17 +332,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   # Run the models for the data type of the input file.
   
-#  ModelResults <- reactive({
-#    source("RunModels.R", local=TRUE)
-#  })
-  
+  observeEvent(input$runModels, {
+    source("RunModels.R", local=TRUE)
+  })
   
   
   # Plot model results.
   # This is currently being refactored.
 
   output$ModelPlot <- renderPlot({
-    source("RunModels.R", local=TRUE)
     ModelResults <- NULL
     ModelResults
   })
