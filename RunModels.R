@@ -1,5 +1,3 @@
-RunModels <- input$runModels  # Wait for the run models button to be pressed.
-
 DataIntervalStart <- input$modelDataRange[1]
 DataIntervalEnd <- input$modelDataRange[2]
 InitialParmEndObs <- input$parmEstIntvl
@@ -15,13 +13,13 @@ ModelsFailedExecutionList <<- list()
 # of data frames, each data frame holding raw failure data or a set of
 # model results.
 
-# ResultsList is the list that will hold the model results.
+# ModelResultsList is the list that will hold the model results.
 # Each model's results will be a data frame containing
 # the model's estimates and predictions as well as the
 # parameter values.  If a model doesn't converge, the
 # value NaN will be entered into its results frame
 
-ResultsList <- list()
+ModelResultsList <<- list()
 tempResultsFrame <- data.frame()
 
 if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
@@ -41,7 +39,9 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
     
     tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
-    ResultsList[["Data"]] <- tempResultsFrame
+    ModelResultsList[["Data"]] <<- tempResultsFrame
+    
+    InitialModelPreds <- rep(NA, length(c(IF, EmptyDataEntries)))
     
     # Now run all of the models for the current data type and put the results
     # the list of results.
@@ -86,6 +86,8 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     # Since we're using FC data converted to IF, we also have to find the failure numbers which most closely
     # matches the test intervals specified by DataIntervalStart and InitialParmEndObs.
     
+    InitialModelPreds <- rep(NA, length(c(IF, EmptyDataEntries)))
+    
     for (j in 1:length(IF_TI)) {
       if(IF_TI[j] >= InitialParmEndObs) {
         break
@@ -101,7 +103,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     
     if((IF_InitialParmEndObs > IF_DataIntervalStart) && (IF_InitialParmEndObs < length(IF))) {
       tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
-      ResultsList[["Data"]] <- tempResultsFrame
+      ModelResultsList[["Data"]] <<- tempResultsFrame
       
       # Now run all of the models for the current data type and put the results
       # the list of results.
@@ -136,8 +138,3 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   tempResultsFrame <- data.frame()
   
 }
-
-# Now return the model results for use by
-# model display and evaluation functionality.
-
-#ResultsList
