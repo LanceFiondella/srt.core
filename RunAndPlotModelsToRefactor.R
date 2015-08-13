@@ -8,22 +8,24 @@ InitialParmEndObs <- input$parmEstIntvl
 ModelsExecutedList <<- list()
 ModelsFailedExecutionList <<- list()
 
-
-if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
-  # The first order of business is to run all of the models.
+# Create the data structures that will hold model results as well as the
+# data to which the models are applied.  The basic structure is a list
+# of data frames, each data frame holding raw failure data or a set of
+# model results.
   
-  ModelResults <- reactive({
-    RunModels <- input$runModels  # Wait for the run models button to be pressed.
-    
-    # ResultsList is the list that will hold the model results.
-    # Each model's results will be a data frame containing
-    # the model's estimates and predictions as well as the
-    # parameter values.  If a model doesn't converge, the
-    # value NaN will be entered into its results frame
-    
-    ResultsList <- list()
-    tempResultsFrame <- data.frame()
-    
+ModelResults <- reactive({
+  RunModels <- input$runModels  # Wait for the run models button to be pressed.
+  
+  # ResultsList is the list that will hold the model results.
+  # Each model's results will be a data frame containing
+  # the model's estimates and predictions as well as the
+  # parameter values.  If a model doesn't converge, the
+  # value NaN will be entered into its results frame
+  
+  ResultsList <- list()
+  tempResultsFrame <- data.frame()
+
+  if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     # The results list will also hold the subsetted data on
     # which the models are run.
     
@@ -73,7 +75,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
       CumT <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)), use.names=FALSE)
       TI <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)), use.names=FALSE)
-
+      
       # Do in-place conversion of FC to IF data - for the time being we'll run the IF/FT models on the converted data.
       # Later, as models are added, we can add models that use the FC data explicitly.
       
@@ -128,19 +130,18 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
         }
       }
     }
-    
     # Clean up
     
     tempResultsFrame <- data.frame()
     
-    # Now present the model results for use by
-    # model display and evaluation functionality.
-    
-    ResultsList
-  })
+  }
   
-}
+  # Now return the model results for use by
+  # model display and evaluation functionality.
   
+  ResultsList
+})
+
   
 
 output$ModelPlot <- renderPlot({
