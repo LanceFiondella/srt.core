@@ -106,23 +106,23 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       
       for(ModelName in 1:length(K_FC_ModelsList)) {
         if(K_FC_ModelsList[index] == "JM") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
         } else if(K_FC_ModelsList[index] == "GM") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
         } else if(K_FC_ModelsList[index] == "GO") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
         } else if(K_FC_ModelsList[index] == "DSS") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
         } else if(K_FC_ModelsList[index] == "WEI") {
-          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(ResultsList$Data[,1]-length(EmptyDataEntries))) {
+          for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
         }
