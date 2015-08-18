@@ -41,16 +41,51 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
     ModelResultsList[["Data"]] <<- tempResultsFrame
     
-    InitialModelPreds <- rep(NA, length(c(IF, EmptyDataEntries)))
+    InitialModelPreds <- rep(NA, length(IF)+length(EmptyDataEntries))
     
     # Now run all of the models for the current data type and put the results
     # the list of results.
-    
+
+    names(IF) <- c(DataIntervalStart:DataIntervalEnd)
     for(ModelName in 1:length(K_IF_ModelsList)) {
       if(K_IF_ModelsList[ModelName] == "JM") {
+        tempResultsFrame <- data.frame("JM_N0"=InitialModelPreds, "JM_PHI"=InitialModelPreds, "JM_IF"=InitialModelPreds, "JM_MVF"=InitialModelPreds, "JM_FI"=InitialModelPreds, "JM_REL"=InitialModelPreds)
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
-          
+          ModelInputIF <- c(unlist(subset(IF, as.numeric(names(IF))<=index), use.names=FALSE))
+          model_params <- JM_BM_MLE(ModelInputIF)
+          if(!(model_params[1] == "nonconvergence")) {
+            tempResultsFrame$JM_N0[index] <- model_params[1]
+            tempResultsFrame$JM_PHI[index] <- model_params[2]
+          } else {
+            tempResultsFrame$JM_N0[index] <- NaN  # Indicates MLE non-convergence
+            tempResultsFrame$JM_PHI[index] <- NaN  # Indicates MLE non-convergence
+            ModelsFailedExecutionList$K_IF_ModelsList[ModelName] <<- K_IF_ModelsList[ModelName]
+          }
         }
+        if(length(names(ModelsFailedExecutionList)) > 0) {
+          if(!(grep(K_IF_ModelsList[ModelName], names(ModelsFailedExecutionList)))) {
+            ModelsExecutedList$K_IF_ModelsList[ModelName] <<- K_IF_ModelsList[ModelName]
+            
+            # Now we compute the MVF, IF and Reliability Estimates and Predictions
+            # for this model.  We only do this if there were no instances of non-
+            # convergences of the parameter estimates.
+            
+            ModelInputIF <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+            frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
+            mvf_plot_data <- JM_MVF(frame_params,ModelInputIF)
+            tbf_plot_data <- JM_T(frame_params,ModelInputIF)
+            fi_plot_data <- JM_FR(frame_params,ModelInputIF)
+            rel_plot_data <- JM_R(frame_params,ModelInputIF)
+          }
+        } else {
+          ModelInputIF <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+          frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
+          mvf_plot_data <- JM_MVF(frame_params,ModelInputIF)
+          tbf_plot_data <- JM_T(frame_params,ModelInputIF)
+          fi_plot_data <- JM_FR(frame_params,ModelInputIF)
+          rel_plot_data <- JM_R(frame_params,ModelInputIF)
+        }
+        
       } else if(K_IF_ModelsList[ModelName] == "GM") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
@@ -86,7 +121,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     # Since we're using FC data converted to IF, we also have to find the failure numbers which most closely
     # matches the test intervals specified by DataIntervalStart and InitialParmEndObs.
     
-    InitialModelPreds <- rep(NA, length(c(IF, EmptyDataEntries)))
+    InitialModelPreds <- rep(NA, length(IF)+length(EmptyDataEntries))
     
     for (j in 1:length(IF_TI)) {
       if(IF_TI[j] >= InitialParmEndObs) {
