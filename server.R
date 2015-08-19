@@ -34,6 +34,12 @@ ModelsFailedExecutionList <- list()
 
 ModelResultsList <- list()
 
+# This is a list that hold the list of model evaluations.
+# Each set of model evaluations is a data frame - there's a
+# separate data frame for each model evaluation that's done.
+
+ModelEvalsList <- list()
+
 # Initialize "constants" ------------------------------------
 
 K_minDataModelIntervalWidth <- 5
@@ -43,9 +49,12 @@ K_CategoryLast <- 5
 
 # These lists identify the models used for each data type
 
-K_IF_ModelsList <- list("JM"="JM", "GM"="GM", "GO"="GO", "DSS"="DSS", "WEI"="WEI")
-K_FC_ModelsList <- list("JM"="JM", "GM"="GM", "GO"="GO", "DSS"="DSS", "WEI"="WEI")
+K_IF_ModelsList <- list("Jelinski-Moranda"="JM", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Delayed S-Shaped"="DSS", "Weibull"="WEI")
+K_FC_ModelsList <- list("Jelinski-Moranda"="JM", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Delayed S-Shaped"="DSS", "Weibull"="WEI")
 
+# Tolerance used in determining whether a value is a whole number.
+
+K_tol <- .Machine$double.eps^0.5
 
 # Start main program ------------------------------------
 
