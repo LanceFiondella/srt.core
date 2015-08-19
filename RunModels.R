@@ -47,58 +47,67 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     # the list of results.
 
     names(IF) <- c(DataIntervalStart:DataIntervalEnd)
-    for(ModelName in 1:length(K_IF_ModelsList)) {
-      if(K_IF_ModelsList[ModelName] == "JM") {
+    for(ModelListIndex in 1:length(K_IF_ModelsList)) {
+      if(K_IF_ModelsList[ModelListIndex] == "JM") {
         tempResultsFrame <- data.frame("JM_N0"=InitialModelPreds, "JM_PHI"=InitialModelPreds, "JM_IF"=InitialModelPreds, "JM_MVF"=InitialModelPreds, "JM_FI"=InitialModelPreds, "JM_REL"=InitialModelPreds)
+        ModelEstimatesConverged <- TRUE
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
-          ModelInputIF <- c(unlist(subset(IF, as.numeric(names(IF))<=index), use.names=FALSE))
-          model_params <- JM_BM_MLE(ModelInputIF)
+          ModelInputData <- c(unlist(subset(IF, as.numeric(names(IF))<=index), use.names=FALSE))
+          model_params <- JM_BM_MLE(ModelInputData)
           if(!(model_params[1] == "nonconvergence")) {
             tempResultsFrame$JM_N0[index] <- model_params[1]
             tempResultsFrame$JM_PHI[index] <- model_params[2]
           } else {
             tempResultsFrame$JM_N0[index] <- NaN  # Indicates MLE non-convergence
             tempResultsFrame$JM_PHI[index] <- NaN  # Indicates MLE non-convergence
-            ModelsFailedExecutionList$K_IF_ModelsList[ModelName] <<- K_IF_ModelsList[ModelName]
+            ModelEstimatesConverged <- FALSE
           }
         }
-        if(length(names(ModelsFailedExecutionList)) > 0) {
-          if(!(grep(K_IF_ModelsList[ModelName], names(ModelsFailedExecutionList)))) {
-            ModelsExecutedList$K_IF_ModelsList[ModelName] <<- K_IF_ModelsList[ModelName]
-            
-            # Now we compute the MVF, IF and Reliability Estimates and Predictions
-            # for this model.  We only do this if there were no instances of non-
-            # convergences of the parameter estimates.
-            
-            ModelInputIF <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-            frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
-            mvf_plot_data <- JM_MVF(frame_params,ModelInputIF)
-            tbf_plot_data <- JM_T(frame_params,ModelInputIF)
-            fi_plot_data <- JM_FR(frame_params,ModelInputIF)
-            rel_plot_data <- JM_R(frame_params,ModelInputIF)
+        if(ModelEstimatesConverged == TRUE) {
+          ModelsExecutedList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- K_IF_ModelsList[ModelListIndex]
+          
+          # Now we compute the MVF, IF and Reliability Estimates and Predictions
+          # for this model.  We only do this if there were no instances of non-
+          # convergences of the parameter estimates.
+          
+          if(length(IF)+length(EmptyDataEntries) < model_params[1]) {
+            FillData <- EmptyDataEntries
+            ModelPreds <- EmptyDataEntries
+          } else {
+            if(abs(frame_params[1]-round(model_params[1])) < K_tol) {
+              # N0 is a whole number
+              FillData <- rep(NA, (model_params[1]-length(IF)-1))
+            } else {
+              # N0 is not a whole number
+              FillData <- rep(NA, (model_params[1]-length(IF)))
+            }
+            ModelPreds <- c(FillData, rep(NaN, (length(EmptyDataEntries)-length(FillData))))
           }
-        } else {
-          ModelInputIF <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
+          
+          ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
           frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
-          mvf_plot_data <- JM_MVF(frame_params,ModelInputIF)
-          tbf_plot_data <- JM_T(frame_params,ModelInputIF)
-          fi_plot_data <- JM_FR(frame_params,ModelInputIF)
-          rel_plot_data <- JM_R(frame_params,ModelInputIF)
+          mvf_plot_data <- JM_MVF(frame_params,ModelInputData)
+          tbf_plot_data <- JM_T(frame_params,ModelInputData)
+          fi_plot_data <- JM_FR(frame_params,ModelInputData)
+          rel_plot_data <- JM_R(frame_params,ModelInputData)
+        } else {
+          ModelsFailedExecutionList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- K_IF_ModelsList[ModelListIndex]
+          ModelEstimatesConverged <- TRUE
         }
         
-      } else if(K_IF_ModelsList[ModelName] == "GM") {
+      } else if(K_IF_ModelsList[ModelListIndex] == "GM") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
-      } else if(K_IF_ModelsList[ModelName] == "GO") {
+      } else if(K_IF_ModelsList[ModelListIndex] == "GO") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
-      } else if(K_IF_ModelsList[ModelName] == "DSS") {
+      } else if(K_IF_ModelsList[ModelListIndex] == "DSS") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
-      } else if(K_IF_ModelsList[ModelName] == "WEI") {
+      } else if(K_IF_ModelsList[ModelListIndex] == "WEI") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
@@ -143,24 +152,24 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       # Now run all of the models for the current data type and put the results
       # the list of results.
       
-      for(ModelName in 1:length(K_FC_ModelsList)) {
-        if(K_FC_ModelsList[ModelName] == "JM") {
+      for(ModelListIndex in 1:length(K_FC_ModelsList)) {
+        if(K_FC_ModelsList[ModelListIndex] == "JM") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelName] == "GM") {
+        } else if(K_FC_ModelsList[ModelListIndex] == "GM") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelName] == "GO") {
+        } else if(K_FC_ModelsList[ModelListIndex] == "GO") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelName] == "DSS") {
+        } else if(K_FC_ModelsList[ModelListIndex] == "DSS") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelName] == "WEI") {
+        } else if(K_FC_ModelsList[ModelListIndex] == "WEI") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
