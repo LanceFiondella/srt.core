@@ -72,13 +72,13 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
         }
       },
       error = function(e){
-        print(e)
+        #print(e)
         #return(e)
       })
     sol
   }
   N0_MLE <- soln(maxiter)
-  print(N0_MLE)
+  #print(N0_MLE)
 
   if(N0_MLE < n){
     return("nonconvergence")
@@ -120,7 +120,7 @@ JM_MVF <- function(param,d){
 
   g <- data.frame(cumulr[2],cumulr[1])
   names(g) <- c("Time","Failure")
-  print(g)
+  #print(g)
   g  
 }
 
