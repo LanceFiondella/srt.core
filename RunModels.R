@@ -1,6 +1,7 @@
 DataIntervalStart <- input$modelDataRange[1]
 DataIntervalEnd <- input$modelDataRange[2]
 InitialParmEndObs <- input$parmEstIntvl
+ReliabilityEstimationInterval <- input$modelRelInterval
 
 # These two lists are used to keep track of models
 # that executed successfully and those that did not.
@@ -25,6 +26,10 @@ tempResultsFrame <- data.frame()
 if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   # The results list will also hold the subsetted data on
   # which the models are run.
+  
+  updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
+  updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
+  updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
   
   input_data <- data.frame(x=data_global())
   names(input_data) <- gsub("x.", "", names(input_data))
@@ -70,25 +75,33 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
           # for this model.  We only do this if there were no instances of non-
           # convergences of the parameter estimates.
           
+          # First we have to adjust for the fact that this is a finite failures
+          # model, and we may be asking for the model to make predictions for
+          # more failures than the model thinks remain.
+          
           if(length(IF)+length(EmptyDataEntries) < model_params[1]) {
             FillData <- EmptyDataEntries
-            ModelPreds <- EmptyDataEntries
+            ModelPredsNA <- c()
+            ModelPredsNaN <- c()
+            ModelPredsInF <- c()
           } else {
-            if(abs(frame_params[1]-round(model_params[1])) < K_tol) {
+            if(abs(model_params[1]-round(model_params[1])) < K_tol) {
               # N0 is a whole number
               FillData <- rep(NA, (model_params[1]-length(IF)-1))
             } else {
               # N0 is not a whole number
-              FillData <- rep(NA, (model_params[1]-length(IF)))
+              FillData <- rep(NA, (floor(model_params[1])-length(IF)))
             }
-            ModelPreds <- c(FillData, rep(NaN, (length(EmptyDataEntries)-length(FillData))))
+            ModelPredsNA <- rep(NA, length(EmptyDataEntries)-length(FillData))
+            ModelPredsNaN <- rep(NaN, length(EmptyDataEntries)-length(FillData))
+            ModelPredsInf <- rep(Inf, length(EmptyDataEntries)-length(FillData))
           }
           
           ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
           frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
-          mvf_plot_data <- JM_MVF(frame_params,ModelInputData)
-          tbf_plot_data <- JM_T(frame_params,ModelInputData)
-          fi_plot_data <- JM_FR(frame_params,ModelInputData)
+          tempResultsFrame$JM_MVF <- c(JM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInf)
+          tempResultsFrame$JM_IF <- c(JM_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInf)
+          tempResultsFrame$JM_FI <- c(JM_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
           rel_plot_data <- JM_R(frame_params,ModelInputData)
         } else {
           ModelsFailedExecutionList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- K_IF_ModelsList[ModelListIndex]
@@ -113,6 +126,14 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
         }
       }
     }
+    
+    # Update the model results selection pull-downs with the names of the
+    # models that have been successfully run.
+    
+    updateSelectInput(session, "modelResultChoice", choices = ModelsExecutedList)
+    updateSelectInput(session, "modelDetailChoice", choices = ModelsExecutedList)
+    updateSelectInput(session, "modelResultsForEval", choices = ModelsExecutedList)
+    
   } else if((length(grep("CFC",names(input_data)))>0) || (length(grep("FC",names(input_data)))>0)) {
     FC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)), use.names=FALSE)
     CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
