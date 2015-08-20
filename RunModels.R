@@ -130,9 +130,9 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     # Update the model results selection pull-downs with the names of the
     # models that have been successfully run.
     
-    updateSelectInput(session, "modelResultChoice", choices = ModelsExecutedList)
-    updateSelectInput(session, "modelDetailChoice", choices = ModelsExecutedList)
-    updateSelectInput(session, "modelResultsForEval", choices = ModelsExecutedList)
+    updateSelectInput(session, "modelResultChoice", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
+    updateSelectInput(session, "modelDetailChoice", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
+    updateSelectInput(session, "modelResultsForEval", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
     
   } else if((length(grep("CFC",names(input_data)))>0) || (length(grep("FC",names(input_data)))>0)) {
     FC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)), use.names=FALSE)
