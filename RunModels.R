@@ -54,7 +54,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     names(IF) <- c(DataIntervalStart:DataIntervalEnd)
     for(ModelListIndex in 1:length(K_IF_ModelsList)) {
       if(K_IF_ModelsList[ModelListIndex] == "JM") {
-        tempResultsFrame <- data.frame("JM_N0"=InitialModelPreds, "JM_PHI"=InitialModelPreds, "JM_IF"=InitialModelPreds, "JM_MVF"=InitialModelPreds, "JM_FI"=InitialModelPreds, "JM_REL"=InitialModelPreds)
+        tempResultsFrame <- data.frame("JM_N0"=InitialModelPreds, "JM_PHI"=InitialModelPreds, "IF"=InitialModelPreds, "MVF"=InitialModelPreds, "FI"=InitialModelPreds, "REL"=InitialModelPreds)
         ModelEstimatesConverged <- TRUE
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           ModelInputData <- c(unlist(subset(IF, as.numeric(names(IF))<=index), use.names=FALSE))
@@ -99,14 +99,20 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
           
           ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
           frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
-          tempResultsFrame$JM_MVF <- c(JM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInf)
-          tempResultsFrame$JM_IF <- c(JM_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInf)
-          tempResultsFrame$JM_FI <- c(JM_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
+          tempResultsFrame$MVF <- c(JM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInf)
+          tempResultsFrame$IF <- c(JM_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInf)
+          tempResultsFrame$FI <- c(JM_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
           rel_plot_data <- JM_R(frame_params,ModelInputData)
         } else {
           ModelsFailedExecutionList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- K_IF_ModelsList[ModelListIndex]
           ModelEstimatesConverged <- TRUE
         }
+        
+        # Add the data frame containing results for this model to the
+        # list of data frames holding all model results and clean up.
+        
+        ModelResultsList[["JM"]] <<- tempResultsFrame
+        tempResultsFrame <- data.frame()
         
       } else if(K_IF_ModelsList[ModelListIndex] == "GM") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
