@@ -94,13 +94,13 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
             }
             ModelPredsNA <- rep(NA, length(EmptyDataEntries)-length(FillData))
             ModelPredsNaN <- rep(NaN, length(EmptyDataEntries)-length(FillData))
-            ModelPredsInf <- rep(Inf, length(EmptyDataEntries)-length(FillData))
+            ModelPredsInF <- rep(Inf, length(EmptyDataEntries)-length(FillData))
           }
           
           ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
           frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
-          tempResultsFrame$MVF <- c(JM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInf)
-          tempResultsFrame$IF <- c(JM_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInf)
+          tempResultsFrame$MVF <- c(JM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInF)
+          tempResultsFrame$IF <- c(JM_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInF)
           tempResultsFrame$FI <- c(JM_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
           rel_plot_data <- JM_R(frame_params,ModelInputData)
         } else {
