@@ -24,6 +24,13 @@ ModelResultsList <<- list()
 tempResultsFrame <- data.frame()
 
 if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
+  
+  # Store the start and end points of the data set and the number of
+  # failures for which to make predictions in "ModelResultsList".
+  
+  tempResultFrame <- data.frame("Start"=DataIntervalStart, "End"=DataIntervalEnd, "NumPreds"=input$modelNumPredSteps)
+  ModelResultsList[["DataStartAndEnd"]] <<- tempResultsFrame
+  
   # The results list will also hold the subsetted data on
   # which the models are run.
   
