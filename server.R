@@ -140,11 +140,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         data$FN <- c(1:length(data$IF))
       }
       
-      # Update failure data view slider for IF/FT data views.
+      # Update failure data view choices for IF/FT data and model result views.
       
       updateSelectInput(session, "dataPlotChoice",
                          choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                         "Failure Intensity" = "FI"), selected = "CF")
+      updateSelectInput(session, "modelPlotChoice",
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI", "Reliability" = "REL"), selected = "CF")
+      
     } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
       if (length(grep("FC",names(data))) > 0) {
         if (length(grep("CFC",names(data))) == 0) {
@@ -160,12 +164,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
       
-      # Update failure data view slider for CFC/FC data views.
+      # Update failure data view choices for CFC/FC data/model views.
       # Includes a "failure counts" view which IF/FT data does not.
       
       updateSelectInput(session, "dataPlotChoice",
                          choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                         "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      updateSelectInput(session, "modelPlotChoice",
+                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "REL"), selected = "CF")
+      
     }
 
     updateSliderInput(session, "modelDataRange",
@@ -350,8 +358,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # This is currently being refactored.
 
   output$ModelPlot <- renderPlot({
-    ModelResults <- NULL
-    ModelResults
+    ModelPlot <- NULL
+    source("PlotModelResults.R", local=TRUE)
+    ModelPlot
   })
   
   output$mytable1 <- renderDataTable({
