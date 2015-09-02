@@ -199,6 +199,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
     Height
   })
+
+  # Same idea as for DTP_height above, but for the model results plot.
+  
+  MP_height <- reactive({
+    Width <- session$clientData$output_ModelPlot_width
+    Height <- session$clientData$output_ModelPlot_height
+    if((Width > Height) && (Width > 400)) {
+      Height <- Width
+    }
+    Height
+  })
+  
   
   # Draw the plot of input data or selected trend test.  The height is controlled by the
   # reactive data item specified above.
@@ -361,7 +373,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     ModelPlot <- NULL
     source("PlotModelResults.R", local=TRUE)
     ModelPlot
-  })
+  }, height=MP_height)
   
   output$mytable1 <- renderDataTable({
 
