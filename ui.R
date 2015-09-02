@@ -181,7 +181,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px")), 
+                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot")), 
                                   tabPanel("Model Result Table", dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
                             )
