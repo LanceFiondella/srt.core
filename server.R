@@ -262,6 +262,17 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   )
 
+  # Download handler for saving model results plots.
+  
+  output$saveModelResults <- downloadHandler(
+    filename = function() {
+      paste(paste0(data_set_global, "_ModelResults"), input$saveModelResultsType, sep=".")
+    },
+    content = function(filespec) {
+      ggsave(filespec)
+    }
+  )
+  
   
   track_models <- reactive({
     tracked_models <- c()
@@ -307,7 +318,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       OutputTable <- data.frame()
     }
     OutputTable[,1:(length(names(OutputTable))-1)]
-  })
+  }, options = list(lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
   
   # Here we monitor the data subset and model configuration controls in the
