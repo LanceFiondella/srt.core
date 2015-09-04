@@ -1,6 +1,7 @@
 library(shiny)#I wonder why this is here?
 library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
+library(DT)
 #library(DT)
 
 source("custom_functions.R")
@@ -212,6 +213,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   })
   
   
+  # Read the position of the mouse for the data and trend plot
+  
+  DTPranges <- reactiveValues(x = NULL, y = NULL)
+  
   # Draw the plot of input data or selected trend test.  The height is controlled by the
   # reactive data item specified above.
   
@@ -240,12 +245,27 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         source("Plot_Trend_Tests.R", local=TRUE)
       }
 
+      DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
       DataAndTrendPlot
 
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
   }, height=DTP_height)
   
+  # Event observer for double-click on data and trend plot.
+  # Double click and brush zooms in and out.
+  
+  observeEvent(input$DTPdblclick, {
+    DTPbrush <- input$DTP_brush
+    if (!is.null(DTPbrush)) {
+      DTPranges$x <- c(DTPbrush$xmin, DTPbrush$xmax)
+      DTPranges$y <- c(DTPbrush$ymin, DTPbrush$ymax)
+      
+    } else {
+      DTPranges$x <- NULL
+      DTPranges$y <- NULL
+    }
+  })
   
   # Download handler for saving data and trend plots or tables.
   
@@ -376,15 +396,36 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     source("RunModels.R", local=TRUE)
   })
   
+  # Read the position of the mouse for the model results plot
+  
+  MPranges <- reactiveValues(x = NULL, y = NULL)  
   
   # Plot model results.
-  # This is currently being refactored.
 
   output$ModelPlot <- renderPlot({
     ModelPlot <- NULL
     source("PlotModelResults.R", local=TRUE)
+    if(length(ModelsExecutedList) > 0) {
+      ModelPlot <- ModelPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
+    }
     ModelPlot
   }, height=MP_height)
+  
+  # Event observer for double-click on data and trend plot.
+  # Double click and brush zooms in and out.
+  
+  observeEvent(input$MPdblclick, {
+    MPbrush <- input$MP_brush
+    if (!is.null(MPbrush)) {
+      MPranges$x <- c(MPbrush$xmin, MPbrush$xmax)
+      MPranges$y <- c(MPbrush$ymin, MPbrush$ymax)
+      
+    } else {
+      MPranges$x <- NULL
+      MPranges$y <- NULL
+    }
+  })
+  
   
   output$mytable1 <- renderDataTable({
 
