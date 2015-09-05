@@ -135,16 +135,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(12,
-                                                    actionButton("runModels", label = "Run Models")
+                                                    actionButton("runModels", label = "Run Selected Models")
                                              )
                                            ),
                                            
                                            fluidRow(
                                              column(12, 
                                                     br(),
-                                                    h5("Choose the model results to display."),
                                                     selectInput(
-                                                      "modelResultChoice", label = h6("Choose one or more sets of model results"), 
+                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
                                                       choices=list("No model results to display"="None"),
                                                       multiple=TRUE, selected="None"
                                                     )
@@ -243,7 +242,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("modelRelMissionTime", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
+                                             ),
+                                             br(),
+                                             column(12,
+                                                    actionButton("makePredictions", label = "Make Model Predictions")
                                              )
+                                           ),
+                                           fluidRow(
+                                             br(),
+                                             column(12, downloadButton(outputId = "saveModelPreds", label = "Save Model Predictions"))
                                            )
                               ),
                               
@@ -344,11 +351,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
+                                             br(),
+                                             column(12,
+                                                    actionButton("rankModels", label = "Rank Models")
+                                             )
+                                           ),
+                                           
+                                           fluidRow(
                                              column(12, 
                                                     radioButtons("saveModelEvalType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
                                                                  choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                                                                  selected = "JPG")
                                              ),
+                                             br(),
                                              column(8, downloadButton(outputId = "saveModelEval", label = "Save"))
                                            )
                               ),
