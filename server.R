@@ -21,6 +21,7 @@ source("ErrorMessages.R")  # Text for error messages
 openFileDatapath <- ""
 #data_global <- data.frame()
 data_set_global <- ""
+data_set_global_type <- ""
 FC_to_IF_data <- data.frame()
 
 # These two lists are used to keep track of models
@@ -132,6 +133,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # This information will be used later for subsetting the data.
     
     if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
+      data_set_global_type <<- "IFTimes"
       if (length(grep("FT",names(data))) == 0) {
         data$FT <- interF_to_failureT(data$IF)
       } else if (length(grep("IF",names(data))) == 0) {
@@ -155,6 +157,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                                        "Failure Intensity" = "FI", "Reliability" = "REL"), selected = "CF")
       
     } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
+      data_set_global_type <<- "FailureCounts"
       if (length(grep("FC",names(data))) > 0) {
         if (length(grep("CFC",names(data))) == 0) {
           data$CFC <- FailureC_to_CumulativeFailureC(data$FC)
