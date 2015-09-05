@@ -3,6 +3,10 @@ DataIntervalEnd <- input$modelDataRange[2]
 InitialParmEndObs <- input$parmEstIntvl
 ReliabilityEstimationInterval <- input$modelRelInterval
 
+# Read the list of models to run.
+
+SelectedModelsToRun <- as.list(input$modelsToRun)
+
 # These two lists are used to keep track of models
 # that executed successfully and those that did not.
 
@@ -23,7 +27,7 @@ ModelsFailedExecutionList <<- list()
 ModelResultsList <<- list()
 tempResultsFrame <- data.frame()
 
-if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
+if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) && (length(SelectedModelsToRun) > 0)) {
   
   # Store the start and end points of the data set and the number of
   # failures for which to make predictions in "ModelResultsList".
@@ -32,6 +36,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   tempResultsFrame <- data.frame("Start"=DataIntervalStart, "End"=DataIntervalEnd, "NumPreds"=input$modelNumPredSteps)
   ModelResultsList[["DataStartAndEnd"]] <<- tempResultsFrame
   ModelResultsList[["DataSetName"]] <<- data_set_global
+  ModelResultsList[["DataSetType"]] <<- data_set_global_type
   
   # The results list will also hold the subsetted data on
   # which the models are run.
@@ -47,7 +52,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   
   # These are the data sets that will be input directly into the models.
   
-  if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data)))>0)) {
+  if(ModelResultsList[["DataSetType"]] == "IFTimes") {
     FN <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FN)), use.names=FALSE)
     FT <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
     IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
@@ -57,12 +62,24 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     
     InitialModelPreds <- rep(NA, length(IF)+length(EmptyDataEntries))
     
+    # We need to set the names in the list of models to run.
+    
+    ModelsToRunNames <- c()
+    for (index_temp in 1:length(SelectedModelsToRun)) {
+      for (index_temp1 in 1:length(K_IF_ModelsList)) {
+        if (SelectedModelsToRun[index_temp] == unlist(K_IF_ModelsList[index_temp1], use.names=FALSE)) {
+          ModelsToRunNames[index_temp] <- names(K_IF_ModelsList[index_temp1])
+        }
+      }
+    }
+    names(SelectedModelsToRun) <- ModelsToRunNames
+    
     # Now run all of the models for the current data type and put the results
     # the list of results.
 
     names(IF) <- c(DataIntervalStart:DataIntervalEnd)
-    for(ModelListIndex in 1:length(K_IF_ModelsList)) {
-      if(K_IF_ModelsList[ModelListIndex] == "JM") {
+    for(ModelListIndex in 1:length(SelectedModelsToRun)) {
+      if(SelectedModelsToRun[ModelListIndex] == "JM") {
         tempResultsFrame <- data.frame("JM_N0"=InitialModelPreds, "JM_PHI"=InitialModelPreds, "IF"=InitialModelPreds, "MVF"=InitialModelPreds, "FI"=InitialModelPreds, "REL"=InitialModelPreds)
         ModelEstimatesConverged <- TRUE
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
@@ -78,7 +95,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
           }
         }
         if(ModelEstimatesConverged == TRUE) {
-          ModelsExecutedList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- unlist(K_IF_ModelsList[ModelListIndex], use.names=FALSE)
+          ModelsExecutedList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- unlist(SelectedModelsToRun[ModelListIndex], use.names=FALSE)
           
           # Now we compute the MVF, IF and Reliability Estimates and Predictions
           # for this model.  We only do this if there were no instances of non-
@@ -113,7 +130,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
           tempResultsFrame$FI <- c(JM_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
           rel_plot_data <- JM_R(frame_params,ModelInputData)
         } else {
-          ModelsFailedExecutionList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- K_IF_ModelsList[ModelListIndex]
+          ModelsFailedExecutionList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- SelectedModelsToRun[ModelListIndex]
           ModelEstimatesConverged <- TRUE
         }
         
@@ -123,19 +140,19 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
         ModelResultsList[["JM"]] <<- tempResultsFrame
         tempResultsFrame <- data.frame()
         
-      } else if(K_IF_ModelsList[ModelListIndex] == "GM") {
+      } else if(SelectedModelsToRun[ModelListIndex] == "GM") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
-      } else if(K_IF_ModelsList[ModelListIndex] == "GO") {
+      } else if(SelectedModelsToRun[ModelListIndex] == "GO") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
-      } else if(K_IF_ModelsList[ModelListIndex] == "DSS") {
+      } else if(SelectedModelsToRun[ModelListIndex] == "DSS") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
-      } else if(K_IF_ModelsList[ModelListIndex] == "WEI") {
+      } else if(SelectedModelsToRun[ModelListIndex] == "WEI") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
           
         }
@@ -149,7 +166,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     updateSelectInput(session, "modelDetailChoice", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
     updateSelectInput(session, "modelResultsForEval", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
     
-  } else if((length(grep("CFC",names(input_data)))>0) || (length(grep("FC",names(input_data)))>0)) {
+  } else if(ModelResultsList[["DataSetType"]] == "FailureCounts") {
     FC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)), use.names=FALSE)
     CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
     CumT <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)), use.names=FALSE)
@@ -162,11 +179,25 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     IF <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_IF)), use.names=FALSE)
     FT <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_FT)), use.names=FALSE)
     IF_TI <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_TI)), use.names=FALSE)
-    
+
+        
     # Since we're using FC data converted to IF, we also have to find the failure numbers which most closely
     # matches the test intervals specified by DataIntervalStart and InitialParmEndObs.
     
     InitialModelPreds <- rep(NA, length(IF)+length(EmptyDataEntries))
+    
+    # We need to set the names in the list of models to run.
+    
+    ModelsToRunNames <- c()
+    for (index_temp in 1:length(SelectedModelsToRun)) {
+      for (index_temp1 in 1:length(K_FC_ModelsList)) {
+        if (SelectedModelsToRun[index_temp] == unlist(K_FC_ModelsList[index_temp1], use.names=FALSE)) {
+          ModelsToRunNames[index_temp] <- names(K_FC_ModelsList[index_temp1])
+        }
+      }
+    }
+    names(SelectedModelsToRun) <- ModelsToRunNames
+    
     
     for (j in 1:length(IF_TI)) {
       if(IF_TI[j] >= InitialParmEndObs) {
@@ -188,24 +219,24 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
       # Now run all of the models for the current data type and put the results
       # the list of results.
       
-      for(ModelListIndex in 1:length(K_FC_ModelsList)) {
-        if(K_FC_ModelsList[ModelListIndex] == "JM") {
+      for(ModelListIndex in 1:length(SelectedModelsToRun)) {
+        if(SelectedModelsToRun[ModelListIndex] == "JM") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelListIndex] == "GM") {
+        } else if(SelectedModelsToRun[ModelListIndex] == "GM") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelListIndex] == "GO") {
+        } else if(SelectedModelsToRun[ModelListIndex] == "GO") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelListIndex] == "DSS") {
+        } else if(SelectedModelsToRun[ModelListIndex] == "DSS") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
-        } else if(K_FC_ModelsList[ModelListIndex] == "WEI") {
+        } else if(SelectedModelsToRun[ModelListIndex] == "WEI") {
           for (index in (IF_InitialParmEndObs-IF_DataIntervalStart+1):length(IF)) {
             
           }
