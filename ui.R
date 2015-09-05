@@ -123,6 +123,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("modelRelInterval", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 1, value = 1)
+                                             ),
+                                             column(12, 
+                                                    selectInput(
+                                                      "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
+                                                      choices=list("Open a data set to run models"="None"),
+                                                      multiple=TRUE, selected="None"
+                                                    )
                                              )
                                            ),
                                            
