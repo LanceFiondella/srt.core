@@ -405,7 +405,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   output$ModelPlot <- renderPlot({
     ModelPlot <- NULL
     source("PlotModelResults.R", local=TRUE)
-    if(length(ModelsExecutedList) > 0) {
+    if(length(ModelsExecutedList) > 0 && !(is.null(ModelPlot))) {
       ModelPlot <- ModelPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
     }
     ModelPlot
