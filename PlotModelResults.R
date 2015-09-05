@@ -76,11 +76,11 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
   
   if(input$checkboxDataOnPlot) {
     
-    if((length(grep("FT",names(ModelResultsList[["Data"]])))>0) || (length(grep("IF",names(ModelResultsList[["Data"]])))>0)) {
+    if(ModelResultsList[["DataSetType"]] == "IFTimes") {
       FN <- c(unlist(subset(subset(ModelResultsList[["Data"]], ModelResultsList[["Data"]]$FN >= DataStart, select = c(FN, IF, FT)), FN <= DataEnd, select = FN)), use.names=FALSE)
       FT <- c(unlist(subset(subset(ModelResultsList[["Data"]], ModelResultsList[["Data"]]$FN >= DataStart, select = c(FN, IF, FT)), FN <= DataEnd, select = FT)), use.names=FALSE)
       IF <- c(unlist(subset(subset(ModelResultsList[["Data"]], ModelResultsList[["Data"]]$FN >= DataStart, select = c(FN, IF, FT)), FN <= DataEnd, select = IF)), use.names=FALSE)
-    } else if((length(grep("CFC",names(ModelResultsList[["Data"]])))>0) || (length(grep("FC",names(ModelResultsList[["Data"]])))>0)) {
+    } else if(ModelResultsList[["DataSetType"]] == "FailureCounts") {
       FC <- c(unlist(subset(subset(ModelResultsList[["Data"]], ModelResultsList[["Data"]]$TI >= DataStart, select = c(TI, T, FC, CFC)), TI <= DataEnd, select = FC)), use.names=FALSE)
       CFC <- c(unlist(subset(subset(ModelResultsList[["Data"]], ModelResultsList[["Data"]]$TI >= DataStart, select = c(TI, T, FC, CFC)), TI <= DataEnd, select = CFC)), use.names=FALSE)
       CumT <- c(unlist(subset(subset(ModelResultsList[["Data"]], ModelResultsList[["Data"]]$TI >= DataStart, select = c(TI, T, FC, CFC)), TI <= DataEnd, select = T)), use.names=FALSE)
