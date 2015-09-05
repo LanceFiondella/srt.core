@@ -141,6 +141,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         data$FN <- c(1:length(data$IF))
       }
       
+      # Update the selection list for the models that can be run.
+      
+      updateSelectInput(session, "modelsToRun", choices = K_IF_ModelsList, selected = K_IF_ModelsList)
+      
       # Update failure data view choices for IF/FT data and model result views.
       
       updateSelectInput(session, "dataPlotChoice",
@@ -164,6 +168,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data$TI <- c(1:length(data$FC))
       
       FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+      
+      # Update the selection list for the models that can be run.
+      
+      updateSelectInput(session, "modelsToRun", choices = K_FC_ModelsList, selected = K_FC_ModelsList)
       
       # Update failure data view choices for CFC/FC data/model views.
       # Includes a "failure counts" view which IF/FT data does not.
