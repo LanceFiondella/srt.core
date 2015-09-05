@@ -27,9 +27,11 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   
   # Store the start and end points of the data set and the number of
   # failures for which to make predictions in "ModelResultsList".
+  # Also store the name of the data set that is being modeled.
   
   tempResultsFrame <- data.frame("Start"=DataIntervalStart, "End"=DataIntervalEnd, "NumPreds"=input$modelNumPredSteps)
   ModelResultsList[["DataStartAndEnd"]] <<- tempResultsFrame
+  ModelResultsList[["DataSetName"]] <<- data_set_global
   
   # The results list will also hold the subsetted data on
   # which the models are run.
@@ -76,7 +78,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
           }
         }
         if(ModelEstimatesConverged == TRUE) {
-          ModelsExecutedList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- K_IF_ModelsList[ModelListIndex]
+          ModelsExecutedList[[names(K_IF_ModelsList)[ModelListIndex]]] <<- unlist(K_IF_ModelsList[ModelListIndex], use.names=FALSE)
           
           # Now we compute the MVF, IF and Reliability Estimates and Predictions
           # for this model.  We only do this if there were no instances of non-
