@@ -93,7 +93,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               mainPanel(
                                 tabsetPanel(
                                   tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot", dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
-                                  tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
+                                  tabPanel("Data and Trend Test Table", DT::dataTableOutput("dataAndTrendTable")),
                                   id="DataPlotAndTableTabset"),
                                 width=8
                               )
