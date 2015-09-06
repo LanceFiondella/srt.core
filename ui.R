@@ -263,6 +263,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Evaluate Models",
                             sidebarLayout(
                               sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
+
+                                             # Project Master called this "EvalResultChoice"
+
                                              fluidRow(
                                                column(12, 
                                                       br(),
