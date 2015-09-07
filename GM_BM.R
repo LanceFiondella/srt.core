@@ -69,12 +69,12 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
       error = function(e){
-        print(e)
+        #print(e)
         #return(e)
       })
     sol
@@ -164,7 +164,7 @@ GM_FR <- function(param,d){
     }
   r <- data.frame(r[1],r[2])
   names(r) <- c("Time","Failure")
-  print(r)
+  #print(r)
   r  
 }
 
@@ -178,7 +178,7 @@ GM_R <- function(param,d){
   }
   r <- data.frame(r[1],r[2])
   names(r) <- c("Time","Failure")
-  print(r)
+  #print(r)
   r
   
 }

@@ -183,14 +183,22 @@ console_out_u<- function(model,data_set,request,method,type){
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
+      time <- proc.time()
       sol <- JM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
       #print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
+      time <- proc.time()
       sol <- JM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
       #print("PICKED CFC pattern")     
@@ -200,7 +208,11 @@ console_out_u<- function(model,data_set,request,method,type){
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
+      time <- proc.time()
       sol <- JM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
       #print("PICKED FC pattern")
@@ -209,7 +221,11 @@ console_out_u<- function(model,data_set,request,method,type){
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
+      time <- proc.time()
       sol <- JM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
 
 
@@ -252,6 +268,7 @@ console_out_u<- function(model,data_set,request,method,type){
     error_check <- error < epsilon
     names(error_check) <- c("N0","phi")
     cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
+    cat('\n','\t',blue(format("Time taken",width=15),":"),del_time,'\n')
     PASS <- make_style("green",bg=TRUE)
     FAIL <- make_style("red",bg=TRUE)
   }
@@ -269,14 +286,22 @@ console_out_u<- function(model,data_set,request,method,type){
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
+      time <- proc.time()
       sol <- GM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
       print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
+      time <- proc.time()
       sol <- GM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
       print("PICKED CFC pattern")     
@@ -286,7 +311,11 @@ console_out_u<- function(model,data_set,request,method,type){
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
+      time <- proc.time()
       sol <- GM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
       print("PICKED FC pattern")
@@ -295,7 +324,11 @@ console_out_u<- function(model,data_set,request,method,type){
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
+      time <- proc.time()
       sol <- GM_BM_MLE(IF)
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
 
 
@@ -337,6 +370,7 @@ console_out_u<- function(model,data_set,request,method,type){
     error_check <- error < epsilon
     names(error_check) <- c("N0","phi")
     cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
+    cat('\n','\t',blue(format("Time taken",width=15),":"),del_time,'\n')
     PASS <- make_style("green",bg=TRUE)
     FAIL <- make_style("red",bg=TRUE)
   }
@@ -372,8 +406,12 @@ console_out_u<- function(model,data_set,request,method,type){
       #   }
       print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
-
+      time <- proc.time()
       sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
@@ -396,8 +434,12 @@ console_out_u<- function(model,data_set,request,method,type){
       #   }
       print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
-
+      time <- proc.time()
       sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
       print("PICKED CFC pattern")     
@@ -409,9 +451,12 @@ console_out_u<- function(model,data_set,request,method,type){
       IF <- failureT_to_interF(failure_T = FT)
       print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
-
+      time <- proc.time()
       sol <- MLE_construct(FT)
-      
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
       print("PICKED FC pattern")
@@ -422,8 +467,13 @@ console_out_u<- function(model,data_set,request,method,type){
       IF <- failureT_to_interF(failure_T = FT)
       print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
-
+      time <- proc.time()
       sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+   
     }
 
 
@@ -468,6 +518,7 @@ console_out_u<- function(model,data_set,request,method,type){
     error_check <- error < epsilon
     names(error_check) <- c("N0","phi")
     cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
+    cat('\n','\t',blue(format("Time taken",width=15),":"),del_time,'\n')
     PASS <- make_style("green",bg=TRUE)
     FAIL <- make_style("red",bg=TRUE)
   }

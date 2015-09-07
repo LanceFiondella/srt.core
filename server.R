@@ -54,6 +54,10 @@ K_CategoryLast <- 5
 K_IF_ModelsList <- list("Jelinski-Moranda"="JM", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Delayed S-Shaped"="DSS", "Weibull"="WEI")
 K_FC_ModelsList <- list("Jelinski-Moranda"="JM", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Delayed S-Shaped"="DSS", "Weibull"="WEI")
 
+# Colors that will be used in plotting model results
+
+K_ModelResultColors <- list("JM"="red", "GM"="blue", "GO"="green", "DSS"="yellow", "WEI"="orange")
+
 # Tolerance used in determining whether a value is a whole number.
 
 K_tol <- .Machine$double.eps^0.5
@@ -305,23 +309,27 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   )
   
   
-  track_models <- reactive({
-    tracked_models <- c()
-    if(!is.null(input$modelResultChoice)) {
-      tracked_models <- input$modelResultChoice
-    }
-    else{
-      if(!is.null(input$modelDetailChoice)){
-        tracked_models <- input$modelDetailChoice
-      }
-      
-    }
-    print(tracked_models)
-    tracked_models
+  # There is a serious flaw in tracking the models selected
+  # But there is a strong necessity to track the models 
+  # selected.
 
-    # Returns indeces of the models selected
-    # The indices should be same throughout the
-  })
+
+  # track_models <- reactive({
+  #   tracked_models <- c()
+  #   if(!is.null(input$modelResultChoice)) {
+  #     tracked_models <- input$modelResultChoice
+  #   }
+  #   else{
+  #     if(!is.null(input$modelDetailChoice)){
+  #       tracked_models <- input$modelDetailChoice
+  #     }
+  #   }
+  #   print(tracked_models)
+  #   tracked_models
+
+  #   # Returns indeces of the models selected
+  #   # The indices should be same throughout the
+  # })
   
   # Set up the data and trend test statistics tables for display
   
@@ -331,7 +339,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   # Display the input data or selected trend test in tabular form.
   
-  output$dataAndTrendTable <- renderDataTable({
+  output$dataAndTrendTable <- DT::renderDataTable({
     OutputTable <- data.frame(x=FailureDataTable())
     if(length(OutputTable) > 1) {
       names(OutputTable) <- gsub("x.", "", names(OutputTable))
@@ -437,7 +445,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
-  
+
+
   output$mytable1 <- renderDataTable({
 
     inFile <- input$file
@@ -449,13 +458,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
 
     data <- data_global()
-    
+    if(is.null(input$modelDetailChoice)){
+        return
+      }
     # frame_params <- "EMPTY"
     #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-
+      
       ###################################################
       if(!is.numeric(input$modelDetailPredTime)){
         return(data)
@@ -465,10 +476,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       ###################################################
       #input$modelDetailChoice <- track_models()
-      if(is.null(input$modelDetailChoice)){
-        return
-      }
-      if(length(track_models())>0) {
+      if(length(input$modelDetailChoice)>0){
+      #if(length(track_models())>0) {
         count <- 0
         for(i in input$modelDetailChoice){
           if(i=="Jelinski-Moranda"){
@@ -646,10 +655,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       table_t <- data.frame(table_t[1],table_t[2],table_t[3])
       names(table_t) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
-    }
+    #}
     #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
     #names(table_t) <- c("Model","N0","Time-remaining")
     table_t
+  }
   #data_global
   })
   
@@ -663,6 +673,10 @@ output$mytable2 <- renderDataTable({
       return("Please upload an a file")
     }
 
+    if(is.null(input$modelEvalChoice)){
+        return
+      }
+
     data <- data_global()
      if(!is.numeric(input$modelDetailPredTime)){
         return(data)
@@ -675,7 +689,7 @@ output$mytable2 <- renderDataTable({
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(track_models())>0){
+      if(length(input$EvalResultChoice)>0){
         count <- 0
         for(i in input$modelEvalChoice){
           if(i=="Jelinski-Moranda"){
@@ -860,7 +874,7 @@ output$mytable2 <- renderDataTable({
   })
 
 })
-
+  
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
 
@@ -904,5 +918,4 @@ custom_tabPanel <- function(){
 
   r <- paste(br,divtag,sep="")
   r
-
 }

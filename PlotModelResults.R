@@ -53,19 +53,19 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
       
       # Data points and lines
       
-      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color="blue")+ geom_line(data=plot_data, color="blue")
+      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color="blue")+ geom_line(data=plot_data, color=K_ModelResultColors[[modelIndex]])
       
     } else if(input$ModelDataPlotType == 2) {
       
       # Data points only
       
-      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color="blue")
+      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[modelIndex]])
       
     } else if(input$ModelDataPlotType == 3) {
       
       # Lines only
       
-      ModelPlot <- ModelPlot + geom_line(data=plot_data,aes(Index,FailureDisplayType), color="blue")
+      ModelPlot <- ModelPlot + geom_line(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[modelIndex]])
       
     }
     

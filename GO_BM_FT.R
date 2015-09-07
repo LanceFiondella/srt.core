@@ -49,12 +49,12 @@ maxiter <<- 20
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
       error = function(e){
-        print(e)
+        #print(e)
         #return(e)
       })
     sol
@@ -118,7 +118,7 @@ GO_BM_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  print(param)
+  #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05

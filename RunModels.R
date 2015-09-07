@@ -142,11 +142,106 @@ if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) &&
         
       } else if(SelectedModelsToRun[ModelListIndex] == "GM") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+          tempResultsFrame <- data.frame("GM_D"=InitialModelPreds, "GM_PHI"=InitialModelPreds, "IF"=InitialModelPreds, "MVF"=InitialModelPreds, "FI"=InitialModelPreds, "REL"=InitialModelPreds)
+          ModelEstimatesConverged <- TRUE
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            ModelInputData <- c(unlist(subset(IF, as.numeric(names(IF))<=index), use.names=FALSE))
+            model_params <- GM_BM_MLE(ModelInputData)
+            if(!(model_params[1] == "nonconvergence")) {
+              tempResultsFrame$GM_D[index] <- model_params[1]
+              tempResultsFrame$GM_PHI[index] <- model_params[2]
+            } else {
+              tempResultsFrame$GM_D[index] <- NaN  # Indicates MLE non-convergence
+              tempResultsFrame$GM_PHI[index] <- NaN  # Indicates MLE non-convergence
+              ModelEstimatesConverged <- FALSE
+            }
+          }
+          if(ModelEstimatesConverged == TRUE) {
+            ModelsExecutedList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- unlist(SelectedModelsToRun[ModelListIndex], use.names=FALSE)
+            
+            # Now we compute the MVF, IF and Reliability Estimates and Predictions
+            # for this model.  We only do this if there were no instances of non-
+            # convergences of the parameter estimates.
+            
+            ModelInputData <- data.frame("FT"=c(FT, EmptyDataEntries),"IF"=c(IF, EmptyDataEntries),"FN"=c(1:length(FT), EmptyDataEntries))
+            frame_params <- data.frame("D0"=c(model_params[1]),"Phi"=c(model_params[2]))
+            tempResultsFrame$MVF <- c(GM_MVF(frame_params,ModelInputData)[["Time"]])
+            tempResultsFrame$IF <- c(GM_T(frame_params,ModelInputData)[["Failure"]])
+            tempResultsFrame$FI <- c(GM_FR(frame_params,ModelInputData)[["Failure"]])
+            rel_plot_data <- GM_R(frame_params,ModelInputData)
+          } else {
+            ModelsFailedExecutionList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- SelectedModelsToRun[ModelListIndex]
+            ModelEstimatesConverged <- TRUE
+          }
           
+          # Add the data frame containing results for this model to the
+          # list of data frames holding all model results and clean up.
+          
+          ModelResultsList[["GM"]] <<- tempResultsFrame
+          tempResultsFrame <- data.frame()
         }
       } else if(SelectedModelsToRun[ModelListIndex] == "GO") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+          tempResultsFrame <- data.frame("GO_Alpha"=InitialModelPreds, "GO_Beta"=InitialModelPreds, "IF"=InitialModelPreds, "MVF"=InitialModelPreds, "FI"=InitialModelPreds, "REL"=InitialModelPreds)
+          ModelEstimatesConverged <- TRUE
+          for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
+            ModelInputData <- c(unlist(subset(FT, as.numeric(names(IF))<=index), use.names=FALSE))
+            model_params <- GO_BM_MLE(ModelInputData)
+            if(!(model_params[1] == "nonconvergence")) {
+              tempResultsFrame$GO_Alpha[index] <- model_params[1]
+              tempResultsFrame$GO_Beta[index] <- model_params[2]
+            } else {
+              tempResultsFrame$GO_Alpha[index] <- NaN  # Indicates MLE non-convergence
+              tempResultsFrame$GO_Beta[index] <- NaN  # Indicates MLE non-convergence
+              ModelEstimatesConverged <- FALSE
+            }
+          }
+          if(ModelEstimatesConverged == TRUE) {
+            ModelsExecutedList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- unlist(SelectedModelsToRun[ModelListIndex], use.names=FALSE)
+            
+            # Now we compute the MVF, IF and Reliability Estimates and Predictions
+            # for this model.  We only do this if there were no instances of non-
+            # convergences of the parameter estimates.
+            
+            # First we have to adjust for the fact that this is a finite failures
+            # model, and we may be asking for the model to make predictions for
+            # more failures than the model thinks remain.
+            
+            if(length(IF)+length(EmptyDataEntries) < model_params[1]) {
+              FillData <- EmptyDataEntries
+              ModelPredsNA <- c()
+              ModelPredsNaN <- c()
+              ModelPredsInF <- c()
+            } else {
+              if(abs(model_params[1]-round(model_params[1])) < K_tol) {
+                # Alpha is a whole number
+                FillData <- rep(NA, (model_params[1]-length(FT)-1))
+              } else {
+                # Alpha is not a whole number
+                FillData <- rep(NA, (floor(model_params[1])-length(FT)))
+              }
+              ModelPredsNA <- rep(NA, length(EmptyDataEntries)-length(FillData))
+              ModelPredsNaN <- rep(NaN, length(EmptyDataEntries)-length(FillData))
+              ModelPredsInF <- rep(Inf, length(EmptyDataEntries)-length(FillData))
+            }
+            
+            ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
+            frame_params <- data.frame("aMLE"=c(model_params[1]),"bMLE"=c(model_params[2]))
+            tempResultsFrame$MVF <- c(GO_BM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInF)
+            #tempResultsFrame$IF <- c(GO_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInF)
+            #tempResultsFrame$FI <- c(GO_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
+            #rel_plot_data <- GO_R(frame_params,ModelInputData)
+          } else {
+            ModelsFailedExecutionList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- SelectedModelsToRun[ModelListIndex]
+            ModelEstimatesConverged <- TRUE
+          }
           
+          # Add the data frame containing results for this model to the
+          # list of data frames holding all model results and clean up.
+          
+          ModelResultsList[["GO"]] <<- tempResultsFrame
+          tempResultsFrame <- data.frame()
+
         }
       } else if(SelectedModelsToRun[ModelListIndex] == "DSS") {
         for (index in (InitialParmEndObs-DataIntervalStart+1):length(IF)) {
