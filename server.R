@@ -54,6 +54,10 @@ K_CategoryLast <- 5
 K_IF_ModelsList <- list("Jelinski-Moranda"="JM", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Delayed S-Shaped"="DSS", "Weibull"="WEI")
 K_FC_ModelsList <- list("Jelinski-Moranda"="JM", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Delayed S-Shaped"="DSS", "Weibull"="WEI")
 
+# Colors that will be used in plotting model results
+
+K_ModelResultColors <- list("JM"="red", "GM"="blue", "GO"="green", "DSS"="yellow", "WEI"="orange")
+
 # Tolerance used in determining whether a value is a whole number.
 
 K_tol <- .Machine$double.eps^0.5
