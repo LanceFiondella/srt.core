@@ -23,22 +23,22 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
     if(input$modelPlotChoice == "IF") {
       plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["IF"]])
       ModelPlot <- ModelPlot+ggtitle(paste(c("Interfailure Times vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
-      ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
+      #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
     } else if(input$modelPlotChoice == "FC") {
       plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["FC"]])
       ModelPlot <- ModelPlot+ggtitle(paste(c("Failure Counts vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
-      ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Failure Counts per Test Interval"),values = c("blue","red"))
+      #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Failure Counts per Test Interval"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Failure Counts per Test Interval")
     } else if(input$modelPlotChoice == "CF") {
       plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], c(DataStart:(DataEnd + NumPreds)))
       ModelPlot <- ModelPlot+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
-      ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
+      #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
     } else if(input$modelPlotChoice == "FI") {
       plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["FI"]])
       ModelPlot <- ModelPlot+ggtitle(paste(c("Failure Intensity vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
-      ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Number of Failures per Unit Time"),values = c("blue","red"))
+      #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Number of Failures per Unit Time"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Number of Failures per Unit Time")
     } else if(input$modelPlotChoice == "REL") {
       # plot_data <- data.frame((ModelResultsList[["Data"]])[["FT"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["IF"]])
