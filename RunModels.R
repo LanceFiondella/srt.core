@@ -57,6 +57,12 @@ if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) &&
     FT <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)
     IF <- c(unlist(subset(subset(input_data, input_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
     
+    if(DataIntervalStart == 1) {
+      ModelResultsList[["TimeOffset"]] <<- 0
+    } else {
+      ModelResultsList[["TimeOffset"]] <<- input_data$FT[DataIntervalStart-1]
+    }
+    
     tempResultsFrame <- data.frame("FN"=c(FN, EmptyDataEntries), "IF"=c(IF, EmptyDataEntries), "FT"=c(FT, EmptyDataEntries))
     ModelResultsList[["Data"]] <<- tempResultsFrame
     
@@ -227,9 +233,10 @@ if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) &&
             
             ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
             frame_params <- data.frame("aMLE"=c(model_params[1]),"bMLE"=c(model_params[2]))
-            tempResultsFrame$MVF <- c(GO_BM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInF)
-            #tempResultsFrame$IF <- c(GO_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInF)
-            #tempResultsFrame$FI <- c(GO_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
+            tempResultsFrame$MVF <- c(GO_BM_MVF_alt1(frame_params,ModelInputData)[["Time"]]+ModelResultsList[["TimeOffset"]], ModelPredsInF)
+            #tempResultsFrame$IF <- c(GO_T_alt1(frame_params,ModelInputData)[["Failure"]], ModelPredsInF)
+            ModelInputData <- data.frame("FT"=tempResultsFrame$MVF,"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
+            tempResultsFrame$FI <- c(GO_FR_alt1(frame_params,ModelInputData)[["Time"]], ModelPredsNA)
             #rel_plot_data <- GO_R(frame_params,ModelInputData)
           } else {
             ModelsFailedExecutionList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- SelectedModelsToRun[ModelListIndex]
