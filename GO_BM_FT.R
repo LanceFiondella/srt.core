@@ -49,12 +49,12 @@ maxiter <<- 20
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
       error = function(e){
-        print(e)
+        #print(e)
         #return(e)
       })
     sol
@@ -118,7 +118,7 @@ GO_BM_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  print(param)
+  #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
@@ -132,8 +132,35 @@ GO_BM_MVF <- function(param,d){
   r
 }
 
+GO_BM_MVF_alt1 <- function(param,d) {
+  n <- length(d$FT)
+  r <- data.frame()
+  fail_number <- c(1:n)
+  for(i in 1:length(fail_number)){
+    r[i,1] <- fail_number[i]
+    r[i,2] <- -(log((param$aMLE-i)/param$aMLE))/param$bMLE
+  }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Failure","Time")
+  r
+}
 
-	 
+# Estimate and forecast failure intensities
+
+GO_FR_alt1 <- function(param,d) {
+  n <- length(d$FT)
+  r <- data.frame()
+  fail_number <- c(1:n)
+  for(i in 1:length(fail_number)){
+    r[i,1] <- fail_number[i]
+    r[i,2] <- param$aMLE*param$bMLE*exp(-param$bMLE*d$FT[i])
+  }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Failure","Time")
+  r
+}
+
+
 #NHPP log-likelihood function
 
 #lnl <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
