@@ -133,7 +133,9 @@ if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) &&
           frame_params <- data.frame("N0"=c(model_params[1]),"Phi"=c(model_params[2]))
           tempResultsFrame$MVF <- c(JM_MVF(frame_params,ModelInputData)[["Time"]], ModelPredsInF)
           tempResultsFrame$IF <- c(JM_T(frame_params,ModelInputData)[["Failure"]], ModelPredsInF)
-          tempResultsFrame$FI <- c(JM_FR(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
+          tempFTVector <- interF_to_failureT(tail(unlist(tempResultsFrame$IF, use.names=FALSE), length(FillData)))
+          ModelInputData <- data.frame("FT"=c(FT, (tempFTVector+FT[length(FT)])),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
+          tempResultsFrame$FI <- c(JM_FR_alt1(frame_params,ModelInputData)[["Failure"]], ModelPredsNA)
           rel_plot_data <- JM_R(frame_params,ModelInputData)
         } else {
           ModelsFailedExecutionList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- SelectedModelsToRun[ModelListIndex]
@@ -173,7 +175,9 @@ if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) &&
             frame_params <- data.frame("D0"=c(model_params[1]),"Phi"=c(model_params[2]))
             tempResultsFrame$MVF <- c(GM_MVF(frame_params,ModelInputData)[["Time"]])
             tempResultsFrame$IF <- c(GM_T(frame_params,ModelInputData)[["Failure"]])
-            tempResultsFrame$FI <- c(GM_FR(frame_params,ModelInputData)[["Failure"]])
+            tempFTVector <- interF_to_failureT(tail(unlist(tempResultsFrame$IF, use.names=FALSE), length(EmptyDataEntries)))
+            ModelInputData <- data.frame("FT"=c(FT, (tempFTVector+FT[length(FT)])),"IF"=c(IF, EmptyDataEntries),"FN"=c(1:length(FT), EmptyDataEntries))
+            tempResultsFrame$FI <- c(GM_FR_alt1(frame_params,ModelInputData)[["Failure"]])
             rel_plot_data <- GM_R(frame_params,ModelInputData)
           } else {
             ModelsFailedExecutionList[[names(SelectedModelsToRun)[ModelListIndex]]] <<- SelectedModelsToRun[ModelListIndex]
@@ -234,8 +238,8 @@ if(((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) &&
             ModelInputData <- data.frame("FT"=c(FT, FillData),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
             frame_params <- data.frame("aMLE"=c(model_params[1]),"bMLE"=c(model_params[2]))
             tempResultsFrame$MVF <- c(GO_BM_MVF_alt1(frame_params,ModelInputData)[["Time"]]+ModelResultsList[["TimeOffset"]], ModelPredsInF)
-            #tempResultsFrame$IF <- c(GO_T_alt1(frame_params,ModelInputData)[["Failure"]], ModelPredsInF)
-            ModelInputData <- data.frame("FT"=tempResultsFrame$MVF,"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
+            ModelInputData <- data.frame("FT"=c(FT, tail(unlist(tempResultsFrame$MVF, use.names=FALSE), length(FillData))),"IF"=c(IF, FillData),"FN"=c(1:length(FT), FillData))
+            tempResultsFrame$IF <- c(GO_T_alt1(frame_params,ModelInputData)[["Time"]], ModelPredsInF)
             tempResultsFrame$FI <- c(GO_FR_alt1(frame_params,ModelInputData)[["Time"]], ModelPredsNA)
             #rel_plot_data <- GO_R(frame_params,ModelInputData)
           } else {
