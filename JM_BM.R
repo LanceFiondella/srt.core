@@ -165,7 +165,7 @@ JM_FR_alt1 <- function(param,d){
     r[i,2] <- param$N0*param$Phi*exp(-param$Phi*r[i,1])
   }
   r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  names(r) <- c("Time","FailureInt")
   r  
 }
 
