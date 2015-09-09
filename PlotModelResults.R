@@ -21,22 +21,22 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
     # failures, IF times, failure intensity, or reliability
     
     if(input$modelPlotChoice == "IF") {
-      plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["IF"]])
+      plot_data <- data.frame(ModelResultsList[[input$modelResultChoice[modelIndex]]][["MVF"]], ModelResultsList[[input$modelResultChoice[modelIndex]]][["IF"]])
       ModelPlot <- ModelPlot+ggtitle(paste(c("Interfailure Times vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
       #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
     } else if(input$modelPlotChoice == "FC") {
-      plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["FC"]])
+      plot_data <- data.frame(ModelResultsList[[input$modelResultChoice[modelIndex]]][["MVF"]], ModelResultsList[[input$modelResultChoice[modelIndex]]][["FC"]])
       ModelPlot <- ModelPlot+ggtitle(paste(c("Failure Counts vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
       #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Failure Counts per Test Interval"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Failure Counts per Test Interval")
     } else if(input$modelPlotChoice == "CF") {
-      plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], c(DataStart:(DataEnd + NumPreds)))
+      plot_data <- data.frame(ModelResultsList[[input$modelResultChoice[modelIndex]]][["MVF"]], c(DataStart:(DataEnd + NumPreds)))
       ModelPlot <- ModelPlot+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
       #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
     } else if(input$modelPlotChoice == "FI") {
-      plot_data <- data.frame(ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["MVF"]], ModelResultsList[[unlist(ModelsExecutedList[modelIndex], use.names=FALSE)]][["FI"]])
+      plot_data <- data.frame(ModelResultsList[[input$modelResultChoice[modelIndex]]][["MVF"]], ModelResultsList[[input$modelResultChoice[modelIndex]]][["FI"]])
       ModelPlot <- ModelPlot+ggtitle(paste(c("Failure Intensity vs. Cumulative Test Time of"),ModelResultsList[["DataSetName"]]))
       #ModelPlot <- ModelPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Number of Failures per Unit Time"),values = c("blue","red"))
       ModelPlot <- ModelPlot + xlab("Cumulative Test Time")+ylab("Number of Failures per Unit Time")
@@ -53,19 +53,19 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
       
       # Data points and lines
       
-      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color="blue")+ geom_line(data=plot_data, color=K_ModelResultColors[[modelIndex]])
+      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[input$modelResultChoice[modelIndex]]])+ geom_line(data=plot_data, color=K_ModelResultColors[[input$modelResultChoice[modelIndex]]])
       
     } else if(input$ModelDataPlotType == 2) {
       
       # Data points only
       
-      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[modelIndex]])
+      ModelPlot <- ModelPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[input$modelResultChoice[modelIndex]]])
       
     } else if(input$ModelDataPlotType == 3) {
       
       # Lines only
       
-      ModelPlot <- ModelPlot + geom_line(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[modelIndex]])
+      ModelPlot <- ModelPlot + geom_line(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[input$modelResultChoice[modelIndex]]])
       
     }
     
