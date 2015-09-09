@@ -431,7 +431,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Run the models for the data type of the input file.
   
   observeEvent(input$runModels, {
-    source("RunModels.R", local=TRUE)
+    if(((input$modelDataRange[2] - input$modelDataRange[1] + 1) >= K_minDataModelIntervalWidth) && (length(as.list(input$modelsToRun)) > 0)) {
+      # The results list will also hold the subsetted data on
+      # which the models are run.
+      
+      updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
+      
+      source("RunModels.R", local=TRUE)
+    }
   })
   
   # Read the position of the mouse for the model results plot
