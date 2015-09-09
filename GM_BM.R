@@ -168,6 +168,29 @@ GM_FR <- function(param,d){
   r  
 }
 
+
+# September 8, 2015
+# Alternate computation for Geometric Model failure intensity.
+# Based on Handbook of Software Reliability Engineering, description
+# of Geometric model in Chapter 3, paragraph 3.5.2.3, page 101
+# equation for lambda(t).
+
+GM_FR_alt1 <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- 1/((param$Phi/param$D0) - d$FT[i]*log(param$Phi))
+  }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Time","Failure")
+  #print(r)
+  r  
+}
+
+
+
 GM_R <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
