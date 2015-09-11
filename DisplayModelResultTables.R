@@ -1,4 +1,3 @@
-tempResultMatrix <- NULL
 if (length(names(ModelResultsList)) > 5) {
   # There's at least one set of model results in ModelResultsList.
   
@@ -17,20 +16,18 @@ if (length(names(ModelResultsList)) > 5) {
     # Now add the columns of the current results table to the display table.
     
     for (columnIndex in 1:length(CurrentTableNames)) {
-      tempResultMatrix <- c(tempResultMatrix, unlist(ModelResultsList[[ModelsToDisplay[resultIndex]]][columnIndex], use.names=FALSE))
+      OutputTable <- c(OutputTable, unlist(ModelResultsList[[ModelsToDisplay[resultIndex]]][columnIndex], use.names=FALSE))
     }
   }
   
-  tempResultMatrix <- matrix(tempResultMatrix, ncol=numResultCols)
+  OutputTable <- matrix(OutputTable, ncol=numResultCols)
   DisplayTableNames <- gsub("MVF", "CumTimeAtFailure", DisplayTableNames)
   DisplayTableNames <- gsub("IF", "InterfailTime", DisplayTableNames)
   DisplayTableNames <- gsub("FI", "FailureIntensity", DisplayTableNames)
   DisplayTableNames <- gsub("REL", "Reliability", DisplayTableNames)
-  colnames(tempResultMatrix) <- DisplayTableNames
+  colnames(OutputTable) <- DisplayTableNames
 } else {
   # There are no model results to display
   
-  tempResultMatrix <- matrix()
+  OutputTable <- matrix()
 }
-
-tempResultMatrix
