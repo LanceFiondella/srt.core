@@ -1,8 +1,8 @@
 if (length(names(ModelResultsList)) > 5) {
   # There's at least one set of model results in ModelResultsList.
   
-  numResultCols <- 0
-  DisplayTableNames <- c()
+  numResultCols <- 1  # Allow for a column containing failure numbers.
+  DisplayTableNames <- c("Failure Number")
   
   ModelsToDisplay <- unlist(ModelsExecutedList, use.names=FALSE)
   for (resultIndex in 1:length(ModelsToDisplay)) {
@@ -11,6 +11,10 @@ if (length(names(ModelResultsList)) > 5) {
     
     CurrentTableNames <- names(ModelResultsList[[ModelsToDisplay[resultIndex]]])
     numResultCols <- numResultCols + length(CurrentTableNames)
+    
+    # First add a column of failure numbers
+
+    OutputTable <- c(ModelResultsList[["DataStartAndEnd"]]$Start:(ModelResultsList[["DataStartAndEnd"]]$End+ModelResultsList[["DataStartAndEnd"]]$NumPreds))
 
     # Now add the columns of the current results table to the display table.
     
