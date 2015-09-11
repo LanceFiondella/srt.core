@@ -262,6 +262,15 @@ if(ModelResultsList[["DataSetType"]] == "IFTimes") {
   updateSelectInput(session, "modelDetailChoice", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
   updateSelectInput(session, "modelResultsForEval", choices = ModelsExecutedList, selected=ModelsExecutedList[[names(ModelsExecutedList[1])]])
   
+  AllModelsList <- c(ModelsExecutedList, ModelsFailedExecutionList)
+  AllNames <- sort(names(AllModelsList))
+  tempList <- list()
+  for (index in 1:length(AllNames)) {
+    tempList[index] <- AllModelsList[[AllNames[index]]]
+  }
+  names(tempList) <- AllNames
+  updateSelectInput(session, "AllModelsRun", choices = tempList, selected=AllModelsList[[names(tempList[1])]])
+  
 } else if(ModelResultsList[["DataSetType"]] == "FailureCounts") {
   FC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = FC)), use.names=FALSE)
   CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
