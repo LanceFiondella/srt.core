@@ -361,7 +361,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   # Display the input data or selected trend test in tabular form.
   
-  output$ModelResultTable <- renderDataTable({
+  output$ModelResultTable <- DT::renderDataTable({
     OutputTable <- NULL
     if(!is.null(input$runModels)) {
       if(!is.null(ModelResultsList)) {
