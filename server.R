@@ -359,23 +359,24 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     OutputTable[,1:(length(names(OutputTable))-1)]
   }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
-  # Set up the model result table(s) for display
-
-  ModelResultTable <- reactive ({
-    source("DisplayModelResultTables.R", local=TRUE)
-  })
-  
   # Display the input data or selected trend test in tabular form.
   
-  output$ModelResultTable <- DT::renderDataTable({
-    OutputTable <- data.frame(x=ModelResultTable())
-    if(length(OutputTable) == 1) {
-      OutputTable <- data.frame()
+  output$ModelResultTable <- renderDataTable({
+    OutputTable <- NULL
+    if(!is.null(input$runModels)) {
+      if(!is.null(ModelResultsList)) {
+        source("DisplayModelResultTables.R", local=TRUE)
+      } else {
+        OutputTable <- NULL
+      }
+      OutputTable <- data.frame(OutputTable)
+      if(length(OutputTable) <= 1) {
+        OutputTable <- data.frame()
+      }
     } else {
-      names(OutputTable) <- gsub("x.", "", names(OutputTable))
-      names(OutputTable) <- gsub("value.", "", names(OutputTable))
+      OutputTable <- NULL
     }
-    OutputTable[,1:(length(names(OutputTable))-1)]
+    OutputTable[,1:(length(names(OutputTable)))]
   }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
     
