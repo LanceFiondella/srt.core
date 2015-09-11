@@ -145,6 +145,27 @@ GO_BM_MVF_alt1 <- function(param,d) {
   r
 }
 
+# September 8, 2015
+# Alternate method for computing interfailure times for GO model.
+# Based on SMERFS Library Access manual, NSWCDD TR 84-371, Rev 3,
+# September 1993.  Uses IF equations for NHPP times to failure
+# model, Chapter 7, p 7-3.
+
+GO_T_alt1 <- function(param,d) {
+  n <- length(d$FT)
+  r <- data.frame()
+  r[1,1] <- 1
+  r[1,2] <- ((d$FT[1])/(param$aMLE*(1-exp(-param$bMLE*d$FT[1]))))
+  for(i in 2:n){
+    r[i,1] <- i
+    r[i,2] <- ((i*d$FT[i])/(param$aMLE*(1-exp(-param$bMLE*d$FT[i])))) - (((i-1)*d$FT[i-1])/(param$aMLE*(1-exp(-param$bMLE*d$FT[i-1]))))
+  }
+  r <- data.frame(r[1],r[2])
+  names(r) <- c("Failure","Time")
+  r
+}
+
+
 # Estimate and forecast failure intensities
 
 GO_FR_alt1 <- function(param,d) {

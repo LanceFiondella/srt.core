@@ -359,23 +359,24 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     OutputTable[,1:(length(names(OutputTable))-1)]
   }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
-  # Set up the model result table(s) for display
-
-  ModelResultTable <- reactive ({
-    source("DisplayModelResultTables.R", local=TRUE)
-  })
-  
   # Display the input data or selected trend test in tabular form.
   
   output$ModelResultTable <- DT::renderDataTable({
-    OutputTable <- data.frame(x=ModelResultTable())
-    if(length(OutputTable) == 1) {
-      OutputTable <- data.frame()
+    OutputTable <- NULL
+    if(!is.null(input$runModels)) {
+      if(!is.null(ModelResultsList)) {
+        source("DisplayModelResultTables.R", local=TRUE)
+      } else {
+        OutputTable <- NULL
+      }
+      OutputTable <- data.frame(OutputTable)
+      if(length(OutputTable) <= 1) {
+        OutputTable <- data.frame()
+      }
     } else {
-      names(OutputTable) <- gsub("x.", "", names(OutputTable))
-      names(OutputTable) <- gsub("value.", "", names(OutputTable))
+      OutputTable <- NULL
     }
-    OutputTable[,1:(length(names(OutputTable))-1)]
+    OutputTable[,1:(length(names(OutputTable)))]
   }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
     
@@ -431,7 +432,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Run the models for the data type of the input file.
   
   observeEvent(input$runModels, {
-    source("RunModels.R", local=TRUE)
+    if(((input$modelDataRange[2] - input$modelDataRange[1] + 1) >= K_minDataModelIntervalWidth) && (length(as.list(input$modelsToRun)) > 0)) {
+      # The results list will also hold the subsetted data on
+      # which the models are run.
+      
+      updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
+      
+      source("RunModels.R", local=TRUE)
+    }
   })
   
   # Read the position of the mouse for the model results plot
