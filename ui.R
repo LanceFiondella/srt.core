@@ -140,8 +140,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
+                                             br(),
+                                             h4("Display Model Results")
+                                           ),
+                                           
+                                           fluidRow(
                                              column(12, 
-                                                    br(),
                                                     selectInput(
                                                       "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
                                                       choices=list("No model results to display"="None"),
@@ -188,7 +192,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               mainPanel(
                                 tabsetPanel(
                                   tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
-                                  tabPanel("Model Result Table", DT::dataTableOutput("ModelResultTable")),
+                                  tabPanel("Model Result Table",
+                                    selectInput(
+                                    "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
+                                    choices=list("No model results to display"="None"),
+                                    multiple=TRUE, selected="None"),
+                                    DT::dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
                             )
                           )
