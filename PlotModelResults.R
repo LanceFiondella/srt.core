@@ -4,11 +4,16 @@
 # The names of the models to display are returned from the selection list as a vector.
 
 if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "None")){
-    ModelPlot <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
+  ModelPlot <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
     
-    DataStart <- ModelResultsList[["DataStartAndEnd"]]$Start
-    DataEnd <- ModelResultsList[["DataStartAndEnd"]]$End
-    NumPreds <- ModelResultsList[["DataStartAndEnd"]]$NumPreds
+  DataStart <- ModelResultsList[["DataStartAndEnd"]]$Start
+  DataEnd <- ModelResultsList[["DataStartAndEnd"]]$End
+  NumPreds <- ModelResultsList[["DataStartAndEnd"]]$NumPreds
+  
+  # Set up the values that we'll need to create a plot legend
+  
+  scaleManBreaks <- c()
+  scaleManColors <- c()
   
   # Now plot the results for each of the models that was selected
   # by the user for display
@@ -16,6 +21,12 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
   for (modelIndex in 1:length(input$modelResultChoice)) {
     
     # Pick up the set of model results indicated by modelResultChoice[modelIndex]
+    
+    # First add the appropriate break value and color value to the
+    # arrays defining the appearance of the legend.
+    
+    scaleManBreaks <- c(scaleManBreaks, input$modelResultChoice[modelIndex])
+    scaleManColors <- c(scaleManColors, K_ModelResultColors[[input$modelResultChoice[modelIndex]]])
     
     # Now set up the plotting data according to whether we're displaying cumulative
     # failures, IF times, failure intensity, or reliability
@@ -68,10 +79,10 @@ if((length(input$modelResultChoice) > 0) && !(input$modelResultChoice[1] == "Non
       ModelPlot <- ModelPlot + geom_line(data=plot_data,aes(Index,FailureDisplayType), color=K_ModelResultColors[[input$modelResultChoice[modelIndex]]])
       
     }
-    
-    ModelPlot <- ModelPlot + theme(legend.position = "bottom")
   }
-  
+  #ModelPlot <- ModelPlot + scale_color_manual("", breaks=scaleManBreaks, values=scaleManColors)
+  #ModelPlot <- ModelPlot + theme(legend.position = "bottom")
+
   # Now plot the raw data if the user has asked for it.
   
   if(input$checkboxDataOnPlot) {
