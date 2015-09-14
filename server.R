@@ -1547,6 +1547,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   }
   #data_global
   })
+
+tracked_models <- reactive({
+  input$modelDetailChoice
+})
   
 output$mytable2 <- renderDataTable({
     source("GOF.R")
@@ -1558,25 +1562,25 @@ output$mytable2 <- renderDataTable({
       return("Please upload an a file")
     }
 
-    if(is.null(input$modelEvalChoice)){
+    if(is.null(tracked_models())){
         return
       }
-
+      print(tracked_models())
     data <- data_global()
-     if(!is.numeric(input$modelDetailPredTime)){
-        return(data)
-      }
-      if(!is.numeric(input$modelDetailPredFailures)){
-        return(data)
-      }
+     # if(!is.numeric(input$modelDetailPredTime)){
+     #    return(data)
+     #  }
+      # if(!is.numeric(input$modelDetailPredFailures)){
+      #   return(data)
+      # }
     # frame_params <- "EMPTY"
     #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
     frame_params <- data.frame()
     #if(input$runModels!=0){          ###################should think of isolate here
       plus <- 0
-      if(length(input$EvalResultChoice)>0){
+      if(length(tracked_models)>0){
         count <- 0
-        for(i in input$modelEvalChoice){
+        for(i in tracked_models()){
           if(i=="Jelinski-Moranda"){
             if(length(grep("IF",names(data)))){
               count <- count + 1
@@ -1587,11 +1591,17 @@ output$mytable2 <- renderDataTable({
                 print("Entered the double")
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params  <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
+                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
+
+                print(Max_lnl)
+                AIC           <- aic(2,Max_lnl)
+                print(AIC)
+                #PSSE          <- psse()
+                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
 
                 table_t[count,1] <- i
-                table_t[count,2] <- length(data$IF)
-                table_t[count,3] <- number_fails                
+                table_t[count,2] <- AIC
+                table_t[count,3] <- "PSSE"              
               }
               else if(new_params=="nonconvergence"){
                 print("Entered the Non-conv")
@@ -1611,11 +1621,14 @@ output$mytable2 <- renderDataTable({
               if(typeof(new_params)=="double"){
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,lenght(IF))
+                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
+                AIC           <- aic(2,Max_lnl)
+                #PSSE          <- psse()
+                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
 
                 table_t[count,1] <- i
-                table_t[count,2] <- length(IF)
-                table_t[count,3] <- number_fails
+                table_t[count,2] <- AIC
+                table_t[count,3] <- "PSSE" 
                 
               }
               else if(new_params=="nonconvergence"){
@@ -1750,7 +1763,8 @@ output$mytable2 <- renderDataTable({
 
       }
       table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-      names(table_t) <- c("Model","Present # of faults",paste("Expected # of faults after", input$modelDetailPredFailures, "from now"))
+      print(table_t)
+      names(table_t) <- c("Model","AIC","PSSE")
     }
     #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
     #names(table_t) <- c("Model","N0","Time-remaining")
