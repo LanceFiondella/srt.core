@@ -27,18 +27,25 @@ mean_absolute_error <- function(x,y){
 	t
 }
 
-aic <- function(l,mle){
-	return (2*p - 2*log(mle))
+aic <- function(p,mle){
+	return (2*p - 2*log(abs(mle)))
 }
 
-psse <- function(x,y){
-	# takes mvf
-	t <- 0
-	n <- length(x)
-	k <- n/10 + n%%10
+# psse <- function(x){
+# 	# takes mvf
+# 	t <- 0
+# 	n <- length(x)
+# 	k <- n/10 + n%%10
 
-	for( i in k:n){
-		t <- (x[i] - y[i])^2 + t
-	}
-	t
+# 	for( i in k:n){
+# 		t <- (x[i] - y[i])^2 + t
+# 	}
+# 	t
+# }
+
+psse <- function(){
+	# input raw data
+	# input model params
+	# 
+	
 }
