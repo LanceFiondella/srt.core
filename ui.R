@@ -1,5 +1,5 @@
 library(shiny)
-models <- c("Musa Basic", "Musa Okumoto","Geometric", "Jelinski-Moranda", "Goel-okumoto")
+models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei")
 #source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
@@ -125,7 +125,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
+                                                                choices= models,
                                                                 multiple=TRUE
                                                               
                                                                 )
@@ -175,7 +175,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
                                                     selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
+                                                                choices=models,
                                                                 multiple=TRUE,
                                                                 )
                                              ),
