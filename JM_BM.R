@@ -96,24 +96,23 @@ for(i in 1:n-1){
 	tmp_phi[i] <- (N0_MLE-(i-1))*interFail[i]
 }
 #print(tmp_phi)
-phi <- n/sum(tmp_phi)
+Phi <- n/sum(tmp_phi)
 
+JM_params <-  data.frame("JM_N0"=N0_MLE,"JM_Phi"=Phi)
 #         a     b
-return(c(N0_MLE,phi))
+return(JM_params)
 }
 
-
-
-JM_MVF <- function(param,d){
+JM_MVF_efficient <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/(param$Phi*(param$N0-(i-1)))
+    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
     cumulr[i,1] <- i
     cumulr[i,2] <- 0    
-    for(j in 1:length(r[[1]])){      
+    for(j in 1:length(r[[1]])){
       cumulr[i,2] <- cumulr[i,2]+r[j,2]
     }
   }
@@ -124,16 +123,41 @@ JM_MVF <- function(param,d){
   g  
 }
 
+JM_MVF <- function(param,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  cumulr[1,1] <- 0
+  cumulr[1,2] <- 0
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
+    cumulr[i,1] <- i
+    cumulr[i,2] <- 0
+    cumulr[i,3] <- "JM"
+    for(j in 1:length(r[[1]])){      
+        cumulr[i,2] <- cumulr[i,2]+r[j,2]      
+      
+    }
+  }
+
+  g <- data.frame("Time"=cumulr[2],"Failure"=cumulr[1],"Model"=cumulr[3]) # ----> naming doesn't work should find why
+  names(g) <- c("Time","Failure","Model") # ----> I have to use this reduntantly because of above comment(reason)
+  print(g)
+  g  
+}
+
 JM_T <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/(param$Phi*(param$N0-(i-1)))
+    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
+    r[i,3] <- "JM"
     }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
   r  
 }
 
@@ -143,10 +167,11 @@ JM_FR <- function(param,d){
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- d$FT[i]
-    r[i,2] <- (param$Phi*(param$N0-(i-1)))
+    r[i,2] <- (param$JM_Phi*(param$JM_N0-(i-1)))
+    r[i,3] <- "JM"
     }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   r  
 }
 
@@ -156,10 +181,11 @@ JM_R <- function(param,d){
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- d$FT[i]
-    r[i,2] <- exp(-param$Phi*(param$N0-(n-1))*d$FT[i])
+    r[i,2] <- exp(-param$JM_Phi*(param$JM_N0-(n-1))*d$FT[i])
+    r[i,3] <- "JM"
   }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Reliability","Model")
   r
 }
 
@@ -169,18 +195,16 @@ JM_MVF_r <- function(param,d){
   t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
   for(i in 1:length(t_index)){
     r[i,1] <- t_index[i]
-    r[i,2] <- param$N0*(1-exp(-1*t_index[i]*param$Phi))
+    r[i,2] <- param$JM_N0*(1-exp(-1*t_index[i]*param$JM_Phi))
   }
   r <- data.frame(r[1],r[2])
   names(r) <- c("Time","Failure")
   r
 }
 
+# Maximum value of Log-likelihood
 
-
-
-
- JM_BM_lnl <- function(x,N0_MLE,phi){ 
+  JM_BM_lnl <- function(x,N0_MLE,phi){ # ----> params should be the option to generalize
     n <- length(x)          
     secondTerm=0
     thirdTerm = 0
@@ -195,13 +219,13 @@ JM_MVF_r <- function(param,d){
  
  #Faults Remaining
  
- JM_BM_FaultsRemaining <- function(N0_MLE,n){
+ JM_BM_FaultsRemaining <- function(N0_MLE,n){ # ----> params should be passed instead
   return(floor(N0_MLE-n))
  }
  
  #Reliability
-   
- JM_BM_Reliability <- function(n,x,N0_MLE,phi){
+
+ JM_BM_Reliability <- function(n,x,N0_MLE,phi){ # params should be passed instead
   Reliability <- numeric(0)
   Reliability <- exp(-phi*(N0_MLE-(i-1))*x[i])
   return(Reliability)
@@ -209,7 +233,7 @@ JM_MVF_r <- function(param,d){
  
  #MTTF
  
- JM_BM_MTTF <- function(n,N0_MLE,phi){
+ JM_BM_MTTF <- function(n,N0_MLE,phi){ # params should be passed instead
   MTTF=0
   for(i in 1:n){
     MTTF = MTTF +(1/(phi*(N0_MLE-(n+(i-1)))))
