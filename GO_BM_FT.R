@@ -73,29 +73,29 @@ maxiter <<- 20
 #MLE of parameter 'a'
 	 aMLE <- n/(1-exp(-bMLE*(tn)))
 	 #print(aMLE)
-
-	 sol <- c(aMLE,bMLE)
+   sol <- data.frame("GO_aMLE"=aMLE,"GO_bMLE"=bMLE)
+	 # sol <- c(aMLE,bMLE)
 
 	 sol
 }
 
-GO_MVF_er <- function(param,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <- 1/(param$aMLE*(param$N0-(i-1)))
-    cumulr[i,1] <- i
-    cumulr[i,2] <- 0    
-    for(j in 1:length(r[[1]])){
-      cumulr[i,2] <- cumulr[i,2]+r[j,2]
-    }
-  }
-  g <- data.frame(cumulr[2],cumulr[1])
-  names(g) <- c("Time","Failure")
-  g
-}
+# GO_MVF_er <- function(param,d){
+#   n <- length(d$FT)
+#   r <-data.frame()
+#   cumulr <-data.frame()
+#   for(i in 1:n){
+#     r[i,1] <- i
+#     r[i,2] <- 1/(param$aMLE*(param$N0-(i-1)))
+#     cumulr[i,1] <- i
+#     cumulr[i,2] <- 0    
+#     for(j in 1:length(r[[1]])){
+#       cumulr[i,2] <- cumulr[i,2]+r[j,2]
+#     }
+#   }
+#   g <- data.frame(cumulr[2],cumulr[1])
+#   names(g) <- c("Time","Failure")
+#   g
+# }
 
 # GO_MVF_er <- function(param,d){
 #   n <- length(d$FT)
@@ -114,7 +114,7 @@ GO_MVF_er <- function(param,d){
 #   names(g) <- c("Time","Failure")
 #   g
 # }
-GO_BM_MVF <- function(param,d){
+GO_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
@@ -125,14 +125,25 @@ GO_BM_MVF <- function(param,d){
   t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
   for(i in 1:length(t_index)){
     r[i,1] <- t_index[i]
-    r[i,2] <- param$aMLE*(1-exp(-1*t_index[i]*param$bMLE))
+    r[i,2] <- param$GO_aMLE*(1-exp(-1*t_index[i]*param$GO_bMLE))
+    r[i,3] <- "GO"
   }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Failure","Model")
   r
 }
 
+GO_lnL <- function(x,params){
+  n <- length(x)
+  tn <- x[n]
+  firstSumTerm <- 0
+  for(i in 1:n){
+    firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
 
+  }
+  lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
+  lnL
+}
 	 
 #NHPP log-likelihood function
 

@@ -1,5 +1,5 @@
 library(shiny)
-models <- c("Musa Basic", "Musa Okumoto","Geometric", "Jelinski-Moranda", "Goel-okumoto")
+models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei")
 #source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
@@ -125,7 +125,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
+                                                                choices= models,
                                                                 multiple=TRUE
                                                               
                                                                 )
@@ -136,8 +136,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     h5("Choose the type of plot for model results."),
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
-                                                                choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
-                                                                               "Failure Intensity" = 3, "Reliability" = 4), selected = 2)
+                                                                choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
+                                                                               "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
                                              )
                                            ),
                                            
@@ -151,8 +151,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12, 
                                                     radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
-                                                                 selected = 1)
+                                                                 choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
+                                                                 selected = "points_and_lines")
                                              )
                                            ),width=4
                                            
@@ -175,7 +175,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
                                                     selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
+                                                                choices=models,
                                                                 multiple=TRUE,
                                                                 )
                                              ),
