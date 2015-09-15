@@ -1,5 +1,5 @@
 library(shiny)
-models <- c("Musa Basic", "Musa Okumoto","Geometric", "Jelinski-Moranda", "Goel-okumoto")
+models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei")
 #source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
@@ -125,7 +125,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
+                                                                choices= models,
                                                                 multiple=TRUE
                                                               
                                                                 )
@@ -136,8 +136,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     h5("Choose the type of plot for model results."),
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
-                                                                choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
-                                                                               "Failure Intensity" = 3, "Reliability" = 4), selected = 2)
+                                                                choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
+                                                                               "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
                                              )
                                            ),
                                            
@@ -151,8 +151,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12, 
                                                     radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = 1, "Data points only" = 2, "Lines only" = 3),
-                                                                 selected = 1)
+                                                                 choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
+                                                                 selected = "points_and_lines")
                                              )
                                            ),width=4
                                            
@@ -175,7 +175,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
                                                     selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
+                                                                choices=models,
                                                                 multiple=TRUE,
                                                                 )
                                              ),
@@ -226,25 +226,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    
                    tabPanel("Evaluate Models",
                             sidebarLayout(
-                              sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
-                                            fluidRow(
-                                             column(12, 
-                                                    br(),
-                                                    h5("Choose the model results to display."),
-                                                    selectInput("EvalResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                models,
-                                                                multiple=TRUE
-                                                              
-                                                                )
-                                             )
-                                           ),
-                                           fluidRow(
+                                sidebarPanel(h4("Evaluate Model goodness of fit and Applicability"),
+                                    fluidRow(
                                              column(12, 
                                                     h5("Select a model evaluation technique to apply"),
                                                     selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
                                                                 choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
-                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
-                                                                               "Model Bias" = "MB", "Model Bias Trend" = "BT"), selected = "PLR")
+                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC"
+                                                                               ), selected = "PLR")
                                              ),
                                              
                                              column(12,
@@ -253,79 +242,96 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0, max = 1, step = 0.001,
                                                                  value = .05)
                                              )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
-                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                                 selected = 1)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
-                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                                 selected = 1)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             h5("Rank models by evaluation criteria"),
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioGOFRankEvalOrder", label = h6("Goodness of Fit"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 1, inline = TRUE)
-                                             ),
-                                             column(2, ""),
-                                             column(10, 
-                                                    checkboxInput("checkboxGOFScreen", label = "Use GOF test as screen", value = TRUE)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioAICRankEvalOrder", label = h6("Akaike Information Criterion"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 2, inline = TRUE)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 3, inline = TRUE)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 4, inline = TRUE)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 5, inline = TRUE)
-                                             )
                                            )
-                              ),
+
+                                  ),
+                              
+                            # sidebarLayout(
+                            #   sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
+                            #                 fluidRow(
+                            #                  column(12, 
+                            #                         br(),
+                            #                         h5("Choose the model results to display."),
+                            #                         selectInput("EvalResultChoice", label = h6("Choose one or more sets of model results"), 
+                            #                                     models,
+                            #                                     multiple=TRUE
+                                                              
+                            #                                     )
+                            #                  )
+                            #                ),
+                                           
+                                           
+                            #                fluidRow(
+                            #                  column(12, 
+                            #                         radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                            #                                      choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                            #                                      selected = 1)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  column(12, 
+                            #                         radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                            #                                      choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                            #                                      selected = 1)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  h5("Rank models by evaluation criteria"),
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioGOFRankEvalOrder", label = h6("Goodness of Fit"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 1, inline = TRUE)
+                            #                  ),
+                            #                  column(2, ""),
+                            #                  column(10, 
+                            #                         checkboxInput("checkboxGOFScreen", label = "Use GOF test as screen", value = TRUE)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioAICRankEvalOrder", label = h6("Akaike Information Criterion"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 2, inline = TRUE)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 3, inline = TRUE)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 4, inline = TRUE)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 5, inline = TRUE)
+                            #                  )
+                            #                )
+                            #   ),
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel('Table',dataTableOutput('mytable2')),
-                                  tabPanel("Plot",plotOutput("Evalationplot"))
+                                  tabPanel('Table',dataTableOutput('mytable2'))
+                                  #tabPanel("Plot",plotOutput("Evalationplot"))
                                 )                              
                               )
                             )
