@@ -2,7 +2,7 @@ library(shiny)#I wonder why this is here?
 library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
 #library(DT)
-
+source("utility.R")
 source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
@@ -80,41 +80,17 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
-      data_original <<- data
+      data_original <<- data # ----? should think of its usage 'data_original'
       data_set <- inFile$filename
     }
-    
-    # Set up the initial values for modeling data range and the initial parameter
-    # estimation range
-    
-    # DataModelIntervalStart <<- 1
-    # DataModelIntervalEnd <<- length(data[,1])
-    # if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-    #   output$InputFileError <- renderText({msgDataFileTooSmall})
-    # } else {
-    #   output$InputFileError <- renderText({""})
-    # }
-    
-    # if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
-    #   updateSelectInput(session, "dataPlotChoice",
-    #                     choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
-    #                                    "Failure Intensity" = "FI"), selected = "CF")
-    # } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
-    #   updateSelectInput(session, "dataPlotChoice",
-    #                     choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
-    #                                    "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
-    # }
-    
-    # updateSliderInput(session, "modelDataRange",
-    #                   min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
-    #                   max = DataModelIntervalEnd)
-    # updateSliderInput(session, "parmEstIntvl",
-    #                   min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-    #                   max = DataModelIntervalEnd-1)
-    
-    data
-  })
-  
+      #data
+      print(data)
+      data_generated <- generate_dataFrame(data)
+      print(data_generated)
+      data_generated
+}) 
+
+
   # Draw the plot of input data or selected trend test
   
   output$distPlot <- renderPlot({ #reactive function, basically Main()
@@ -174,86 +150,86 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   # Set up the data and trend test statistics tables for display
   
-  FailureDataTable <- reactive ({
-    tempDataMatrix <- matrix()
-    if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
-      data <- data.frame(x=data_global())
-      DataColNames <- names(data)
-      names(data) <- gsub("x.", "", DataColNames)
-      NameArray <- names(data)
+  # FailureDataTable <- reactive ({
+  #   tempDataMatrix <- matrix()
+  #   if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
+  #     data <- data.frame(x=data_global())
+  #     DataColNames <- names(data)
+  #     names(data) <- gsub("x.", "", DataColNames)
+  #     NameArray <- names(data)
       
-      if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
-        if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
-          FN <- data$FN
-          if(input$PlotDataOrTrend == 1) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              FT <- data$FT
-            } else if(length(grep("FT", names(data)))) {
-              FT <- interF_to_failureT(data$IF)
-              IF <- data$IF
-            }
-            NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
-            tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
-          } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-            } else if(length(grep("FT", names(data)))) {
-              IF <- data$IF
-            }
+  #     if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
+  #       if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
+  #         FN <- data$FN
+  #         if(input$PlotDataOrTrend == 1) {
+  #           if(length(grep("IF", names(data)))){
+  #             IF <- failureT_to_interF(data$FT)
+  #             FT <- data$FT
+  #           } else if(length(grep("FT", names(data)))) {
+  #             FT <- interF_to_failureT(data$IF)
+  #             IF <- data$IF
+  #           }
+  #           NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
+  #           tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
+  #         } else if(input$PlotDataOrTrend == 2) {
+  #           if(length(grep("IF", names(data)))){
+  #             IF <- failureT_to_interF(data$FT)
+  #           } else if(length(grep("FT", names(data)))) {
+  #             IF <- data$IF
+  #           }
             
-            if (input$trendPlotChoice == "LP") {
-              sol <- laplace_trend_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-            } else if (input$trendPlotChoice == "RA") {
-              sol <- running_average_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-            }
-          }
-        } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
-          if(input$PlotDataOrTrend == 1) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              CFC <- data$CFC
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-              CFC <- FailureC_to_CumulativeFailureC(data$FC)
-            }
-            IntervalNum <- c(1:length(data$T))
+  #           if (input$trendPlotChoice == "LP") {
+  #             sol <- laplace_trend_test(IF)
+  #             NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
+  #             tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
+  #           } else if (input$trendPlotChoice == "RA") {
+  #             sol <- running_average_test(IF)
+  #             NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
+  #             tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
+  #           }
+  #         }
+  #       } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
+  #         if(input$PlotDataOrTrend == 1) {
+  #           if(length(grep("CFC", names(data)))){
+  #             FC <- CumulativeFailureC_to_failureC(data$CFC)
+  #             CFC <- data$CFC
+  #           } else if(length(grep("FC", names(data)))) {
+  #             FC <- data$FC
+  #             CFC <- FailureC_to_CumulativeFailureC(data$FC)
+  #           }
+  #           IntervalNum <- c(1:length(data$T))
             
-            NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
-            tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
+  #           NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
+  #           tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
             
-          } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-            }
+  #         } else if(input$PlotDataOrTrend == 2) {
+  #           if(length(grep("CFC", names(data)))){
+  #             FC <- CumulativeFailureC_to_failureC(data$CFC)
+  #           } else if(length(grep("FC", names(data)))) {
+  #             FC <- data$FC
+  #           }
             
-            FT <- failureC_to_failureT(data$T,FC)
-            IF <- failureT_to_interF(failure_T = FT)
-            FN <- c(1:length(FT))
-            IntervalTime <- data$T
+  #           FT <- failureC_to_failureT(data$T,FC)
+  #           IF <- failureT_to_interF(failure_T = FT)
+  #           FN <- c(1:length(FT))
+  #           IntervalTime <- data$T
             
-            if(input$trendPlotChoice == "LP") {
-              sol <- laplace_trend_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-            } else if(input$trendPlotChoice == "RA") {
-              sol <- running_average_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-            }
-          }
-        }
-        colnames(tempDataMatrix) <- NameArray
-      }
-    }
-    tempDataMatrix
-  })
+  #           if(input$trendPlotChoice == "LP") {
+  #             sol <- laplace_trend_test(IF)
+  #             NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
+  #             tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
+  #           } else if(input$trendPlotChoice == "RA") {
+  #             sol <- running_average_test(IF)
+  #             NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
+  #             tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
+  #           }
+  #         }
+  #       }
+  #       colnames(tempDataMatrix) <- NameArray
+  #     }
+  #   }
+  #   tempDataMatrix
+  # })
   
   # Display the input data or selected trend test in tabular form.
   
@@ -268,172 +244,55 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     OutputTable
   })
 
-  
-  # Here we monitor the model configuration controls in the "Set Up and Apply Models"
-  # tab.  We read the values from the controls, and adjust the controls to make
-  # sure that the modeling intervals and lengths of the modeling data set don't
-  # go below specified minimal values.
-  
-  # output$ModelConfigError <- renderText({
-  #   outputMessage <- ""
-    
-  #   # Read the slider for the categories to be retained when filtering the data.
-    
-  #   DataCategoryFirst <- input$sliderDataSubsetChoice[1]
-  #   DataCategoryLast <- input$sliderDataSubsetChoice[2]
-    
-  #   # Set the slider for the initial parameter estimation range to be
-  #   # consistent with the data range over which models are applied
-    
-  #   dataModelRange <- input$modelDataRange
-    
-  #   DataModelIntervalStart <- dataModelRange[1]
-  #   DataModelIntervalEnd <- dataModelRange[2]
-    
-  #   # Keep the data interval used for modeling to 5 observations or more.
-    
-  #   if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-  #     outputMessage <- msgDataIntervalTooSmall
-  #     while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-  #       if(DataModelIntervalStart > 1){
-  #         DataModelIntervalStart <- DataModelIntervalStart - 1
-  #       }
-  #       if(DataModelIntervalEnd < length(data_global[,1])){
-  #         DataModelIntervalEnd <- DataModelIntervalEnd + 1
-  #       }
-  #     }
-
-  #     updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
-  #   }    
-  #   updateSliderInput(session, "parmEstIntvl",
-  #                     min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-  #                     max = DataModelIntervalEnd-1)    
-    
-  #   outputMessage
-  # })
-  
-
   output$ModelPlot <- renderPlot({
-    data <- data.frame(x=data_global())
-    DataColNames <- names(data)
-    names(data) <- gsub("x.", "", DataColNames)
-    data_set <- input$dataSheetChoice
-    #data
-    Time <- "Time"
-    Failure <- "Failure"
-    #Time <- names(data[1])#generic name of column name of data frame (x-axis)
-    #Failure <- names(data[2])#(y-axis)
-    #p <- ggplot(,aes_string(x=Time,y=Failure))#This function needs aes_string() to work
-    value <- c("blue","red")
-    
-    count <-0
-    # while(is.null(input$modelResultChoice) || length(input$modelResultChoice)==0 ){
-    #   count <- count+1
-    #   print(count)
-    #   return
-    # }
 
-   
-    if(is.null(input$modelResultChoice) || (length(input$modelResultChoice)==0)) {
-        return
-      }
+    data <- data_global()
+    data_set <- input$dataSheetChoice  
+    if(is.null(input$modelResultChoice) || (length(input$modelResultChoice)==0)){
+      return
+    }
   
+  # ----------------------------------- model run starts here -----------------------------
       
-    if(input$runModels!=0){          ###################should think of isolate here
-      plus <- 0
-      
-      
+    if(input$runModels!=0){          
+    # -----> should think of isolate here
+    # -----> should think of not rerunning models
+
       if(length(input$modelResultChoice)>0){
-          
-         
 
-        # Plot initializations
-
-         
-          p1 <- ggplot(,aes_string(x=Time,y=Failure));
-
+        p1 <- ggplot()
         # Plot initializations above
         
           for(i in input$modelResultChoice){
             if(i=="Jelinski-Moranda"){
 
-            if(length(grep("IF",names(data)))){
+              if(dataType(names(data))=="FR"){
+                # ----> ! print(dataType(names(data)))
 
 
-               # if(input$modelPlotChoice==2){
-               #  #p1 <- ggplot(,aes_string(x=Time,y=Failure));
-               #  new_params <- JM_BM_MLE(IF)
-               #  print(new_params)
-               #  print(typeof(new_params))
-               #  data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-               #  if(typeof(new_params)=="double"){
-               #    #print("I am 1")
-                  
-               #    frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-               #    #print(" I am 2")
-               #    mvf_plot_data <- JM_MVF(frame_params,data)
-               #    #print("I am 3")
-               #    if(input$ModelDataPlotType==1){
-               #      p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
-               #    }
-               #    if(input$ModelDataPlotType==2){
-               #      p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))
-               #    }
-               #    if(input$ModelDataPlotType==3){
-               #      p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
-
-               #    } 
-               #    if(input$checkboxDataOnPlot){
-               #    original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-               #    p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
-               #  }
-               #  }
-               #  else if(new_params=="nonconvergence"){
-
-               #    #print("I am here so :")
-               #    original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-               #    p1 <- p1 + geom_point(data=original_data,aes(Time,Failure))
-               #    #c + geom_text(data = NULL, x = 5, y = 30, label = "plot mpg vs. wt")
-               #    p1 + annotate("segment", x = 0, xend = length(original_data$Failure)/2, y = 0, yend = length(original_data$Time)/2,  colour = "red")
-               #    #p1 <- p1 + annotate("rect", xmin = length(original_data$Failure)/2 -50, xmax = length(original_data$Failure)/2 +50, ymin = length(original_data$Time)/2 -30, ymax = length(original_data$Time)/2 -30, alpha = .2)
-               #    p1 <- p1+ annotate("text", label = "Non-Convergence", x = length(original_data$Failure)/2, y = length(original_data$Time)/2, size = 8, colour = "red")
-               #  }
-               #  else{
-               #    print (" I am an else ")
-               #  }
-                
-               #  p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))  
-
-
-
-
-
-
-              
               if(input$modelPlotChoice==2){
                  
-                #p1 <- ggplot(,ae_string(x=Time,y=Failure));
-                new_params <- JM_BM_MLE(data$IF)
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                if(typeof(new_params)=="double"){
-                  frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                  mvf_plot_data <- JM_MVF(frame_params,data)
+                
+                model_params <- JM_BM_MLE(data$IF) # ---- > Should be from model specifications 'JM_input'
+                print(model_params)
+                if(typeof(model_params)!="character"){
+                  mvf_plot_data <- JM_MVF(model_params,data)
                   if(input$ModelDataPlotType==1){
-                    p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color="lines and dots"))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
+                    p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model))
                   }
                   if(input$ModelDataPlotType==2){
-                    p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time,Failure, color="dots"))
+                    p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time,Failure, color=Model))
                   }
                   if(input$ModelDataPlotType==3){
-                    p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color="lines"))
+                    p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color=Model))
                   }
                   if(input$checkboxDataOnPlot){
                     original_data <- data.frame("Time" = data$FT, "Failure" = data$FN)
-                    p1 <- p1 + geom_line(data = original_data,aes( Time, Failure, color = "Original Data"))
+                    p1 <- p1 + geom_step(data = original_data,aes( Time, Failure),color='gray')
                   }
                   p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"), input$dataSheetChoice))#+ geomline(data=plot_data)
-                  p1 <- p1 + theme(legend.position = c(0.1, 0.9));
-                  p1 <- p1 + scale_color_manual(name = "JM", labels = c("MVF","Original Data"),values = c("blue","red"))
+                  #p1 <- p1 + theme(legend.position = c(0.1, 0.9));
+                  #p1 <- p1 + scale_color_manual(name = "JM", labels = c("MVF","Original Data"),values = c("blue","red"))
                   #q <- q + p
                 }
                 else if(new_params=="nonconvergence"){
@@ -457,17 +316,17 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 #mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
                 if(input$ModelDataPlotType==1){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model))# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
                 if(input$ModelDataPlotType==2){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))
                 }
                 if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure))
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure,color=Model))
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_point(data=original_data,aes(Time,Failure))
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure))
                 }
                 p1 <- p1 + ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice))
                 #q <- q + p
@@ -477,18 +336,16 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 X_label <- c("Time")
                 Y_label <- c("Failure")
                 #p1 <- ggplot(,aes_string(x=Time,y=Failure));
-                new_params <- JM_BM_MLE(data$IF)
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                mvf_plot_data <- JM_FR(frame_params,data)
+                model_params <- JM_BM_MLE(data$IF)
+                mvf_plot_data <- JM_FR(model_params,data)
                 if(input$ModelDataPlotType==1){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Failure_Count,Failure_Rate,color=Model))+ geom_line(data=mvf_plot_data, aes(Failure_Count,Failure_Rate,color=Model)) # ----? can we use "Failure Count" without underscore
                 }
                 if(input$ModelDataPlotType==2){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Failure_Count,Failure_Rate,color=Model))
                 }
                 if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time, Failure))
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Failure_Count, Failure_Rate,color=Model))
 
                 }
                 # if(input$checkboxDataOnPlot){
@@ -508,13 +365,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
                 mvf_plot_data <- JM_R(frame_params,data)
                 if(input$ModelDataPlotType==1){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Reliability,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Reliability))# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
                 if(input$ModelDataPlotType==2){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Reliability,color=Model))
                 }
                 if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time, Failure))
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time, Reliability,color=Model))
 
                 }
                 # if(input$checkboxDataOnPlot){
@@ -544,7 +401,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure))
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure))
                 }
                 p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))
                 #q <- q + p
@@ -564,7 +421,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1+ geom_line(data=original_data,aes(Time,Failure))
+                  p1 <- p1+ geom_step(data=original_data,aes(Time,Failure))
                 }
                 p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice))
                 #q <- q + p
@@ -644,7 +501,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                   } 
                   if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 }
                 else if(new_params=="nonconvergence"){
@@ -679,7 +536,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure))
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure))
                 }
                 p1 <- p1+ggtitle(paste(c("Time Between Failure Function plot of"),input$dataSheetChoice))
                 #q <- q + p
@@ -751,7 +608,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1<- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
                 p1 <- p1 + theme(legend.position = c(0.1, 0.9));
@@ -778,7 +635,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_point(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("Time Between Failure function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -848,7 +705,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -868,7 +725,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -940,7 +797,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -960,7 +817,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -1035,7 +892,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1<- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
                 p1 <- p1 + theme(legend.position = c(0.1, 0.9));
@@ -1062,7 +919,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_point(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("Time Between Failure function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -1132,7 +989,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -1152,7 +1009,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -1224,7 +1081,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -1244,7 +1101,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
                 if(input$checkboxDataOnPlot){
                   original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_line(data=original_data,aes(Time,Failure));
+                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure));
                 }
                 p1 <- p1+ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice));
                 #q <- q + p
@@ -1314,6 +1171,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
 
     }
+
+    # /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     
@@ -1592,16 +1451,16 @@ output$mytable2 <- renderDataTable({
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params  <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
                 Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-
+                PSSE          <- psse_times(data, frame_params)
                 print(Max_lnl)
                 AIC           <- aic(2,Max_lnl)
-                print(AIC)
+                #print(AIC)
                 #PSSE          <- psse()
                 #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
 
                 table_t[count,1] <- i
                 table_t[count,2] <- AIC
-                table_t[count,3] <- "PSSE"              
+                table_t[count,3] <- PSSE          
               }
               else if(new_params=="nonconvergence"){
                 print("Entered the Non-conv")
@@ -1681,12 +1540,17 @@ output$mytable2 <- renderDataTable({
               if(typeof(new_params)=="double"){
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
+                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
+                PSSE          <- psse_times(data, frame_params)
+                print(Max_lnl)
+                AIC           <- aic(2,Max_lnl)
+                #print(AIC)
+                #PSSE          <- psse()
+                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
 
                 table_t[count,1] <- i
-                table_t[count,2] <- length(data$IF)
-                table_t[count,3] <- number_fails
-                #t
+                table_t[count,2] <- AIC
+                table_t[count,3] <- PSSE
               }
               else if(new_params=="nonconvergence"){
                 table_t[count,1] <- i
