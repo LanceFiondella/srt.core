@@ -133,7 +133,17 @@ GO_MVF <- function(param,d){
   r
 }
 
+GO_lnL <- function(x,params){
+  n <- length(x)
+  tn <- x[n]
+  firstSumTerm <- 0
+  for(i in 1:n){
+    firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
 
+  }
+  lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
+  lnL
+}
 	 
 #NHPP log-likelihood function
 
