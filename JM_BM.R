@@ -147,7 +147,7 @@ JM_MVF <- function(param,d){
   g  
 }
 
-JM_T <- function(param,d){
+JM_MTTF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
@@ -161,7 +161,7 @@ JM_T <- function(param,d){
   r  
 }
 
-JM_FR <- function(param,d){
+JM_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
