@@ -81,6 +81,7 @@ isModelBoth <- function(){
 
 
 dataType <- function(d){
+	# ---> d <- names(raw_data)
 	if(!isDataSafe()){
 		return(NULL)
 	}
