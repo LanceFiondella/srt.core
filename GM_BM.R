@@ -100,7 +100,8 @@ for(i in 1:n){
 D_MLE <- (phiMLE*n)/DrTerm
 
 #print(D_MLE)
-return(c(D_MLE,phiMLE))
+params <- data.frame("GM_D0"=D_MLE,"GM_Phi"=phiMLE)
+params
 }
 
 # GM_MVF <- function(param,d){
@@ -124,10 +125,10 @@ GM_MVF <- function(param,d){
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/(param$D0*(param$Phi)^i)
+    r[i,2] <- 1/(param$GM_D0*(param$GM_Phi)^i)
     cumulr[i,1] <- i
     cumulr[i,2] <- 0
-    
+    cumulr[i,3] <- "GM"
     for(j in 1:length(r[[1]])){
       
       cumulr[i,2] <- cumulr[i,2]+r[j,2]
@@ -135,35 +136,37 @@ GM_MVF <- function(param,d){
     }
 
   }
-  g <- data.frame(cumulr[2],cumulr[1])
-  names(g) <- c("Time","Failure")
+  g <- data.frame(cumulr[2],cumulr[1],cumulr[3])
+  names(g) <- c("Time","Failure","Model")
   g
   
 }
 
-GM_T <- function(param,d){
+GM_MTTF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/(param$D0*(param$Phi)^i)
+    r[i,2] <- 1/(param$GM_D0*(param$GM_Phi)^i)
+    r[i,3] <- "GM"
     }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
   r  
 }
 
-GM_FR <- function(param,d){
+GM_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- d$FT[i]
-    r[i,2] <- (param$D0*(param$Phi^i))
+    r[i,2] <- (param$GM_D0*(param$GM_Phi^i))
+    r[i,3] <- "GM"
     }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   print(r)
   r  
 }
@@ -174,10 +177,11 @@ GM_R <- function(param,d){
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- d$FT[i]
-    r[i,2] <- exp((-1*param$D0*(param$Phi^i)*d$FT[i]))
+    r[i,2] <- exp((-1*param$GM_D0*(param$GM_Phi^i)*d$FT[i]))
+    r[i,3] <- "GM"
   }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Reliability","Model")
   print(r)
   r
   
