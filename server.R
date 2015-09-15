@@ -150,86 +150,86 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   # Set up the data and trend test statistics tables for display
   
-  # FailureDataTable <- reactive ({
-  #   tempDataMatrix <- matrix()
-  #   if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
-  #     data <- data.frame(x=data_global())
-  #     DataColNames <- names(data)
-  #     names(data) <- gsub("x.", "", DataColNames)
-  #     NameArray <- names(data)
+  FailureDataTable <- reactive ({
+    tempDataMatrix <- matrix()
+    if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
+      data <- data.frame(x=data_global())
+      DataColNames <- names(data)
+      names(data) <- gsub("x.", "", DataColNames)
+      NameArray <- names(data)
       
-  #     if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
-  #       if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
-  #         FN <- data$FN
-  #         if(input$PlotDataOrTrend == 1) {
-  #           if(length(grep("IF", names(data)))){
-  #             IF <- failureT_to_interF(data$FT)
-  #             FT <- data$FT
-  #           } else if(length(grep("FT", names(data)))) {
-  #             FT <- interF_to_failureT(data$IF)
-  #             IF <- data$IF
-  #           }
-  #           NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
-  #           tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
-  #         } else if(input$PlotDataOrTrend == 2) {
-  #           if(length(grep("IF", names(data)))){
-  #             IF <- failureT_to_interF(data$FT)
-  #           } else if(length(grep("FT", names(data)))) {
-  #             IF <- data$IF
-  #           }
+      if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
+        if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
+          FN <- data$FN
+          if(input$PlotDataOrTrend == 1) {
+            if(length(grep("IF", names(data)))){
+              IF <- failureT_to_interF(data$FT)
+              FT <- data$FT
+            } else if(length(grep("FT", names(data)))) {
+              FT <- interF_to_failureT(data$IF)
+              IF <- data$IF
+            }
+            NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
+            tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
+          } else if(input$PlotDataOrTrend == 2) {
+            if(length(grep("IF", names(data)))){
+              IF <- failureT_to_interF(data$FT)
+            } else if(length(grep("FT", names(data)))) {
+              IF <- data$IF
+            }
             
-  #           if (input$trendPlotChoice == "LP") {
-  #             sol <- laplace_trend_test(IF)
-  #             NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-  #             tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-  #           } else if (input$trendPlotChoice == "RA") {
-  #             sol <- running_average_test(IF)
-  #             NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-  #             tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-  #           }
-  #         }
-  #       } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
-  #         if(input$PlotDataOrTrend == 1) {
-  #           if(length(grep("CFC", names(data)))){
-  #             FC <- CumulativeFailureC_to_failureC(data$CFC)
-  #             CFC <- data$CFC
-  #           } else if(length(grep("FC", names(data)))) {
-  #             FC <- data$FC
-  #             CFC <- FailureC_to_CumulativeFailureC(data$FC)
-  #           }
-  #           IntervalNum <- c(1:length(data$T))
+            if (input$trendPlotChoice == "LP") {
+              sol <- laplace_trend_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
+            } else if (input$trendPlotChoice == "RA") {
+              sol <- running_average_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
+            }
+          }
+        } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
+          if(input$PlotDataOrTrend == 1) {
+            if(length(grep("CFC", names(data)))){
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+              CFC <- data$CFC
+            } else if(length(grep("FC", names(data)))) {
+              FC <- data$FC
+              CFC <- FailureC_to_CumulativeFailureC(data$FC)
+            }
+            IntervalNum <- c(1:length(data$T))
             
-  #           NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
-  #           tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
+            NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
+            tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
             
-  #         } else if(input$PlotDataOrTrend == 2) {
-  #           if(length(grep("CFC", names(data)))){
-  #             FC <- CumulativeFailureC_to_failureC(data$CFC)
-  #           } else if(length(grep("FC", names(data)))) {
-  #             FC <- data$FC
-  #           }
+          } else if(input$PlotDataOrTrend == 2) {
+            if(length(grep("CFC", names(data)))){
+              FC <- CumulativeFailureC_to_failureC(data$CFC)
+            } else if(length(grep("FC", names(data)))) {
+              FC <- data$FC
+            }
             
-  #           FT <- failureC_to_failureT(data$T,FC)
-  #           IF <- failureT_to_interF(failure_T = FT)
-  #           FN <- c(1:length(FT))
-  #           IntervalTime <- data$T
+            FT <- failureC_to_failureT(data$T,FC)
+            IF <- failureT_to_interF(failure_T = FT)
+            FN <- c(1:length(FT))
+            IntervalTime <- data$T
             
-  #           if(input$trendPlotChoice == "LP") {
-  #             sol <- laplace_trend_test(IF)
-  #             NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-  #             tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-  #           } else if(input$trendPlotChoice == "RA") {
-  #             sol <- running_average_test(IF)
-  #             NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-  #             tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-  #           }
-  #         }
-  #       }
-  #       colnames(tempDataMatrix) <- NameArray
-  #     }
-  #   }
-  #   tempDataMatrix
-  # })
+            if(input$trendPlotChoice == "LP") {
+              sol <- laplace_trend_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
+            } else if(input$trendPlotChoice == "RA") {
+              sol <- running_average_test(IF)
+              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
+              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
+            }
+          }
+        }
+        colnames(tempDataMatrix) <- NameArray
+      }
+    }
+    tempDataMatrix
+  })
   
   # Display the input data or selected trend test in tabular form.
   
@@ -270,20 +270,20 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 # ----> ! print(dataType(names(data)))
 
 
-              if(input$modelPlotChoice==2){
+              if(input$modelPlotChoice=="MVF"){
                  
                 
                 model_params <- JM_BM_MLE(data$IF) # ---- > Should be from model specifications 'JM_input'
                 print(model_params)
                 if(typeof(model_params)!="character"){
                   mvf_plot_data <- JM_MVF(model_params,data)
-                  if(input$ModelDataPlotType==1){
+                  if(input$ModelDataPlotType=="points_and_lines"){
                     p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model))
                   }
-                  if(input$ModelDataPlotType==2){
+                  if(input$ModelDataPlotType=="points"){
                     p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time,Failure, color=Model))
                   }
-                  if(input$ModelDataPlotType==3){
+                  if(input$ModelDataPlotType=="lines"){
                     p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color=Model))
                   }
                   if(input$checkboxDataOnPlot){
@@ -303,48 +303,43 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 }
             }
 
-              if(input$modelPlotChoice==1){
+              if(input$modelPlotChoice=="MTTF"){
                
-                #p1 <- ggplot(,aes_string(x=X_label,y=Y_label));
-                new_params <- JM_BM_MLE(data$IF)
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                mvf_plot_data <- JM_T(frame_params,data)
+                model_params <- JM_BM_MLE(data$IF)
+                
+                mvf_plot_data <- JM_T(model_params,data)
                 
 
-
-                #data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                #mvf_plot_data <- data.frame("Time"=data$FT,"Failure"=data$IF)
-                if(input$ModelDataPlotType==1){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model))# + ggtitle(paste(c("Laplace trend of "),data_set))
+                if(input$ModelDataPlotType=="points_and_lines"){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Failure_Number,MTTF,color=Model))+ geom_line(data=mvf_plot_data, aes(Failure_Number,MTTF,color=Model))
                 }
-                if(input$ModelDataPlotType==2){
-                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))
+                if(input$ModelDataPlotType=="points"){
+                  p1 <- p1 + geom_point(data=mvf_plot_data,aes(Failure_Number,MTTF,color=Model))
                 }
-                if(input$ModelDataPlotType==3){
-                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time,Failure,color=Model))
+                if(input$ModelDataPlotType=="lines"){
+                  p1 <- p1 + geom_line(data=mvf_plot_data,aes(Failure_Number,MTTF,color=Model))
                 }
                 if(input$checkboxDataOnPlot){
-                  original_data <- data.frame("Time"=data$FN,"Failure" =data$IF)
-                  p1 <- p1 + geom_step(data=original_data,aes(Time,Failure))
+                  original_data <- data.frame("Failure_Number"=data$FN,"MTTF"=data$IF)
+                  print(original_data)
+                  p1 <- p1 + geom_step(data=original_data,aes(Failure_Number,MTTF))
                 }
+
+                
                 p1 <- p1 + ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice))
                 #q <- q + p
               }
 
-              if(input$modelPlotChoice==3){
-                X_label <- c("Time")
-                Y_label <- c("Failure")
-                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
+              if(input$modelPlotChoice=="FI"){
                 model_params <- JM_BM_MLE(data$IF)
                 mvf_plot_data <- JM_FR(model_params,data)
-                if(input$ModelDataPlotType==1){
+                if(input$ModelDataPlotType=="points_and_lines"){
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Failure_Count,Failure_Rate,color=Model))+ geom_line(data=mvf_plot_data, aes(Failure_Count,Failure_Rate,color=Model)) # ----? can we use "Failure Count" without underscore
                 }
-                if(input$ModelDataPlotType==2){
+                if(input$ModelDataPlotType=="points"){
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Failure_Count,Failure_Rate,color=Model))
                 }
-                if(input$ModelDataPlotType==3){
+                if(input$ModelDataPlotType=="lines"){
                   p1 <- p1 + geom_line(data=mvf_plot_data,aes(Failure_Count, Failure_Rate,color=Model))
 
                 }
@@ -356,21 +351,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                 #q <- q + p
 
               }
-              if(input$modelPlotChoice==4){
-                X_label <- c("Time")
-                Y_label <- c("Failure")
-                #p1 <- ggplot(,aes_string(x=Time,y=Failure));
+              if(input$modelPlotChoice=="R"){
                 new_params <- JM_BM_MLE(data$IF)
                 data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
                 mvf_plot_data <- JM_R(frame_params,data)
-                if(input$ModelDataPlotType==1){
+                if(input$ModelDataPlotType=="points_and_lines"){
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Reliability,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Reliability))# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
-                if(input$ModelDataPlotType==2){
+                if(input$ModelDataPlotType=="points"){
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Reliability,color=Model))
                 }
-                if(input$ModelDataPlotType==3){
+                if(input$ModelDataPlotType=="lines"){
                   p1 <- p1 + geom_line(data=mvf_plot_data,aes(Time, Reliability,color=Model))
 
                 }
@@ -384,13 +376,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
             }
             else if(length(grep("FT",names(data)))){
               IF <- failureT_to_interF(data$FT)
-              if(input$modelPlotChoice==2){
+              if(input$modelPlotChoice=="MVF"){
                 #p1 <- ggplot(,aes_string(x=Time,y=Failure));
                 new_params <- JM_BM_MLE(IF)
                 data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
                 mvf_plot_data <- JM_MVF(frame_params,data)
-                if(input$ModelDataPlotType==1){
+                if(input$ModelDataPlotType=="points_and_lines"){
                   p1 <- p1+ geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
                 if(input$ModelDataPlotType==2){
