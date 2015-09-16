@@ -17,3 +17,18 @@ PSSE <- function(n,data,data1){
 	}	
 	
 }  
+
+##Karthik
+
+aic <- function(p,lnL){
+	return (2*p - 2*lnL)
+}
+
+psse_times <- function(data, model_params){
+	t <- 0
+	mvf_data <- JM_MVF(model_params, data)
+	for(i in 1:length(data$FT)){
+		t <- (data$FT[i] - mvf_data$Time[i])^2 + t
+	}
+	t
+}
