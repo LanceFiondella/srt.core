@@ -133,6 +133,18 @@ GO_MVF <- function(param,d){
   r
 }
 
+GO_MTTF <- function(){
+
+}
+
+GO_FI <- function(){
+
+}
+
+GO_R <- function(){
+  
+}
+
 GO_lnL <- function(x,params){
   n <- length(x)
   tn <- x[n]
