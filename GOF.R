@@ -23,8 +23,8 @@ mean_absolute_error <- function(x,y){
 	t
 }
 
-aic <- function(p,mle){
-	return (2*p - 2*log(abs(mle)))
+aic <- function(p,lnL){
+	return (2*p - 2*lnL)
 }
 
 psse_times <- function(data, model_params){
