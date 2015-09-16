@@ -113,5 +113,18 @@ DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
       lnL
   }
 
+
+DSS_MTTF <- function(){
+
+}
+
+
+DSS_FI <- function(){
+
+}
+
+DSS_R <- function(){
+  
+}
 #MVF <- aMLE*(1-(1+bMLE*x)*exp(-bMLE*x))
 
