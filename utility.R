@@ -222,6 +222,9 @@ FC_to_FT <- function(time_vec,num_count) #failure count to failure time
   return(failure_T)
 }
 
+isPlural <- function(){
+	#-----> required to fix the plural forms
+}
 
 generate_dataFrame <- function(raw_data){
 	#source("Data_Format.R")
