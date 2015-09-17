@@ -78,9 +78,9 @@ GO_MVF <- function(param,d){
 }
 #NHPP log-likelihood function
 
-GO_lnl  <- function(){
+GO_lnL  <- function(){
   t <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
-  return t
+  t
 }
 
 #Mean Value function
