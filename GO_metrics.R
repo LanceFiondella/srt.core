@@ -4,6 +4,10 @@ GO_BM_FT_MVF <- function(aMLE,bMLE,data){
 		return(tmp)
 }
 
+GO_BM_FT_FailureIntensity <- function(aMLE,bMLE,data){
+	return(aMLE*bMLE*exp(-bMLE*data)
+	}
+
 #log-likelihood function--Failure times
 
 GO_BM_FT_LLF <- function(aMLE,bMLE,data){
@@ -32,8 +36,8 @@ GO_BM_FT_FaultsRemaining <- function(aMLE,n){
 	return(FaultsRemaining )
 }
 #Reliability
-GO_BM_FT_Reliability <- function(bMLE,tn){
-	Reliability <- exp(-bMLE*tn)
+GO_BM_FT_Reliability <- function(bMLE,data){
+	Reliability <- exp(-bMLE*data)
 	return(Reliability)
 }
 #MTTF
