@@ -194,39 +194,39 @@ JM_MVF_r <- function(param,d){
 
 # Maximum value of Log-likelihood
 
-  JM_BM_lnl <- function(x,N0_MLE,phi){ # ----> params should be the option to generalize
+JM_lnL <- function(x,params){ # ----> params should be the option to generalize
     n <- length(x)          
     secondTerm=0
     thirdTerm = 0
 
     for(i in 1:n){
-        secondTerm = secondTerm +log((N0_MLE-(i-1)))
-        thirdTerm = thirdTerm +((N0_MLE-(i-1))*x[i])#x=interFail
+        secondTerm = secondTerm +log((params$JM_N0-(i-1)))
+        thirdTerm = thirdTerm +((params$JM_N0-(i-1))*x[i])#x=interFail
       }
-      llf <- n*log(phi)+ secondTerm-(phi*thirdTerm)
-      return(llf)
+      lnL <- n*log(params$JM_Phi)+ secondTerm-(params$JM_Phi*thirdTerm)
+      return(lnL)
   }
  
  #Faults Remaining
  
- JM_BM_FaultsRemaining <- function(N0_MLE,n){ # ----> params should be passed instead
-  return(floor(N0_MLE-n))
+ JM_FaultsRemaining <- function(params,n){ # ----> params should be passed instead
+  return(floor(params$JM_N0-n))
  }
  
  #Reliability
 
- JM_BM_Reliability <- function(n,x,N0_MLE,phi){ # params should be passed instead
+ JM_Reliability <- function(n,x,params){ # params should be passed instead
   Reliability <- numeric(0)
-  Reliability <- exp(-phi*(N0_MLE-(i-1))*x[i])
+  Reliability <- exp(-params$Phi*(params$JM_N0-(i-1))*x[i])
   return(Reliability)
  }
  
  #MTTF
  
- JM_BM_MTTF <- function(n,N0_MLE,phi){ # params should be passed instead
-  MTTF=0
-  for(i in 1:n){
-    MTTF = MTTF +(1/(phi*(N0_MLE-(n+(i-1)))))
-  }
-  return(MTTF)
- }
+ # JM_MTTF <- function(n,params){ # params should be passed instead
+ #  MTTF=0
+ #  for(i in 1:n){
+ #    MTTF = MTTF +(1/(params$JM_Phi*(params$JM_N0-(n+(i-1)))))
+ #  }
+ #  return(MTTF)
+ # }
