@@ -114,17 +114,56 @@ DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
   }
 
 
-DSS_MTTF <- function(){
+DSS_MTTF <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*(i))))
+    r[i,3] <- "DSS"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
+  r
 
 }
 
 
-DSS_FI <- function(){
-
+DSS_FI <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- (params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i]))
+    r[i,3] <- "DSS"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  r
 }
 
-DSS_R <- function(){
-  
+
+DSS_R <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- exp(-(params$DSS_aMLE*d$FT[i]))
+    r[i,3] <- "JM"
+  }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Reliability","Model")
+  r
+}
+
+DSS_R_growth <- function(){
+
 }
 #MVF <- aMLE*(1-(1+bMLE*x)*exp(-bMLE*x))
 
+DSS_Faults_Remain <- function(){
+  # a(1+ bt)e^(-bt)
+}

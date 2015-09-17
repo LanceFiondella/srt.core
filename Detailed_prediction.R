@@ -23,7 +23,7 @@ get_prediction_n <- function(x,t,n){
 			}	
 		}
 	}
-	else if('G0_aMLE' %in% names(x)){
+	else if('GO_aMLE' %in% names(x)){
 			while(total_time < t){
 				i <- i +1
 				total_time <- (1/(x$GO_aMLE*(x$GO_bMLE)^(t+i-1))) + total_time
@@ -71,7 +71,7 @@ get_prediction_t <- function(x,steps,n){
 			}
 		}
 	}
-	else if("G0_aMLE" %in% names(x)){
+	else if("GO_aMLE" %in% names(x)){
 		t <- 0
 		if(steps!=0){
 			t_prev <- 0

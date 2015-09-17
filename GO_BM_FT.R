@@ -32,7 +32,7 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	leftEndPointMLE <- GO_MLEeq(leftEndPoint)
 	rightEndPoint <- 2*rightEndPoint
 	rightEndPointMLE <- GO_MLEeq(rightEndPoint)
-	i <- i+1	
+	i <- i+1
 }
 
 #Step-3: Invoke uniroot or report non convergence to calling environment
@@ -60,10 +60,6 @@ maxiter <<- 20
     sol
   }
   bMLE <- soln(maxiter)
-
-
-
-
 	#bMLE <- uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
 	#bMLE <- uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
 }
@@ -133,16 +129,47 @@ GO_MVF <- function(param,d){
   r
 }
 
-GO_MTTF <- function(){
+GO_MTTF <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <-(1/(params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))))
+    r[i,3] <- "GO"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
+  r
+}
+
+GO_FI <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))
+    r[i,3] <- "GO"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  r
 
 }
 
-GO_FI <- function(){
-
-}
-
-GO_R <- function(){
-  
+GO_R <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- exp(-params$GO_bMLE*d$FT[i])
+    r[i,3] <- "JM"
+  }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Reliability","Model")
+  r
 }
 
 GO_lnL <- function(x,params){
@@ -151,12 +178,12 @@ GO_lnL <- function(x,params){
   firstSumTerm <- 0
   for(i in 1:n){
     firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
-
   }
   lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
   lnL
 }
-	 
+
+
 #NHPP log-likelihood function
 
 #lnl <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
