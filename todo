@@ -1,0 +1,34 @@
+todo
+
+- define Linetypes 
+	# tab1 - significance levels
+	# tab2 - different models
+	# tab3 - 
+	# tab4 - 
+
+- dynamic variables
+	# assign("x",5)
+
+- model_params should also be refactored based on model
+	# useful for tables in Tab[2,3]
+
+- model  and Model confusion
+
+
+
+
+# package dependency
+
+- rootsolve
+
+
+# vertical line for prediction in plots
+# significance lines legend size, and changes to percentage
+
+# given model not defined -- not for psse logic differs
+
+
+# psse hard coded
+  GO PSSE is not displayed
+
+# Fix new models object not found in tab 2

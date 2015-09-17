@@ -1,11 +1,10 @@
-library(shiny)#I wonder why this is here?
-library(gdata) #Used for read.xls function
-library(ggplot2)#ggplot function
-#library(DT)
+library(shiny)
+library(gdata) 
+library(ggplot2)
 source("utility.R")
 source("Model_specifications.R")
 source("custom_functions.R")
-source("model.R")#Source for our reliabilty models
+source("model.R")
 source("JMmodel.R")
 source("JM_BM.R")
 source("GO_BM_FT.R")
@@ -15,7 +14,9 @@ source("Wei_NM_FT.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("RA_Test.R")
-source("ErrorMessages.R")  # Text for error messages
+source("ErrorMessages.R")
+
+# Text for error messages
 
 # Initialize "constants" ------------------------------------
 
@@ -272,8 +273,8 @@ plot_construct <- function(model,data){
     
      
     print(model_params)
-    if(typeof(model_params)!="character"){
-      MVF_construct <- get(paste(model,input$modelPlotChoice,sep="_"))
+    if(typeof(model_params)!="character"){ 
+      MVF_construct <- get(paste(model,input$modelPlotChoice,sep="_")) # ----> should be more general
       mvf_plot_data <- MVF_construct(model_params,data)
       if(input$ModelDataPlotType=="points_and_lines"){
         p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model,linetype=Model))
@@ -448,16 +449,61 @@ plot_construct <- function(model,data){
         p1
       }
      }
-    }) 
+    })
+
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
-# ----------------------------------------   TAB2 Table  ----------------------------------------------
+# ----------------------------------------   TAB3 Table   ----------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 
+
+tab3_table1_construct <- function(model,data,input){
+  if(dataType(names(data))=="FR"){
+    model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+    # ----> ! print("Table1 construct: ")
+    # ----> ! print(model_params)
+    # ----> ! print(data)
+    # ----> ! print(count)
+    t <- input$modelDetailPredTime
+
+    #print()
+    if(typeof(model_params)!="character"){
+      number_fails <- get_prediction_n(model_params,t,length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      
+      time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      #----> !  print(time_fails)
+      #----> !  print(number_fails)
+      for( i in 1:length(time_fails)){
+        count <<- count+1
+        tab3_table1[count,1]<<- model
+        tab3_table1[count,2]<<- number_fails
+        tab3_table1[count,3]<<- time_fails[i]
+      }
+    }
+    else if(typeof(model_params)=="character"){
+      if(length(grep("not found",model_params))){
+        count<<-count+1
+        tab3_table1[count,1] <<- model
+        tab3_table1[count,2] <<- "Given-model not defined"
+        tab3_table1[count,3] <<- "Given-model not defined" 
+      }
+      else{
+        count<<-count+1
+        tab3_table1[count,1] <<- model
+        tab3_table1[count,2] <<- "NON-CONV"
+        tab3_table1[count,3] <<- "NON-CONV"
+      }
+    }
+
+  }
+  else{
+    # -----> FC data should be handled here
+  }
+}
   
-  output$mytable1 <- renderDataTable({
+output$mytable1 <- renderDataTable({
 
     inFile <- input$file
     table_t <- data.frame()
@@ -483,361 +529,105 @@ plot_construct <- function(model,data){
       #input$modelDetailChoice <- track_models()
       if(length(input$modelDetailChoice)>0){
         source("Detailed_prediction.R")
-        model_params <- JM_BM_MLE(data$IF)
+        #model_params <- JM_BM_MLE(data$IF)
       #if(length(track_models())>0) {
-        count <- 0
+        count <<- 0
+        tab3_table1<<- data.frame()
         for(i in input$modelDetailChoice){
-          if(i=="JM"){
-            if(dataType(names(data))=="FR"){
-              count <- count + 1              
-              
-              print(model_params)
-              if(typeof(model_params)!="character"){
-                print("Entered the double")
-                number_fails  <- get_prediction_t(model_params,input$modelDetailPredTime,length(data$IF))
-                time_fails  <- get_prediction_n(model_params,input$modelDetailPredFailures,length(data$IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-              }
-              else if(model_params=="nonconvergence"){
-                print("Entered the Non-conv")
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                
-              }
-              else{
-                # -------> to be programmed
-              }
-            }
-          }
-          else if(i=="Geometric"){
-            if(length(grep("IF",names(data)))){
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(data$IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-               number_fails  <- get_prediction_t(frame_params,input$modelDetailPredTime,length(data$IF))
-                time_fails  <- get_prediction_n(frame_params,input$modelDetailPredFailures,length(data$IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-            }
-            else if(length(grep("FT",names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredTime,length(IF))
-                time_fails  <- get_prediction_n(frame_params,input$modelDetailPredFailures,length(IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-              
-            }
-            else if(length(grep("CFC",names(data)))){
-
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- failureC_to_failureT(data$T,FC)
-              IF <- failureT_to_interF(failure_T = FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredTime,length(IF))
-                time_fails  <- get_prediction_n(frame_params,input$modelDetailPredFailures,length(IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }  
-            }
-          }
-          else{
-            count <- count + 1
-            table_t[count,1] <- i
-            table_t[count,2] <- "Given Model not defined"
-            table_t[count,3] <- "Given Model not defined"
-
-          }
-
-      }
-      table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-      names(table_t) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
-    #}
-    #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-    #names(table_t) <- c("Model","N0","Time-remaining")
-    table_t
+          count <<- count+1
+          tab3_table1_construct(i,data,input)
+        }
+      tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3])
+      names(tab3_table1) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
+    tab3_table1
   }
-  #data_global
   })
 
 tracked_models <- reactive({
   input$modelDetailChoice
 })
+
+tab4_table1_construct <- function(model,data,input){
+  if(dataType(names(data))=="FR"){
+    model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+
+    # ----> ! print("Table1 construct: ")
+    print(model_params)
+    # ----> ! print(data)
+    # ----> ! print(count)
+    if(typeof(model_params)!="character"){
+      # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      max_lnL <- try(get(paste(model,"lnL",sep="_"))(get("data")[[get(paste(model,"input",sep="_"))]],model_params),silent=TRUE)
+      # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      #----> !  print(time_fails)
+      #----> !  print(number_fails)
+      if(length(grep("not found",max_lnL))) {
+        count<<-count+1
+        tab4_table1[count,1] <<- model
+        tab4_table1[count,2] <<- "Given model lnL not defined to compute AIC"
+        tab4_table1[count,3] <<- "Given model lnL not defined to compute AIC" 
+      }
+      else if(typeof(max_lnL)!='double') {
+        count<<-count+1
+        tab4_table1[count,1] <<- model
+        tab4_table1[count,2] <<- "Non numeral value. Something is not right"
+        tab4_table1[count,3] <<- "Non numeral value. Something is not right" 
+      }
+      else {
+        AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
+        PSSE <- psse_times(model,data,model_params)
+        count <<- count+1
+        tab4_table1[count,1]<<- model
+        tab4_table1[count,2]<<- AIC
+        tab4_table1[count,3]<<- PSSE
+      }
+    }
+    else if(typeof(model_params)=="character"){
+      if(length(grep("not found",model_params))) {
+        count<<-count+1
+        tab4_table1[count,1] <<- model
+        tab4_table1[count,2] <<- "Given-model not defined"
+        tab4_table1[count,3] <<- "Given-model not defined"        
+      }      
+      else {
+        count<<-count+1
+        tab4_table1[count,1] <<- model
+        tab4_table1[count,2] <<- "NON-CONV"
+        tab4_table1[count,3] <<- "NON-CONV"
+      }
+    }
+  }
+  else{
+    # -----> FC data should be handled here
+  }
+}
+
+# --------------------------------------------------------------------
   
 output$mytable2 <- renderDataTable({
     source("GOF.R")
     inFile <- input$file
-    table_t <- data.frame("Model"=NULL, "N0"=NULL, "Time-remaining"=NULL)
-    
-
     if(is.null(inFile)){
       return("Please upload an a file")
     }
 
-    if(is.null(tracked_models())){
+    if(length(tracked_models())<=0) {
         return
       }
-      print(tracked_models())
+    print(tracked_models())
+    tab4_table1 <<- data.frame()
     data <- data_global()
-     # if(!is.numeric(input$modelDetailPredTime)){
-     #    return(data)
-     #  }
-      # if(!is.numeric(input$modelDetailPredFailures)){
-      #   return(data)
-      # }
-    # frame_params <- "EMPTY"
-    #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
-    frame_params <- data.frame()
-    #if(input$runModels!=0){          ###################should think of isolate here
-      plus <- 0
-      if(length(tracked_models)>0){
-        count <- 0
+      if(length(tracked_models())>0){
+        count <<- 0
+        
         for(i in tracked_models()){
-          if(i=="Jelinski-Moranda"){
-            if(length(grep("IF",names(data)))){
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- JM_BM_MLE(data$IF)
-              print(new_params)
-              if(typeof(new_params)=="double"){
-                print("Entered the double")
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params  <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-                PSSE          <- psse_times(data, frame_params)
-                print(Max_lnl)
-                AIC           <- aic(2,Max_lnl)
-                #print(AIC)
-                #PSSE          <- psse()
-                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
+          tab4_table1_construct(i,data,input)
+        }
 
-                table_t[count,1] <- i
-                table_t[count,2] <- AIC
-                table_t[count,3] <- PSSE          
-              }
-              else if(new_params=="nonconvergence"){
-                print("Entered the Non-conv")
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"             
-              }
-              else{
-                # to be programmed
-              }
-            }
-            else if(length(grep("FT",names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- JM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-                AIC           <- aic(2,Max_lnl)
-                #PSSE          <- psse()
-                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- AIC
-                table_t[count,3] <- "PSSE" 
-                
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"              
-              }
-              else{
-                # to be programmed
-              }
-
-              
-            }
-            else if(length(grep("CFC",names(data)))){
-
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- failureC_to_failureT(data$T,FC)
-              IF <- failureT_to_interF(failure_T = FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- JM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <-length(IF)
-                table_t[count,3] <- number_fails
-              
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                
-              }
-              else{
-                # to be programmed
-              }  
-            }
-
-          }
-
-          else if(i=="Geometric"){
-            if(length(grep("IF",names(data)))){
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(data$IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-                PSSE          <- psse_times(data, frame_params)
-                print(Max_lnl)
-                AIC           <- aic(2,Max_lnl)
-                #print(AIC)
-                #PSSE          <- psse()
-                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- AIC
-                table_t[count,3] <- PSSE
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-            }
-            else if(length(grep("FT",names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails_t  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- length(IF)
-                table_t[count,3] <- number_fails_t
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-              
-            }
-            else if(length(grep("CFC",names(data)))){
-
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- failureC_to_failureT(data$T,FC)
-              IF <- failureT_to_interF(failure_T = FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- length(IF)
-                table_t[count,3] <- number_fails
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }  
-            }
-          }
-          else{
-            count <- count + 1
-            table_t[count,1] <- i
-            table_t[count,2] <- "Given Model not defined"
-            table_t[count,3] <- "Given Model not defined"
-
-          }
-
-      }
-      table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-      print(table_t)
-      names(table_t) <- c("Model","AIC","PSSE")
+      tab4_table1 <- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
+      names(tab4_table1) <- c("Model","AIC","PSSE")
     }
-    #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-    #names(table_t) <- c("Model","N0","Time-remaining")
-    table_t
-  #data_global
+
+    tab4_table1
   })
-
 })
-

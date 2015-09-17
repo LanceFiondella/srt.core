@@ -24,8 +24,8 @@ if(input$trendPlotChoice=="LP") {
   plot_data <- laplace_trend_test(IF)
   q <- q + xlab("Failure Number")+ylab("Laplace Test Statistic")
   q <- q+ggtitle(paste(c("Laplace trend test of"),data_set))
-  
-  q <- q + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)), linetype=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001")),alpha=0.8)
+  significance_levels <<-c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001")
+  q <- q + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),linetype=significance_levels),alpha=0.8,show_guide=TRUE)
   q <- q+xlab("Failure Number")+ylab("Laplace Test Statistic")
 } else if(input$trendPlotChoice=="RA") {
   plot_data <- running_average_test(IF)
@@ -44,4 +44,4 @@ if(input$DataPlotType==2){
 if(input$DataPlotType==3){
   q <- q + geom_step(data=plot_data,aes(index,trend_test_statistic))
 }
-q <- q + theme(legend.position = "bottom")
+q 
