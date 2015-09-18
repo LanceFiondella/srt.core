@@ -3,8 +3,8 @@ library(gdata)
 
 library(crayon)
 model_names <- c("JM","GM","GO","DSS","Wei")
-model_names <- c("GO")
-model_types <- c("FT")#,"FC","IF")
+#model_names <- c("Wei")
+model_types <- c("FT","FC")
 data_set_names <- c("SYS1",
                     "SYS2", 
                     "SYS3", 
@@ -36,41 +36,8 @@ data_set_names <- c("SYS1",
                     "J3",
                     "J4",
                     "J5")
-model_method <- c("BM","EM")#,"AEM")
+model_method <- c("BM","EM","NM")
 
-#model_method <- c("bisection","EM","AEM")
-
-models_names_vector <-c("JM_SYS1",
-                        "JM_SYS2", 
-                        "JM_SYS3",
-                        "JM_CSR1", 
-                        "JM_CSR2", 
-                        "JM_CSR3", 
-                        "JM_S2", 
-                        "JM_S27", 
-                        "JM_SS3",
-                        "JM_SS4",
-                        #"JM_CDS",
-                        "JM_DATA1", 
-                        "JM_DATA2", 
-                        "JM_DATA3",
-                        "JM_DATA4", 
-                        "JM_DATA5", 
-                        "JM_DATA6", 
-                        "JM_DATA7", 
-                        "JM_DATA8", 
-                        "JM_DATA9", 
-                        "JM_DATA10",
-                        "JM_DATA11", 
-                        "JM_DATA12",
-                        "JM_DATA13",
-                        "JM_DATA14",
-                        "JM_J1",
-                        "JM_J2",
-                        "JM_J3",
-                        "JM_J4",
-                        "JM_J5",
-                        "GM_SYS1")
 
 models_solution_list <- list(JM_SYS1    = c(141.9029, 3.601259e-05), 
                              JM_SYS2    = c(105.01280722878384,0.0000164498),
@@ -166,8 +133,67 @@ models_solution_list <- list(JM_SYS1    = c(141.9029, 3.601259e-05),
                              GO_J2      = c(347.1424059,0.005741793),
                              GO_J3      = c(418.1039286,0.045172529),
                              GO_J4      = c(-77.65382974,-0.0108126),
-                             GO_J5      = c(1625.411154,0.00351365))
-
+                             GO_J5      = c(1625.411154,0.00351365),
+                             DSS_SYS1   = c(136.994,0.000078998),
+                             DSS_SYS2   = c(90.0505,0.0000474851),
+                             DSS_SYS3   = c(214.671 ,0.00030906),
+                             DSS_CSR1   = c(397.283, 0.0000882534),
+                             DSS_CSR2   = c(129.506,0.0000865762),
+                             DSS_CSR3   = c(104.739, 0.0628352),
+                             DSS_DATA1  = c(31.9272, 0.00424097),
+                             DSS_DATA2  = c(136.992, 0.000081784),
+                             DSS_DATA3  = c(77.8542, 0.0969956),
+                             DSS_DATA4  = c(353.535,0.0910813),
+                             DSS_DATA5  = c(287.792,0.411919),
+                             DSS_DATA6  = c(3509.37,0.313935),
+                             DSS_DATA7  = c(547.733,0.052504),
+                             DSS_DATA8  = c(483.12,0.0685798),
+                             DSS_DATA9  = c(100.304,0.0100705),
+                             DSS_DATA10  = c(254.722,0.18096),
+                             DSS_DATA11  = c(126.185,0.0542957),
+                             DSS_DATA12  = c(204.891,0.0224948),
+                             DSS_DATA13 = c(235.749,0.0182164),
+                             DSS_DATA14  = c(287.139,0.0974396),
+                             DSS_J1  = c(161.329,0.0512822),
+                             DSS_J2  = c(245.179,0.0225644),
+                             DSS_J3  = c(363.543,0.12814),
+                             DSS_J4  = c(605.832,0.00989501),
+                             DSS_J5  = c(456.299,0.0415092),
+                             DSS_S2      = c(54.4718,0.0000625847),
+                             DSS_SS1     = c(473.094,0.0688867),
+                             DSS_S27     = c(41.3235,0.0000962676),
+                             DSS_SS4     = c(231.307,0.0000674218),
+                             DSS_CDS     = c(363.543,0.12814),
+                             Wei_SYS1   = c(136.994,0.000078998),
+                             Wei_SYS2   = c(96.3881,0.0000369941),
+                             Wei_SYS3   = c(214.671 ,0.00030906),
+                             Wei_CSR1   = c(397.283, 0.0000882534),
+                             Wei_CSR2   = c(129.,441.605),
+                             Wei_CSR3   = c(106.581, 0.000364955),
+                             Wei_DATA1  = c(1715.79, 0.000912437),
+                             Wei_DATA2  = c(2026., 376.693),
+                             Wei_DATA3  = c(28632.8, 0.00915759),
+                             Wei_DATA4  = c(0,0),
+                             Wei_DATA5  = c(0,0),
+                             Wei_DATA6  = c(0,0),
+                             Wei_DATA7  = c(0,0),
+                             Wei_DATA8  = c(0,0),
+                             Wei_DATA9  = c(0,0),
+                             Wei_DATA10  = c(0,0),
+                             Wei_DATA11  = c(0,0),
+                             Wei_DATA12  = c(0,0),
+                             Wei_DATA13 = c(0,0),
+                             Wei_DATA14  = c(0,0),
+                             Wei_J1  = c(0,0),
+                             Wei_J2  = c(0,0),
+                             Wei_J3  = c(0,0),
+                             Wei_J4  = c(0,0),
+                             Wei_J5  = c(0,0),
+                             Wei_S2      = c(57.12977887,2.67171e-05),
+                             Wei_SS1     = c(527.2946584,0.02575963),
+                             Wei_S27     = c(43.19763613,4.14377e-05),
+                             Wei_SS4     = c(478.800823,1.05517e-05),
+                             Wei_CDS     = c(418.1039286,0.045172529))
 epsilon <- 1e-3
 console_out_u<- function(model,data_set,request,method,type){
   begin <- make_style("yellow",bg=TRUE)
@@ -178,7 +204,7 @@ console_out_u<- function(model,data_set,request,method,type){
   #print(data_set)
   if(model=="JM"){
 
-    if(length(grep("FT",input_data))>0) {
+    if(length(grep("FT",names(input_data)))>0) {
       #print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
@@ -281,7 +307,7 @@ console_out_u<- function(model,data_set,request,method,type){
 
   else if(model=="GM"){
 
-    if(length(grep("FT",input_data))>0) {
+    if(length(grep("FT",names(input_data)))>0) {
       print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
@@ -528,6 +554,316 @@ console_out_u<- function(model,data_set,request,method,type){
     return
   }
   }
+   else if(model=="Wei"){
+
+
+    if(length(grep("FT",names(input_data)))>0) {
+      print("PICKED FT pattern")
+      #FT <- input_data$FT > 0
+      source("Data_Format.R")
+      IF <- failureT_to_interF(input_data$FT)
+      FT <- input_data$FT
+      #split_name <- unlist(strsplit(request,"_"))
+      #print(split_name)
+      # for(type in model_types){
+      #     if(type %in% split_name){
+      #       for(method in model_method){
+      #         if(method %in% split_name){
+      #            #source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+      #            MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+      #         }
+
+      #       }
+      #     }       
+      #   }
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+
+      sol <- MLE_construct(FT)
+      print(print(anyNA(sol)))
+      if(anyNA(sol)){
+        sol <- c("nonconvergence")
+      }
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+    }
+    else if(length(grep("IF",names(input_data))) > 0) {
+
+      print("PICKED IF pattern")
+      source("Data_Format.R")
+      IF <- input_data$IF
+      FT <- input_data$FT
+      #split_name <- unlist(strsplit(request,"_"))
+      #print(split_name)
+      # for(type in model_types){
+      #     if(type %in% split_name){
+      #       for(method in model_method){
+      #         if(method %in% split_name){
+      #            #source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+      #            MLE_construct <- get(paste(model,method,"MLE",sep="_"))
+      #         }
+
+      #       }
+      #     }       
+      #   }
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      if(anyNA(sol)){
+        sol <- c("nonconvergence")
+      }
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+    }
+    else if(length(grep("CFC",names(input_data)))>0) { 
+      print("PICKED CFC pattern")     
+      source("Data_Format.R")
+      CFC <- input_data$CFC[input_data$CFC > 0]
+      FC <- CumulativeFailureC_to_failureC(CFC)
+      T <- input_data$T[input_data$CFC > 0]
+      FT <-failureC_to_failureT(T,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      if(anyNA(sol)){
+        sol <- c("nonconvergence")
+      }
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+    }
+    else if(length(grep("FC",names(input_data)))>0){
+      print("PICKED FC pattern")
+      source("Data_Format.R")
+      FC <- input_data$FC[input_data$FC > 0]
+      T <- input_data$T[input_data$CFC > 0]
+      FT <-failureC_to_failureT(T,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      print(sol)
+      if(anyNA(sol)){
+        sol <- c("nonconvergence")
+      }
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+   
+    }
+
+
+
+
+
+    # if(length(grep("[DATA]",data_set)) >0){
+    #   source("Data_Format.R")
+    #   CFC <- input_data$CFC > 0
+    #   FC <- CumulativeFailureC_to_failureC(CFC)
+    #   FT <-failureC_to_failureT(input_data$T,FC)
+    #   IF <- failureT_to_interF(failure_T = FT)
+    #   sol <- GO_MLE(FT)
+    # }
+    # else if(length(grep("J",data_set))>0){
+    #   source("Data_Format.R")
+    #   CFC <- input_data$CFC > 0
+    #   FC <-CumulativeFailureC_to_failureC(CFC)
+    #   FT <-failureC_to_failureT(input_data$TI,FC)
+    #   IF <- failureT_to_interF(failure_T = FT)
+    #   sol <- GO_MLE(FT)
+    # }
+    # else if(data_set=="CDS"){
+    #   IF <- failureT_to_interF(input_data$FT)
+    #   sol <- GO_MLE(FT)
+    # }
+    # else{
+    #   sol <- GO_MLE(input_data$FT)
+    # }
+    #print(sol)
+    if(typeof(sol)=="double"){ 
+    info <- make_style("blue",bg = TRUE)
+    cat(info(format(paste("TESTING Data: ",data_set),width=50)))
+    #cat('\t',paste("Testing",model,data_set,sep="-"),'\n')
+    
+    names(sol) <- c("N0","phi")
+    cat('\n','\t',blue(format("Result [N0,phi]",width=15),":"),sol,'\n')
+    error <- abs(sol - models_solution_list[[request]])
+    names(error) <- c("N0","phi")
+    cat('\n','\t',blue(format("Error [N0,phi]",width=15),":"),error,'\n')
+    
+    error_check <- error < epsilon
+    names(error_check) <- c("N0","phi")
+    cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
+    cat('\n','\t',blue(format("Time taken",width=15),":"),del_time,'\n')
+    PASS <- make_style("green",bg=TRUE)
+    FAIL <- make_style("red",bg=TRUE)
+  }
+  else{
+    CONV <- make_style('black',bg=TRUE)
+    cat(CONV(format(paste("NONCONVERGENCE :",data_set),width=50)),'\n')
+    return
+  }
+  
+  }
+
+  else if (model=="DSS"){
+
+
+    if(length(grep("FT",names(input_data)))>0) {
+      print("PICKED FT pattern")
+      #FT <- input_data$FT > 0
+      source("Data_Format.R")
+      IF <- failureT_to_interF(input_data$FT)
+      FT <- input_data$FT
+      #split_name <- unlist(strsplit(request,"_"))
+      #print(split_name)
+      # for(type in model_types){
+      #     if(type %in% split_name){
+      #       for(method in model_method){
+      #         if(method %in% split_name){
+      #            #source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+      #            MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
+      #         }
+
+      #       }
+      #     }       
+      #   }
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+    }
+    else if(length(grep("IF",names(input_data))) > 0) {
+
+      print("PICKED IF pattern")
+      source("Data_Format.R")
+      IF <- input_data$IF
+      FT <- input_data$FT
+      #split_name <- unlist(strsplit(request,"_"))
+      #print(split_name)
+      # for(type in model_types){
+      #     if(type %in% split_name){
+      #       for(method in model_method){
+      #         if(method %in% split_name){
+      #            #source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+      #            MLE_construct <- get(paste(model,method,"MLE",sep="_"))
+      #         }
+
+      #       }
+      #     }       
+      #   }
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+    }
+    else if(length(grep("CFC",names(input_data)))>0) { 
+      print("PICKED CFC pattern")     
+      source("Data_Format.R")
+      CFC <- input_data$CFC[input_data$CFC > 0]
+      FC <- CumulativeFailureC_to_failureC(CFC)
+      T <- input_data$T[input_data$CFC > 0]
+      FT <-failureC_to_failureT(T,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+    }
+    else if(length(grep("FC",names(input_data)))>0){
+      print("PICKED FC pattern")
+      source("Data_Format.R")
+      FC <- input_data$FC[input_data$FC > 0]
+      T <- input_data$T[input_data$CFC > 0]
+      FT <-failureC_to_failureT(T,FC)
+      IF <- failureT_to_interF(failure_T = FT)
+      print(paste(model,method,c("MLE"),sep="_"))
+      MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
+      time <- proc.time()
+      sol <- MLE_construct(FT)
+      sol <- c(sol[1],sol[2])
+      new_time <- proc.time()
+
+      del_time <- new_time - time
+   
+    }
+
+
+
+
+
+    # if(length(grep("[DATA]",data_set)) >0){
+    #   source("Data_Format.R")
+    #   CFC <- input_data$CFC > 0
+    #   FC <- CumulativeFailureC_to_failureC(CFC)
+    #   FT <-failureC_to_failureT(input_data$T,FC)
+    #   IF <- failureT_to_interF(failure_T = FT)
+    #   sol <- GO_MLE(FT)
+    # }
+    # else if(length(grep("J",data_set))>0){
+    #   source("Data_Format.R")
+    #   CFC <- input_data$CFC > 0
+    #   FC <-CumulativeFailureC_to_failureC(CFC)
+    #   FT <-failureC_to_failureT(input_data$TI,FC)
+    #   IF <- failureT_to_interF(failure_T = FT)
+    #   sol <- GO_MLE(FT)
+    # }
+    # else if(data_set=="CDS"){
+    #   IF <- failureT_to_interF(input_data$FT)
+    #   sol <- GO_MLE(FT)
+    # }
+    # else{
+    #   sol <- GO_MLE(input_data$FT)
+    # }
+    #print(sol)
+    if(typeof(sol)=="double"){ 
+    info <- make_style("blue",bg = TRUE)
+    cat(info(format(paste("TESTING Data: ",data_set),width=50)))
+    #cat('\t',paste("Testing",model,data_set,sep="-"),'\n')
+    
+    names(sol) <- c("N0","phi")
+    cat('\n','\t',blue(format("Result [N0,phi]",width=15),":"),sol,'\n')
+    error <- abs(sol - models_solution_list[[request]])
+    names(error) <- c("N0","phi")
+    cat('\n','\t',blue(format("Error [N0,phi]",width=15),":"),error,'\n')
+    
+    error_check <- error < epsilon
+    names(error_check) <- c("N0","phi")
+    cat('\n','\t',blue(format("PASS [N0,phi]",width=15),":"),error_check,'\n')
+    cat('\n','\t',blue(format("Time taken",width=15),":"),del_time,'\n')
+    PASS <- make_style("green",bg=TRUE)
+    FAIL <- make_style("red",bg=TRUE)
+  }
+  else{
+    CONV <- make_style('black',bg=TRUE)
+    cat(CONV(format(paste("NONCONVERGENCE :",data_set),width=50)),'\n')
+    return
+  }
+  
+  }
 
 
 
@@ -581,6 +917,133 @@ for(model in model_names){
 
             console_out_u(model,data_set,request,method,type)
           }          
+        }
+      }
+      else if(model=="GO"){
+        for(type in model_types){
+          # ________________________________________________________
+          # Skip the methods if not implemented 
+          # Add simple if and else if statements as shown below
+          # if(method=="XXXX"){
+          #   next
+          # }
+          #---------------------------------------------------------
+
+          if(type=="FC"){
+            next
+          }
+
+          for(method in model_method){
+
+            # ________________________________________________________
+            # Skip the methods if not implemented 
+            # Add simple if and else if statements as shown below
+            # if(method="XXXX"){
+            #   next
+            # }
+            #---------------------------------------------------------
+
+            # if(method=="EM"){
+            #   next
+            # }
+
+            if(method=="NM"){
+              next
+            }
+            # -----------------example skip statement-----------------
+            # else if(method="XXXX"){
+            #   next
+            # }
+            #________________________________________________________
+
+            source(paste(paste( model, method, type, sep="_"),".R", sep=""))
+
+            # ------------------------------------------------------------------------
+            # Add simple skip statements as below if testscripts fails for some reason
+            # if(data_set=="XXXX"){
+            #  next
+            # }
+            # ________________________________________________________________________
+
+
+            if(data_set=="SS4"){   # SS4 data set is failing for some reason needs inspection
+              next
+            }
+            
+            request <- paste(model,data_set,sep="_")
+
+            console_out_u(model,data_set,request,method,type)
+          }  
+        }
+      }
+      else if(model=="DSS"){
+        for(type in model_types){
+          if(type=="FC"){
+            next
+          }
+          for(method in model_method){
+            if(method=="EM"){
+              next
+            }
+            else if(method=="NM"){
+              next
+            }
+            source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+            request <- paste(model,data_set,sep="_")
+            if(data_set=="SS3"){   # SS4 data set is failing for some reason needs inspection
+              next
+            }
+            else if(data_set=="SS4"){   # SS4 data set is failing for some reason needs inspection
+              next
+            }
+            console_out_u(model,data_set,request,method,type)
+          }
+        }
+      }
+      else if(model=="Wei"){
+        for(type in model_types){
+          if(type=="FC"){
+            next
+          }
+          for(method in model_method){
+            if(method=="EM"){
+              next
+            }
+            else if(method=="BM"){
+              next
+            }
+            source(paste(paste(model,method,type,sep="_"),".R",sep=""))
+            print("Called")
+            request <- paste(model,data_set,sep="_")
+            if(data_set=="SS1"){   # SS4 data set is failing for some reason needs inspection
+              next
+            }
+            else if(data_set=="SS3"){   # SS4 data set is failing for some reason needs inspection
+              next
+            }
+            else if(data_set=="SS4"){   # SS4 data set is failing for some reason needs inspection
+              next
+            }
+            else if(data_set=="DATA2"){
+              next
+            }
+            else if(data_set=="DATA3"){
+              next
+            }
+            else if(data_set=="DATA5"){
+              next
+            }
+            else if(data_set=="DATA9"){
+              next
+            }
+            else if(data_set=="DATA13"){
+              next
+            }
+            else if(data_set=="J5"){
+              next
+            }
+            console_out_u(model,data_set,request,method,type)
+          }
         }
       }
   }

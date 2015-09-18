@@ -7,34 +7,67 @@ n <- length(tVec)
 tn <- tVec[n]
 sumT <- sum(tVec)
 
-c0 <- 1.0
+#estimate starting point for 'b'
 b0 <- (n/sumT)
-#options("scipen"=100, "digits"=6)
+
+MLEeq<-function(b){
+  c <- 1.0
+  sumi = 0
+  for(i in 1:n)
+  {
+    sumi= sumi + (1/b) - ((tVec[i]))    
+  }
+
+  b_MLE <- (((-n*(tn))/(exp(b*(tn))-1)) + sumi)
+  
+  return(b_MLE)
+}
+
+i <- 0 
+maxIterations <- 200
+leftEndPoint <- b0
+leftEndPointMLE <- MLEeq(leftEndPoint)
+rightEndPoint <- 2*b0
+rightEndPointMLE <- MLEeq(rightEndPoint)
+
+while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
+  print('In Step 2 while loop of Wei_BM.R')
+  leftEndPoint <- leftEndPoint/2
+  leftEndPointMLE <- MLEeq(leftEndPoint)
+  rightEndPoint <- 2*rightEndPoint
+  rightEndPointMLE <- MLEeq(rightEndPoint)
+  i <- i+1	
+}
+
+if(leftEndPointMLE*rightEndPointMLE > 0 ){
+  return('nonconvergence')
+} else {
+  b_initial <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
+}
+print(b_initial)
+
+
+b0 <- b_initial
+
+#Estimate starting point for 'c'
+c0 <- 1.0
+a0 <- n
+
 #(*MLE equation of x[1]*)
+
 model1 <- function(x) {
   sumi <- c(0,0)
   for(i in 1:n)
   {
-    sumi[1] <- sumi[1] + (1/x[1]) - ((tVec[i])^x[2])   
-    sumi[2] <- sumi[2] + (1/x[2]) - (((tVec[i])^x[2])*log(tVec[i])*x[1]) + (log(tVec[i]))      #calculating the values for the summation 
+    sumi[1] <- sumi[1] + (1/x[2]) - ((tVec[i])^x[3])   
+    sumi[2] <- sumi[2] + (1/x[3]) - (((tVec[i])^x[3])*log(tVec[i])*x[2]) + (log(tVec[i]))      #calculating the values for the summation 
   }
   #print(x)
 
-  c(F1 = ((-1*n*(tn^x[2]))/(exp(x[1]*(tn^x[2]))-1) + sumi[1]),
-                         F2 = ((-1*x[1]*n*(tn^x[2])*log(tn))/(exp(x[1]*(tn^x[2]))-1) + sumi[2]))
+  c(F1 = -1 + exp(-x[2]*(tn^x[3])) + (n/x[1]),
+    F2 = (-x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))) + sumi[1],
+    F3 = (-x[2]*x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))*log(tn)) + sumi[2])
 }
-ab <- multiroot(f=model1,start=c(b0,c0), ctol = 1e-24)$root
-bMLE <- ab[1]
-cMLE <- ab[2]
-print(ab)
+abc <- multiroot(f=model1,start=c(a0,b0,c0), ctol = 1e-24)$root
+print(abc)
 
-
-#Problem -- need to substitute the value for b0
-# (*Answers x[1]â0.0006960572245800791`,x[2]â0.6767387156441748*)
-
-
-#aMLE equation
-
-aMLE <- (n*exp(bMLE*tn^cMLE))/(exp(bMLE*tn^cMLE)-1)
-
-print(aMLE)

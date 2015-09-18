@@ -6,16 +6,62 @@ tVec <- c(2.45, 4.9, 6.86, 7.84, 9.52, 12.89, 17.1, 20.47, 21.43, 23.35, 26.23,2
 #Define n, tn and sumT
 
 #tVec <- c(0,tVec)
-n <- length(tVec)
+n <- length(kVec)
 
 
-tn <- tVec[n]
+
+tn <- tVec[length(tVec)]
 sumT <- sum(tVec)
 sumK <- sum(kVec)
 
+#estimate starting point for 'b'
+b0 <- n/sumT
+
+MLEeq<-function(b){
+  sumil = 0
+  sumil1=0
+  for(i in 2:n)
+  {
+    sumil= sumil + ((((exp(-b*tVec[i])*tVec[i])-(exp(-b*tVec[i-1])*tVec[i-1]))*kVec[i])/(exp(-b*tVec[i-1])-exp(-b*tVec[i])))    
+  }
+  for(j in 1:n)
+  {
+  	sumil1 = sumil1 + kVec[j]
+  }
+
+  b_MLE <- ((kVec[1]*tVec[1])/(-1+exp(b*tVec[1]))) - (exp(-b*tn)*tn*sumil1) + sumil
+  
+  return(b_MLE)
+}
+
+i <- 0 
+maxIterations <- 200
+leftEndPoint <- b0/2
+leftEndPointMLE <- MLEeq(leftEndPoint)
+rightEndPoint <- 2*b0
+rightEndPointMLE <- MLEeq(rightEndPoint)
+
+while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
+  print('In Step 2 while loop of Wei_BM.R')
+  leftEndPoint <- leftEndPoint/2
+  leftEndPointMLE <- MLEeq(leftEndPoint)
+  rightEndPoint <- 2*rightEndPoint
+  rightEndPointMLE <- MLEeq(rightEndPoint)
+  i <- i+1	
+}
+
+if(leftEndPointMLE*rightEndPointMLE > 0 ){
+  return('nonconvergence')
+} else {
+  b_initial <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
+}
+print(b_initial)
+
+
+b0 <- b_initial
+
 a0 <- sumK
 c0 <-  1.0
-b0 <- sumK/(sumT*tn)
 
 
 #(*MLE equation of x[1]*)
