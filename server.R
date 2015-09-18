@@ -2,12 +2,12 @@ library(shiny)#I wonder why this is here?
 library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
 #library(DT)
-<<<<<<< HEAD
+#<<<<<<< HEAD
 #
-=======
+#=======
 source("utility.R")
 source("Model_specifications.R")
->>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
+#>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
 source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
