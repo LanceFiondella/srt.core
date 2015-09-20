@@ -5,10 +5,10 @@ library(ggplot2)#ggplot function
 #<<<<<<< HEAD
 #
 #=======
-source("utility.R")
+sys.source("utility.R")
 source("Model_specifications.R")
 #>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
-source("custom_functions.R")
+sys.source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
 source("JM_BM.R")
@@ -21,12 +21,66 @@ source("Laplace_trend_test.R")
 source("RA_Test.R")
 source("ErrorMessages.R")  # Text for error messages
 
+# Initialize global variables -------------------------------
+
+openFileDatapath <- ""
+#data_global <- data.frame()
+data_set_global <- ""
+data_set_global_type <- ""
+FC_to_IF_data <- data.frame()
+
+DataModelIntervalStart <<- 1
+DataModelIntervalEnd <<- 5
+
+# These two data frames hold model results as
+# well as the data to which models were applied.
+
+ModelResults <- data.frame()
+ModeledData <- data.frame()
+
+# These two vectors identify the models that
+# ran successfully and those that did not.
+
+SuccessfulModels <- c()
+FailedModels <- c()
+
+# These two lists are used to keep track of models
+# that executed successfully and those that did not.
+
+#ModelsExecutedList <- list()
+#ModelsFailedExecutionList <- list()
+
+# This is a list that will hold the list of model results.
+# Each set of model results is a data frame - there's a
+# separate data frame for each model that's run.
+
+ModelResultsList <- list()
+
+# This is a list that hold the list of model evaluations.
+# Each set of model evaluations is a data frame - there's a
+# separate data frame for each model evaluation that's done.
+
+ModelEvalsList <- list()
+
 # Initialize "constants" ------------------------------------
 
 K_minDataModelIntervalWidth <- 5
 
 K_CategoryFirst <- 1
 K_CategoryLast <- 5
+
+# These lists identify the models used for each data type
+
+K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+
+# Colors that will be used in plotting model results
+
+K_ModelResultColors <- list("JM"="red", "GM"="blue", "GO"="green", "DSS"="yellow", "Wei"="orange")
+
+# Tolerance used in determining whether a value is a whole number.
+
+K_tol <- .Machine$double.eps^0.5
 
 # Start main program ------------------------------------
 
@@ -35,6 +89,8 @@ openFileDatapath <- ""
 data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
+  
+  source("utility.R")
   
   output$sheetChoice <- renderUI({ # ------ > Should fix empty data_set name for .csv files
     if(input$type==1){
@@ -82,33 +138,140 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data_original <<- data
     } else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
-        print(inFile)
+        #print(inFile)
         return("Please upload excel sheet")
       }
-      print(inFile)
+      #print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
       data_original <<- data # ----? should think of its usage 'data_original'
       data_set <- inFile$filename
     }
-      #data
-      print(data)
-      if(dataType(names(data))=="FR"){
-        data_generated <- generate_dataFrame(data)
-        print(data_generated)
-        data_generated
-      }
-      else if(dataType(names(data))=="FC"){
-        data_intermediate <<- generate_dataFrame(data)
-        data_generated <- data_intermediate$FRate
-      }
+    #data
+    #print(data)
+    if(dataType(names(data))=="FR"){
+      data_generated <- generate_dataFrame(data)
+      #print(data_generated)
       data_generated
+    }
+    else if(dataType(names(data))=="FC"){
+      data_intermediate <<- generate_dataFrame(data)
+      data_generated <- data_intermediate$FRate
+    }
+    
+    # Set up the initial values for modeling data range and the initial parameter
+    # estimation range
+    
+    # Set up the initial values for modeling data range and the initial parameter
+    # estimation range
+    
+    DataModelIntervalStart <<- 1
+    DataModelIntervalEnd <<- length(data_generated[,1])
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      output$InputFileError <- renderText({msgDataFileTooSmall})
+    } else {
+      output$InputFileError <- renderText({""})
+    }
+    
+    # Complete all columns for FT/IF data, including failure number.
+    # This information will be used later for subsetting the data.
+    
+    if(dataType(names(data))=="FR") {
+      data_set_global_type <<- "IFTimes"
+
+      # Update the selection list for the models that can be run.
+      
+      updateSelectInput(session, "modelsToRun", choices = K_IF_ModelsList, selected = K_IF_ModelsList)
+      
+      # Update failure data view choices for IF/FT data and model result views.
+      
+      updateSelectInput(session, "dataPlotChoice",
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI"), selected = "CF")
+      updateSelectInput(session, "modelPlotChoice",
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+                                       "Failure Intensity" = "FI", "Reliability" = "REL"), selected = "MVF")
+      
+    } else if(dataType(names(data))=="FC") {
+      data_set_global_type <<- "FailureCounts"
+
+      # Add a column for test intervals.
+      
+      data_generated$TI <- c(1:length(data$FC))
+      
+      FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+      
+      # Update the selection list for the models that can be run.
+      
+      updateSelectInput(session, "modelsToRun", choices = K_FC_ModelsList, selected = K_FC_ModelsList)
+      
+      # Update failure data view choices for CFC/FC data/model views.
+      # Includes a "failure counts" view which IF/FT data does not.
+      
+      updateSelectInput(session, "dataPlotChoice",
+                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      updateSelectInput(session, "modelPlotChoice",
+                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "REL"), selected = "MVF")
+      
+    }
+    
+    updateSliderInput(session, "modelDataRange",
+                      min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
+                      max = DataModelIntervalEnd)
+    updateSliderInput(session, "parmEstIntvl",
+                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                      max = DataModelIntervalEnd-1)
+    
+    
+    # Finally, output data set
+    
+    data_generated
 }) 
 
+  # A reactive data item that is used to control the height of the raw data and trend
+  # plot.  The height is computed based on the width - it the plot is not as high
+  # as it is wide, and if the width exceeds a minimum, then the height catches up with
+  # the width to make a square plot.
+  
+  DTP_height <- reactive({
+    Width <- session$clientData$output_DataAndTrendPlot_width
+    Height <- session$clientData$output_DataAndTrendPlot_height
+    if((Width > Height) && (Width > 400)) {
+      Height <- Width
+    }
+    Height
+  })
+  
+  # Read the position of the mouse for the data and trend plot
+  
+  DTPranges <- reactiveValues(x = NULL, y = NULL)
+  
+  # A reactive data item that is used to control the height of the model results
+  # plot.  The height is computed based on the width - it the plot is not as high
+  # as it is wide, and if the width exceeds a minimum, then the height catches up with
+  # the width to make a square plot.
+
+  MP_height <- reactive({
+    Width <- session$clientData$output_ModelPlot_width
+    Height <- session$clientData$output_ModelPlot_height
+    if((Width > Height) && (Width > 400)) {
+      Height <- Width
+    }
+    Height
+  })
+
+  # Read the position of the mouse for the model results plot
+  
+  MPranges <- reactiveValues(x = NULL, y = NULL)
+  
+  
 
   # Draw the plot of input data or selected trend test
   
-  output$distPlot <- renderPlot({ #reactive function, basically Main()
+  output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
     
+    DataAndTrendPlot <- NULL   # Set the plot object to NULL to prevent error messages.
     data <- data.frame(x=data_global())
     DataColNames <- names(data)
     names(data) <- gsub("x.", "", DataColNames)
@@ -121,23 +284,39 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        q <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
         input_data <- data
         source("Plot_Raw_Data.R", local=TRUE)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
         
-        q <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
         input_data <- data
         source("Plot_Trend_Tests.R", local=TRUE)
       }
       
-      q
+      DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
+      DataAndTrendPlot
       
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
-  })
+  }, height=DTP_height)
+  
+  
+  # Download handler for saving data and trend plots or tables.
+  
+  output$saveDataOrTrend <- downloadHandler(
+    filename = function() {
+      if(input$PlotDataOrTrend == 1) {
+        paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
+      } else if(input$PlotDataOrTrend == 2) {
+        paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+      }
+    },
+    content = function(filespec) {
+      ggsave(filespec)
+    }
+  )
+  
   
   # There is a serious flaw in tracking the models selected
   # But there is a strong necessity to track the models 
@@ -246,8 +425,53 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   })
 
 
-
-
+  # Here we monitor the data subset and model configuration controls in the
+  # "Select, Analyze, and Subset Failure Data" and "Set Up and Apply Models"
+  # tabs.  We read the values from the controls, and adjust the controls to make
+  # sure that the modeling intervals and lengths of the modeling data set don't
+  # go below specified minimal values.
+    
+  output$DataSubsetError <- renderText({
+    data_local <- data.frame(x=data_global())
+    DataColNames <- names(data_local)
+    names(data_local) <- gsub("x.", "", DataColNames)
+    
+    outputMessage <- ""
+    
+    # Read the slider for the categories to be retained when filtering the data.
+    
+    DataCategoryFirst <- input$sliderDataSubsetChoice[1]
+    DataCategoryLast <- input$sliderDataSubsetChoice[2]
+    
+    # Set the slider for the initial parameter estimation range to be
+    # consistent with the data range over which models are applied
+    
+    dataModelRange <- input$modelDataRange
+    
+    DataModelIntervalStart <- dataModelRange[1]
+    DataModelIntervalEnd <- dataModelRange[2]
+    
+    # Keep the data interval used for modeling to 5 observations or more.
+    
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      outputMessage <- msgDataIntervalTooSmall
+      while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+        if(DataModelIntervalStart > 1){
+          DataModelIntervalStart <- DataModelIntervalStart - 1
+        }
+        if(DataModelIntervalEnd < length(data_local[,1])){
+          DataModelIntervalEnd <- DataModelIntervalEnd + 1
+        }
+      }
+      
+      updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
+    }  
+    updateSliderInput(session, "parmEstIntvl",
+                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                      max = DataModelIntervalEnd-1)    
+    
+    outputMessage
+  })
 
 
 
@@ -414,7 +638,7 @@ plot_construct <- function(model,data){
       OutputTable <- data.frame()
     }
     OutputTable
-  })
+  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 
 
