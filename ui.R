@@ -39,9 +39,10 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(11, 
-                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
-                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                                 selected = 1)
+                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                                                                 inline=TRUE,
+                                                                 selected = "points_and_lines")
                                              )
                                            ),
                                            
@@ -63,7 +64,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
-                                             br(),
+                                             column(12, 
+                                                    radioButtons("saveDataFileType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
+                                                                 choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                                                                 selected = "JPG")
+                                             ),
                                              column(8, downloadButton('saveDataOrTrend', 'Save Display'))
                                            ),
                                            fluidRow(
@@ -85,7 +90,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Plot", textOutput("InputFileError"), plotOutput("distPlot",height="700px")), 
+                                  tabPanel("Plot", textOutput("InputFileError"), plotOutput("DataAndTrendPlot",dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
                                   id="DataPlotAndTableTabset"),
                                 width=8
@@ -98,7 +103,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             sidebarLayout(
                               sidebarPanel(h4("Configure and Apply Models"),
                                            h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
-
+                                           
                                            fluidRow(
                                              column(12,
                                                     sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
@@ -111,24 +116,49 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("modelNumPredSteps", 
                                                                  label = h6("Specify for how many failures into the future the models will predict"),
                                                                  min = 1, value = 1)
+                                             ),
+                                             column(12,
+                                                    numericInput("modelRelInterval", 
+                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                 min = 1, value = 1)
+                                             ),
+                                             column(12, 
+                                                    selectInput(
+                                                      "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
+                                                      choices=list("Open a data set to run models"="None"),
+                                                      multiple=TRUE, selected="None"
+                                                    )
                                              )
                                            ),
                                            
                                            fluidRow(
                                              column(12,
-                                                    actionButton("runModels", label = "Run Models")
+                                                    actionButton("runModels", label = "Run Selected Models")
                                              )
                                            ),
                                            
                                            fluidRow(
+                                             br(),
+                                             h4("Display Model Results")
+                                           ),
+                                           
+                                           fluidRow(
                                              column(12, 
+                                                    #<<<<<<< HEAD
+                                                    #                                                    selectInput(
+                                                    #                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
+                                                    #                                                      choices=list("No model results to display"="None"),
+                                                    #                                                      multiple=TRUE, selected="None"
+                                                    #                                                    )
+                                                    #=======
                                                     br(),
                                                     h5("Choose the model results to display."),
                                                     selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
                                                                 choices= models,
                                                                 multiple=TRUE
-                                                              
-                                                                )
+                                                                
+                                                    )
+                                                    ##>>>>>>> lfiondella/master
                                              )
                                            ),
                                            
@@ -150,21 +180,41 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
+                                                    #<<<<<<< HEAD
+                                                    #                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
+                                                    #                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                                                    #                                                                 selected = 1)
+                                                    #=======
                                                     radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
                                                                  choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
                                                                  selected = "points_and_lines")
+                                                    #>>>>>>> lfiondella/master
                                              )
+                                           ),
+                                           
+                                           fluidRow(
+                                             column(12, 
+                                                    radioButtons("saveModelResultsType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
+                                                                 choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                                                                 selected = "JPG")
+                                             ),
+                                             column(8, downloadButton(outputId = "saveModelResults", label = "Save"))
                                            ),width=4
                                            
                               ),
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", height = "700px")), 
-                                  tabPanel("Model Result Table", dataTableOutput("ModelResultTable")),
+                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
+                                  tabPanel("Model Result Table",
+                                           selectInput(
+                                             "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
+                                             choices=list("No model results to display"="None"),
+                                             multiple=TRUE, selected="None"),
+                                           DT::dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
+                              )
                             )
-                          )
                    ),
                    
                    tabPanel("Query Model Results",
@@ -263,7 +313,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                             #                fluidRow(
                             #                  column(12, 
-                            #                         radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                            #                         radioButtons("radioEvalPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
                             #                                      choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                             #                                      selected = 1)
                             #                  )
@@ -271,7 +321,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                             #                fluidRow(
                             #                  column(12, 
-                            #                         radioButtons("radioEvalPlotType", label = h6("Draw plots with data points only, lines only, or both?"),
+                            #                         radioButtons("radioEvalPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only??"),
                             #                                      choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                             #                                      selected = 1)
                             #                  )
