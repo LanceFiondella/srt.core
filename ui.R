@@ -78,10 +78,10 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            fluidRow(
                                              br(),
-                                             column(9, h5("Subset the failure data by category or data range")),
-                                             column(9,
-                                                    sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
-                                                                min = 1, max = 5, value = c(1, 5), step = 1)),
+                                             column(9, h5("Subset the failure data by data range")),
+                                             #     column(9,
+                                             #            sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
+                                             #                        min = 1, max = 5, value = c(1, 5), step = 1)),
                                              column(9,
                                                     sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1))
@@ -145,19 +145,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12, 
                                                     #<<<<<<< HEAD
-                                                    #                                                    selectInput(
-                                                    #                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
-                                                    #                                                      choices=list("No model results to display"="None"),
-                                                    #                                                      multiple=TRUE, selected="None"
-                                                    #                                                    )
-                                                    #=======
-                                                    br(),
-                                                    h5("Choose the model results to display."),
-                                                    selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                                choices= models,
-                                                                multiple=TRUE
-                                                                
+                                                    selectInput(
+                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
+                                                      choices=list("No model results to display"="None"),
+                                                      multiple=TRUE, selected="None"
                                                     )
+                                                    #=======
+                                                    #           br(),
+                                                    #           h5("Choose the model results to display."),
+                                                    #           selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
+                                                    #                       choices= models,
+                                                    #                       multiple=TRUE
+                                                                
+                                                    #           )
                                                     ##>>>>>>> lfiondella/master
                                              )
                                            ),
@@ -221,13 +221,18 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             sidebarLayout(
                               sidebarPanel(h4("Make Detailed Predictions From Model Results"),
                                            fluidRow(
-                                             column(12, 
-                                                    br(),
-                                                    h5("Choose one or more models for which detailed predictions will be made."),
-                                                    selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                                choices=models,
-                                                                multiple=TRUE,
-                                                                )
+                                             column(12,
+                                                    selectInput(
+                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
+                                                      choices=list("No model results to display"="None"),
+                                                      multiple=TRUE, selected="None"
+                                                    )
+                                                    #           br(),
+                                                    #           h5("Choose one or more models for which detailed predictions will be made."),
+                                                    #           selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
+                                                    #                       choices=models,
+                                                    #                       multiple=TRUE,
+                                                    #                       )
                                              ),
                                              
                                              column(12, 
@@ -277,6 +282,18 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Evaluate Models",
                             sidebarLayout(
                                 sidebarPanel(h4("Evaluate Model goodness of fit and Applicability"),
+                                    fluidRow(
+                                     column(12, 
+                                            br(),
+                                            h5("Choose one or more models for which the results will be evaluated."),
+                                            selectInput(
+                                              "modelResultsForEval", label = h6("Choose one or more sets of model results"), 
+                                              choices=list("No model results to display"="None"),
+                                              multiple=TRUE, selected="None"
+                                            )
+                                     )
+                                    ),
+                                             
                                     fluidRow(
                                              column(12, 
                                                     h5("Select a model evaluation technique to apply"),

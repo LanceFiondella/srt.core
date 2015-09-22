@@ -1,24 +1,26 @@
 library(shiny)#I wonder why this is here?
 library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
+
 #library(DT)
 #<<<<<<< HEAD
 #
 #=======
 sys.source("utility.R")
-source("Model_specifications.R")
+sys.source("Model_specifications.R")
 #>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
 sys.source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
-source("JM_BM.R")
-source("GO_BM_FT.R")
-source("GM_BM.R")
-source("DSS_BM_FT.R")
+sys.source("JM_BM.R")
+sys.source("GO_BM_FT.R")
+sys.source("GM_BM.R")
+sys.source("DSS_BM_FT.R")
 source("Wei_NM_FT.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("RA_Test.R")
+source("RunModels.R")
 source("ErrorMessages.R")  # Text for error messages
 
 # Initialize global variables -------------------------------
@@ -247,6 +249,21 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   DTPranges <- reactiveValues(x = NULL, y = NULL)
   
+  # Event observer for double-click on data and trend plot.
+  # Double click and brush zooms in and out.
+  
+  observeEvent(input$DTPdblclick, {
+    DTPbrush <- input$DTP_brush
+    if (!is.null(DTPbrush)) {
+      DTPranges$x <- c(DTPbrush$xmin, DTPbrush$xmax)
+      DTPranges$y <- c(DTPbrush$ymin, DTPbrush$ymax)
+      
+    } else {
+      DTPranges$x <- NULL
+      DTPranges$y <- NULL
+    }
+  })
+
   # A reactive data item that is used to control the height of the model results
   # plot.  The height is computed based on the width - it the plot is not as high
   # as it is wide, and if the width exceeds a minimum, then the height catches up with
@@ -265,6 +282,20 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   MPranges <- reactiveValues(x = NULL, y = NULL)
   
+  # Event observer for double-click on model results plot.
+  # Double click and brush zooms in and out.
+  
+  observeEvent(input$MPdblclick, {
+    MPbrush <- input$MP_brush
+    if (!is.null(MPbrush)) {
+      MPranges$x <- c(MPbrush$xmin, MPbrush$xmax)
+      MPranges$y <- c(MPbrush$ymin, MPbrush$ymax)
+      
+    } else {
+      MPranges$x <- NULL
+      MPranges$y <- NULL
+    }
+  })
   
 
   # Draw the plot of input data or selected trend test
@@ -440,8 +471,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     # Read the slider for the categories to be retained when filtering the data.
     
-    DataCategoryFirst <- input$sliderDataSubsetChoice[1]
-    DataCategoryLast <- input$sliderDataSubsetChoice[2]
+    # DataCategoryFirst <- input$sliderDataSubsetChoice[1]
+    # DataCategoryLast <- input$sliderDataSubsetChoice[2]
     
     # Set the slider for the initial parameter estimation range to be
     # consistent with the data range over which models are applied
@@ -473,6 +504,42 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     outputMessage
   })
 
+  
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------   Run Models    -------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  
+  
+  # Run the models for the data type of the input file.
+  
+  observeEvent(input$runModels, {
+    if(((input$modelDataRange[2] - input$modelDataRange[1] + 1) >= K_minDataModelIntervalWidth) && (length(as.list(input$modelsToRun)) > 0)) {
+      
+      # Create temporary storage to hold model results and related modeling values.
+      tempResultsList <- list()
+      
+      updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
+      
+      # Subset the data according to the range we've specified.
+      
+      ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
+      
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, input$modelNumPredSteps, input$modelsToRun)
+      ModelResults <<- tempResultsList[["Results"]]
+      SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
+      FailedModels <<- tempResultsList[["FailedModels"]]
+      
+      # Release temporary storage of model results
+      tempResultsList <- list()
+      
+    }
+  })
+  
+  
 
 
 # ------------------------------------------------------------------------------------------------------
@@ -661,22 +728,22 @@ plot_construct <- function(model,data){
   
   # ----------------------------------- model run starts here -----------------------------
       
-    if(input$runModels!=0){          
+#    if(input$runModels!=0){          
     # -----> should think of isolate here
     # -----> should think of not rerunning models
 
-      if(length(input$modelResultChoice)>0){
+#      if(length(input$modelResultChoice)>0){
 
-        p1 <<- ggplot()
+#        p1 <<- ggplot()
         # Plot initializations above
         
-          for(i in input$modelResultChoice){
-            p1 <<-  plot_construct(i,data)
-          }
-        p1
-      }
-     }
-    }) 
+#          for(i in input$modelResultChoice){
+#            p1 <<-  plot_construct(i,data)
+#          }
+#        p1
+#      }
+#     }
+    }, height=MP_height) 
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
