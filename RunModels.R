@@ -66,6 +66,8 @@ run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models
         ModelPredsNaN <- c()
         ModelPredsInF <- c()
         ModelPredsZero <- c()
+        FillData <- rep(NA, PredAheadSteps)
+        EmptyDataEntries <- rep(NA, PredAheadSteps)
         
         # The next thing we do is determine whether this is a finite-failures
         # model.  If it is, we may have to add some fill onto the end of the
@@ -105,8 +107,8 @@ run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models
         pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = c(in_data[["FT"]], FillData))
         local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
         pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = head(local_results[[paste0(modelID, "_MVF")]], length(in_data[["FT"]])+length(FillData)))
-        local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
         local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsZero)
+        local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
         #local_results[[paste0(modelID, "_Rel")]] <- NaNFill
         pred_input_data <- NULL
         

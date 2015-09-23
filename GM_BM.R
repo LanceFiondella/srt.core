@@ -122,24 +122,12 @@ params
 GM_MVF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <- 1/(param$GM_D0*(param$GM_Phi)^i)
-    cumulr[i,1] <- i
-    cumulr[i,2] <- 0
-    cumulr[i,3] <- "GM"
-    for(j in 1:length(r[[1]])){
-      
-      cumulr[i,2] <- cumulr[i,2]+r[j,2]
-
-    }
-
-  }
-  g <- data.frame(cumulr[2],cumulr[1],cumulr[3])
-  names(g) <- c("Time","Failure","Model")
-  g
-  
+  fail_count <- c(1:n)
+  beta <- -log(param$GM_Phi)
+  cumFailTimes <- (exp(-beta)*(exp(beta*fail_count) - 1))/(param$GM_D0*beta)
+  r <- data.frame(fail_count,cumFailTimes)
+  names(r) <- c("Failure","Time")
+  r
 }
 
 GM_MTTF <- function(param,d){
@@ -159,16 +147,12 @@ GM_MTTF <- function(param,d){
 GM_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- (param$GM_D0*(param$GM_Phi^i))
-    r[i,3] <- "GM"
-    }
-  r <- data.frame(r[1],r[2],r[3])
-  names(r) <- c("Failure_Count","Failure_Rate","Model")
-  print(r)
-  r  
+  fail_count <- c(1:n)
+  beta <- -log(param$GM_Phi)
+  failIntensity <- (param$GM_D0/param$GM_Phi)/((beta*param$GM_D0/param$GM_Phi)*d$FT + 1)
+  r <- data.frame(fail_count,failIntensity)
+  names(r) <- c("Failure","Time")
+  r
 }
 
 GM_R <- function(param,d){

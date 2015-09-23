@@ -123,55 +123,35 @@ JM_MVF_efficient <- function(param,d){
   g  
 }
 
-JM_MVF <- function(param,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  cumulr[1,1] <- 0
-  cumulr[1,2] <- 0
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
-    cumulr[i,1] <- i
-    cumulr[i,2] <- 0
-    cumulr[i,3] <- "JM"
-    for(j in 1:length(r[[1]])){      
-        cumulr[i,2] <- cumulr[i,2]+r[j,2]      
-      
-    }
-  }
 
-  g <- data.frame("Time"=cumulr[2],"Failure"=cumulr[1],"Model"=cumulr[3]) # ----> naming doesn't work should find why
-  names(g) <- c("Time","Failure","Model") # ----> I have to use this reduntantly because of above comment(reason)
-  #print(g)
-  g  
+JM_MVF <- function(param,d) {
+  n <- length(d$FT)
+  r <- data.frame()
+  fail_number <- c(1:n)
+  cumFailTimes <- -(log((param$JM_N0-fail_number)/param$JM_N0))/param$JM_Phi
+  r <- data.frame(fail_number,cumFailTimes)
+  names(r) <- c("Failure","Time")
+  r
 }
+
 
 JM_MTTF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
-    r[i,3] <- "JM"
-    }
-  r <- data.frame(r[1],r[2],r[3])
-  names(r) <- c("Failure_Number","MTTF","Model")
+  fail_number <- c(0:(n-1))
+  IFTimes <- 1/(param$JM_Phi*(param$JM_N0 - fail_number))
+  r <- data.frame(c(1:n),IFTimes)
+  names(r) <- c("Failure","Time")
   r  
 }
 
 JM_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- (param$JM_Phi*(param$JM_N0-(i-1)))
-    r[i,3] <- "JM"
-    }
-  r <- data.frame(r[1],r[2],r[3])
-  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  fail_number <- c(1:n)
+  failIntensity <- param$JM_N0*param$JM_Phi*exp(-param$JM_Phi*d$FT)
+  r <- data.frame(fail_number,failIntensity)
+  names(r) <- c("Failure","Time")
   r  
 }
 
