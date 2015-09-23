@@ -1,6 +1,6 @@
 library(rootSolve)
 
-run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models2Run) {
+run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models2Run, tol_local) {
   
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
@@ -65,6 +65,7 @@ run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models
         ModelPredsNA <- c()
         ModelPredsNaN <- c()
         ModelPredsInF <- c()
+        ModelPredsZero <- c()
         
         # The next thing we do is determine whether this is a finite-failures
         # model.  If it is, we may have to add some fill onto the end of the
@@ -75,13 +76,14 @@ run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models
         if (get(paste(modelID,"failcount",sep="_"))[1] == "finite") {
           ExpectedTotalFailures <- model_params[get(paste(modelID,"numfailsparm",sep="_"))[1]]
           if(DataEnd-DataStart+1+PredAheadSteps < ExpectedTotalFailures) {
+            FillData <- rep(NA, PredAheadSteps)
             EmptyDataEntries <- rep(NA, PredAheadSteps)
           } else {
             # Here we take care of the situation in which we're asking for
             # predictions further ahead than the model thinks there are
             # failures left to discover.
             
-            if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < K_tol) {
+            if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < tol_local) {
               
               # The model's expected number of failures is a whole number
               
@@ -94,10 +96,19 @@ run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models
             ModelPredsNA <- rep(NA, PredAheadSteps-length(FillData))
             ModelPredsNaN <- rep(NaN, PredAheadSteps-length(FillData))
             ModelPredsInF <- rep(Inf, PredAheadSteps-length(FillData))
+            ModelPredsZero <- rep(0, PredAheadSteps-length(FillData))
           }
         } # Endif - are we working with a finite or infinite failures model?
         
         # Compute the MVF, IF, FI, and Reliability functions for the model.
+        
+        pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = c(in_data[["FT"]], FillData))
+        local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
+        pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = head(local_results[[paste0(modelID, "_MVF")]], length(in_data[["FT"]])+length(FillData)))
+        local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
+        local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsZero)
+        #local_results[[paste0(modelID, "_Rel")]] <- NaNFill
+        pred_input_data <- NULL
         
       } else {
         UnplottableModels <- c(UnplottableModels, modelID)

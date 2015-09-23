@@ -92,7 +92,7 @@ data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
   
-  source("utility.R")
+  #source("utility.R")
   
   output$sheetChoice <- renderUI({ # ------ > Should fix empty data_set name for .csv files
     if(input$type==1){
@@ -528,7 +528,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
       
-      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, input$modelNumPredSteps, input$modelsToRun)
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, input$modelNumPredSteps, input$modelsToRun, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
