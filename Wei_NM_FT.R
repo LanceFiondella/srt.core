@@ -129,18 +129,38 @@ Wei_lnL <- function(){
 
 }
 
-Wei_FI <- function(){
-
+Wei_FI <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- params$Wei_aMLE*params$Wei_bMLE*params$Wei_cMLE*(exp(-params$Wei_bMLE*(d$FT[i])^params$Wei_cMLE))*d$FT[i]^(params$Wei_cMLE-1)
+    r[i,3] <- "Wei"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  r
 }
 
-Wei_R < function(){
-  
+Wei_R <- function(){
+
 }
 
 Wei_R_growth <- function(){
 
 }
 
-Wei_MTTF <- function(){
-
+Wei_MTTF <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/(params$Wei_aMLE*params$Wei_bMLE*params$Wei_cMLE*(exp(-params$Wei_bMLE*(d$FT[i])^params$Wei_cMLE))*d$FT[i]^(params$Wei_cMLE-1))
+    r[i,3] <- "Wei"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
+  r
 }
