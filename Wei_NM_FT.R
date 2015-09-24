@@ -117,7 +117,6 @@ Wei_MVF <- function(param,d){
     r[i,1] <- t_index[i]
     r[i,2] <- (param$Wei_aMLE)*(1-exp(-1*(t_index[i]^param$Wei_cMLE)*param$Wei_bMLE))
     r[i,3] <- "Wei"
-    print(r)
   }
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Time","Failure","Model")
