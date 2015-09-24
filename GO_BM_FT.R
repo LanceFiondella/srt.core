@@ -51,7 +51,7 @@ maxiter <- 20
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },

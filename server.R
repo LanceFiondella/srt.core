@@ -21,6 +21,7 @@ source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("RA_Test.R")
 source("RunModels.R")
+source("PlotModelResults.R")
 source("ErrorMessages.R")  # Text for error messages
 
 # Initialize global variables -------------------------------
@@ -148,6 +149,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data_original <<- data # ----? should think of its usage 'data_original'
       data_set <- inFile$filename
     }
+    data_set_global <<- data_set
     #data
     #print(data)
     if(dataType(names(data))=="FR"){
@@ -523,6 +525,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
       updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
       updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "AllModelsRun", choices=list("No model results to display"="None"), selected="None")
       
       # Subset the data according to the range we've specified.
       
@@ -533,161 +536,36 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
       
+      # Update the model results selection pull-downs with the names of the
+      # models that have been successfully run.
+      
+      ModelsToShow <- as.list(SuccessfulModels)
+      ModelsToShowNames <- c()
+      for (ModelsToShowIndex in 1:length(ModelsToShow)) {
+        ModelsToShowNames <- c(ModelsToShowNames, get(paste(SuccessfulModels[ModelsToShowIndex], "fullname", sep="_"))) 
+      }
+      names(ModelsToShow) <- ModelsToShowNames
+      
+      updateSelectInput(session, "modelResultChoice", choices = ModelsToShow, selected=ModelsToShow[1])
+      updateSelectInput(session, "modelDetailChoice", choices = ModelsToShow, selected=ModelsToShow[1])
+      updateSelectInput(session, "modelResultsForEval", choices = ModelsToShow, selected=ModelsToShow[1])
+      
+      AllModelsRunNames <- c()
+      AllModelsRun <- sort(c(SuccessfulModels, FailedModels))
+      for (ModelsToShowIndex in 1:length(AllModelsRun)) {
+        AllModelsRunNames <- c(AllModelsRunNames, get(paste(AllModelsRun[ModelsToShowIndex], "fullname", sep="_"))) 
+      }
+      names(AllModelsRun) <- AllModelsRunNames
+      
+      updateSelectInput(session, "AllModelsRun", choices = AllModelsRun, selected=AllModelsRun[1])
+      
       # Release temporary storage of model results
       tempResultsList <- list()
-      
     }
   })
   
   
 
-
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ----------------------------------------   PLOTS CONSTRUCT    ----------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-
-plot_construct <- function(model,data){
-  
-  # ----> ! print(dataType(names(data)))
-  if(dataType(names(data))=="FR"){
-
-    model_params <- get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]])
-    # assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-
-    # MLE_construct <- get(paste(model,get(paste(model,method,sep="_"))[1],c("MLE"),sep="_"))
-    # model_params <- MLE_construct(data[[model_method[1]]]) # ---- > Should be from model specifications 'JM_input'
-    # print(model_params)
-    # model_params <- JM_BM_MLE(data$IF)
-
-
-  if(input$modelPlotChoice=="MVF"){
-     
-    
-     
-    print(model_params)
-    if(typeof(model_params)!="character"){
-      MVF_construct <- get(paste(model,input$modelPlotChoice,sep="_"))
-      mvf_plot_data <- MVF_construct(model_params,data)
-      if(input$ModelDataPlotType=="points_and_lines"){
-        p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model,linetype=Model))
-      }
-      if(input$ModelDataPlotType=="points"){
-        p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time,Failure, color=Model))
-      }
-      if(input$ModelDataPlotType=="lines"){
-        p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color=Model))
-      }
-      if(input$checkboxDataOnPlot){
-        original_data <- data.frame("Time" = data$FT, "Failure" = data$FN)
-        p1 <- p1 + geom_step(data = original_data,aes( Time, Failure),color='gray')
-      }
-      p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"), input$dataSheetChoice))#+ geomline(data=plot_data)
-      #p1 <- p1 + theme(legend.position = c(0.1, 0.9));
-      #p1 <- p1 + scale_color_manual(name = "JM", labels = c("MVF","Original Data"),values = c("blue","red"))
-      #q <- q + p
-    }
-    else if(model_params=="nonconvergence"){
-      original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-      p1 <- p1 + geom_point(data=original_data,aes(Time,Failure))
-      #p1 + annotate("segment", x = 0, xend = length(original_data$Failure)/2, y = 0, yend = length(original_data$Time)/2,  colour = "red")
-      p1 <- p1+ annotate("text", label = "Non-Convergence", x = length(original_data$Failure)/2, y = length(original_data$Time)/2, size = 8, colour = "red")
-    }
-}
-
-  if(input$modelPlotChoice=="MTTF"){
-    #assign(paste(input$modelPlotChoice,"construct",sep="_"), get(paste(i,input$modelPlotChoice,sep="_")))
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-    
-
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Number,MTTF,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Failure_Number,MTTF,color=Model))
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Number,MTTF,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Number,MTTF,color=Model))
-    }
-    if(input$checkboxDataOnPlot){
-      original_data <- data.frame("Failure_Number"=data$FN,"MTTF"=data$IF)
-      print(original_data)
-      p1 <- p1 + geom_step(data=original_data,aes(Failure_Number,MTTF))
-    }
-
-    
-    p1 <- p1 + ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice))
-    #q <- q + p
-  }
-
-  if(input$modelPlotChoice=="FI"){
-    #assign(paste(input$modelPlotChoice,"construct",sep="_"), get(paste(i,input$modelPlotChoice,sep="_")))
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-
-    # -----> assign('x',5) Good example to create dynamic variables
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Count,Failure_Rate,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Failure_Count,Failure_Rate,color=Model)) # ----? can we use "Failure Count" without underscore
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Count,Failure_Rate,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Count, Failure_Rate,color=Model))
-
-    }
-    # if(input$checkboxDataOnPlot){
-    #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-    #   p <- p + geom_line(data=original_data,aes(Time,Failure))
-    # }
-    if(is.null(input$dataSheetChoice)){
-      p1 <- p1+ggtitle("Failure Intensity function plot")
-    }
-    else{
-       p1 <- p1+ggtitle(paste(c("Failure Intensity function plot ["),input$dataSheetChoice,"]"))
-    }
-    p1
-  }
-  if(input$modelPlotChoice=="R"){
-    #R_construct <- get(paste(i,input$modelPlotChoice,sep="_"))
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability))# + ggtitle(paste(c("Laplace trend of "),data_set))
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time, Reliability,color=Model))
-
-    }
-    # if(input$checkboxDataOnPlot){
-    #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-    #   p <- p + geom_line(data=original_data,aes(Time,Failure))
-    # }
-    if(is.null(input$dataSheetChoice)){
-      p1 <- p1+ggtitle("Reliabililty function plot")
-    }
-    else{
-       p1 <- p1+ggtitle(paste(c("Reliabililty function plot ["),input$dataSheetChoice,"]"))
-    }
-  }
-  if(input$modelPlotChoice=="R_growth"){
-
-  }
-  }
-
-  else if(dataType(names(data))=="FC"){
-  # To be programmed
-
-
-  }
-  p1          
- 
-
-}
-  
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
@@ -716,34 +594,16 @@ plot_construct <- function(model,data){
 # ------------------------------------------------------------------------------------------------------
 
 
-
-
   output$ModelPlot <- renderPlot({
-
-    data <- data_global()
-    data_set <- input$dataSheetChoice  
-    if(is.null(input$modelResultChoice) || (length(input$modelResultChoice)==0)){
-      return
+    MRPlot <- NULL
+    if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+      MRPlot <- plot_model_results(ModelResults, ModeledData, data_set_global, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot)
+      if(!is.null(MRPlot)) {
+        MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
+      }
     }
-  
-  # ----------------------------------- model run starts here -----------------------------
-      
-#    if(input$runModels!=0){          
-    # -----> should think of isolate here
-    # -----> should think of not rerunning models
-
-#      if(length(input$modelResultChoice)>0){
-
-#        p1 <<- ggplot()
-        # Plot initializations above
-        
-#          for(i in input$modelResultChoice){
-#            p1 <<-  plot_construct(i,data)
-#          }
-#        p1
-#      }
-#     }
-    }, height=MP_height) 
+    MRPlot
+  }, height=MP_height) 
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------

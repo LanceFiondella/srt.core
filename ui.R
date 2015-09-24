@@ -223,7 +223,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12,
                                                     selectInput(
-                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
+                                                      "modelDetailChoice", label = h6("Choose one or more sets of model results to display."), 
                                                       choices=list("No model results to display"="None"),
                                                       multiple=TRUE, selected="None"
                                                     )
