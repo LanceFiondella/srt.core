@@ -154,6 +154,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
                                                                  selected = "points_and_lines")
                                              )
+                                             ,
+                                             column(12,
+                                                    conditionalPanel(
+                                                      condition = "input.modelPlotChoice == 'R_growth'",
+                                                    #  sliderInput("breakCount", "Break Count", min=1, max=1000, value=10),
+                                                    #)
+                                                    numericInput("modelRelMissionTime", 
+                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                 min = 0, value = 1)
+                                             )
+                                                    )
                                            ),width=4
                                            
                               ),
@@ -211,7 +222,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
-                                                    numericInput("modelRelMissionTime", 
+                                                    numericInput("modelRelMissionTime2", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              )
