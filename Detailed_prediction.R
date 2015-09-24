@@ -91,7 +91,7 @@ get_prediction_t <- function(x,steps,n){
 }
 
 
-mvf_nhpp <- function(){
+mvf_nhpp <- function(a,b,t){
 	return(a*(1-exp(-b*t)))
 }
 

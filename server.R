@@ -380,6 +380,25 @@ plot_construct <- function(model,data){
     }
   }
   if(input$modelPlotChoice=="R_growth"){
+    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data$FT[length(data$FT)],input$modelRelMissionTime,input$modelTargetReliability))
+
+    if(input$ModelDataPlotType=="points_and_lines"){
+      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability_Growth,color=Model)) # can we use Reliability_Growth without underscore
+    }
+    if(input$ModelDataPlotType=="points"){
+      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
+    }
+    if(input$ModelDataPlotType=="lines"){
+      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
+
+    }
+    if(is.null(input$dataSheetChoice)){
+      p1 <- p1+ggtitle("Reliabililty Growth function plot")
+    }
+    else{
+       p1 <- p1+ggtitle(paste(c("Reliabililty Growth function plot ["),input$dataSheetChoice,"]"))
+    }
+
 
   }
   }

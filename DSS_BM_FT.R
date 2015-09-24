@@ -152,18 +152,85 @@ DSS_R <- function(params,d){
   for(i in 1:n){
     r[i,1] <- d$FT[i]
     r[i,2] <- exp(-(params$DSS_aMLE*d$FT[i]))
-    r[i,3] <- "JM"
+    r[i,3] <- "DSS"
   }
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Time","Reliability","Model")
   r
 }
 
-DSS_R_growth <- function(){
+# DSS_R_growth <- function(){
 
-}
+# }
 #MVF <- aMLE*(1-(1+bMLE*x)*exp(-bMLE*x))
 
 DSS_Faults_Remain <- function(){
   # a(1+ bt)e^(-bt)
+}
+
+DSS_MVF_cont <- function(param,t){
+  return(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
+}
+
+DSS_R_delta <- function(params,cur_time,delta){
+  return(exp(-(DSS_MVF_cont(params,(cur_time+delta)) - DSS_MVF_cont(params,cur_time))))
+}
+
+DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
+  return(root_equation)
+}
+
+maxiter <- 1000
+DSS_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(DSS_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- DSS_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            DSS_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+DSS_R_growth <- function(params,cur_time,delta, reliability){  
+  
+  r <-data.frame()
+  tt_index <- seq(0,cur_time,cur_time/1000)
+    for(i in 1:length(tt_index)){   
+      r[i,1] <- tt_index[i]
+      temp <- DSS_R_delta(params,tt_index[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+        r[i,3] <- "DSS"
+      }
+      else{
+        r[i,2] <- "NA"
+        r[i,3] <- "DSS"
+      }     
+    }
+    g <- data.frame(r[1],r[2],r[3])
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
 }
