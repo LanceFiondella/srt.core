@@ -1,7 +1,13 @@
 library(rootSolve)
 
-run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models2Run, tol_local) {
+run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, tol_local) {
   
+  in_data <- raw_data
+  if (dataType(names(in_data)) == "FR") {
+    in_data$FT <- in_data$FT - OffsetTime
+  } else {
+    # Need to complete for failure counts data
+  }
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   localEstIntvlEnd <- ParmInitIntvl-DataStart+1
@@ -105,7 +111,7 @@ run_models <- function(in_data, DataRange, ParmInitIntvl, PredAheadSteps, Models
         # Compute the MVF, IF, FI, and Reliability functions for the model.
         
         pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = c(in_data[["FT"]], FillData))
-        local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
+        local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInF)
         pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = head(local_results[[paste0(modelID, "_MVF")]], length(in_data[["FT"]])+length(FillData)))
         local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsZero)
         local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)

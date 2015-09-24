@@ -43,19 +43,6 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   }
 }
 
-if(input$trendPlotChoice=="LP") {
-  plot_data <- laplace_trend_test(IF)
-  DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Laplace Test Statistic")
-  DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Laplace trend test of"),data_set))
-  
-  DataAndTrendPlot <- DataAndTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)), linetype=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001")),alpha=0.8)
-  DataAndTrendPlot <- DataAndTrendPlot+xlab("Failure Number")+ylab("Laplace Test Statistic")
-} else if(input$trendPlotChoice=="RA") {
-  plot_data <- running_average_test(IF)
-  DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Running Average of Interfailure Times")
-  DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Running Average trend test of"),data_set))
-}
-
 names(plot_data) = c("index","trend_test_statistic")
 
 if(input$DataPlotType=="points_and_lines"){

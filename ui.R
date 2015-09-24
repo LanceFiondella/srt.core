@@ -90,7 +90,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Plot", textOutput("InputFileError"), plotOutput("DataAndTrendPlot",dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
+                                  tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot",dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
                                   id="DataPlotAndTableTabset"),
                                 width=8
@@ -211,7 +211,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
                                              choices=list("No model results to display"="None"),
                                              multiple=TRUE, selected="None"),
-                                           DT::dataTableOutput("ModelResultTable")),
+                                           dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
                               )
                             )

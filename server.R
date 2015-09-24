@@ -19,9 +19,11 @@ sys.source("DSS_BM_FT.R")
 source("Wei_NM_FT.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
+source("DataAndTrendTables.R")
 source("RA_Test.R")
 source("RunModels.R")
 source("PlotModelResults.R")
+source("ModelResultTable.R")
 source("ErrorMessages.R")  # Text for error messages
 
 # Initialize global variables -------------------------------
@@ -52,12 +54,6 @@ FailedModels <- c()
 
 #ModelsExecutedList <- list()
 #ModelsFailedExecutionList <- list()
-
-# This is a list that will hold the list of model results.
-# Each set of model results is a data frame - there's a
-# separate data frame for each model that's run.
-
-ModelResultsList <- list()
 
 # This is a list that hold the list of model evaluations.
 # Each set of model evaluations is a data frame - there's a
@@ -377,84 +373,14 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
-    tempDataMatrix <- matrix()
+    DataTrendTable <- NULL
     if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
-      data <- data.frame(x=data_global())
-      DataColNames <- names(data)
-      names(data) <- gsub("x.", "", DataColNames)
-      NameArray <- names(data)
-      
-      if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
-        if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
-          FN <- data$FN
-          if(input$PlotDataOrTrend == 1) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              FT <- data$FT
-            } else if(length(grep("FT", names(data)))) {
-              FT <- interF_to_failureT(data$IF)
-              IF <- data$IF
-            }
-            NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
-            tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
-          } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-            } else if(length(grep("FT", names(data)))) {
-              IF <- data$IF
-            }
-            
-            if (input$trendPlotChoice == "LP") {
-              sol <- laplace_trend_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-            } else if (input$trendPlotChoice == "RA") {
-              sol <- running_average_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-            }
-          }
-        } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
-          if(input$PlotDataOrTrend == 1) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              CFC <- data$CFC
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-              CFC <- FailureC_to_CumulativeFailureC(data$FC)
-            }
-            IntervalNum <- c(1:length(data$T))
-            
-            NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
-            tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
-            
-          } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-            }
-            
-            FT <- failureC_to_failureT(data$T,FC)
-            IF <- failureT_to_interF(failure_T = FT)
-            FN <- c(1:length(FT))
-            IntervalTime <- data$T
-            
-            if(input$trendPlotChoice == "LP") {
-              sol <- laplace_trend_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-            } else if(input$trendPlotChoice == "RA") {
-              sol <- running_average_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-            }
-          }
-        }
-        colnames(tempDataMatrix) <- NameArray
+      if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
+        data <- data.frame(x=data_global())
+        DataTrendTable <- data_or_trend_table(data, input$modelDataRange, input$PlotDataOrTrend, input$trendPlotChoice)
       }
     }
-    tempDataMatrix
+    DataTrendTable
   })
 
 
@@ -531,7 +457,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
       
-      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, input$modelNumPredSteps, input$modelsToRun, K_tol)
+      if(input$modelDataRange[1] == 1) {
+        TimeOffset <- 0
+      } else {
+        TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
+      }
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
@@ -586,6 +517,30 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 
+  
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# --------------------------- Display selected model results in tabular form  --------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+  
+    output$ModelResultTable <- renderDataTable({
+      MR_Table <- NULL
+      if(!is.null(ModelResults)) {
+        if(length(input$AllModelsRun) > 0) {
+          
+          # User has selected at one model to display as a table.
+          
+          MR_Table <- model_result_table(ModelResults, input$AllModelsRun)
+        }
+      }
+      if (length(MR_Table) <= 1) {
+        MR_Table <- data.frame()
+      }
+      MR_Table
+      #MR_Table[,1:(length(names(MR_Table)))]
+    }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
