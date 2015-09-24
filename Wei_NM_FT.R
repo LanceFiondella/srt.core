@@ -146,9 +146,9 @@ Wei_R <- function(){
 
 }
 
-Wei_R_growth <- function(){
+# Wei_R_growth <- function(){
 
-}
+# }
 
 Wei_MTTF <- function(params,d){
   n <- length(d$FT)
@@ -162,4 +162,72 @@ Wei_MTTF <- function(params,d){
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Failure_Number","MTTF","Model")
   r
+}
+
+
+Wei_MVF_cont <- function(param,t){
+  return((param$Wei_aMLE)*(1-exp(-1*(t^param$Wei_cMLE)*param$Wei_bMLE)))
+}
+
+Wei_R_delta <- function(params,cur_time,delta){
+  return(exp(-(Wei_MVF_cont(params,(cur_time+delta)) - Wei_MVF_cont(params,cur_time))))
+}
+
+Wei_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - Wei_R_delta(params,cur_time,delta)
+  return(root_equation)
+}
+
+maxiter <- 1000
+Wei_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(Wei_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- Wei_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            Wei_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+Wei_R_growth <- function(params,cur_time,delta, reliability){  
+  
+  r <-data.frame()
+  tt_index <- seq(0,cur_time,cur_time/1000)
+    for(i in 1:length(tt_index)){   
+      r[i,1] <- tt_index[i]
+      temp <- Wei_R_delta(params,tt_index[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+        r[i,3] <- "Wei"
+      }
+      else{
+        r[i,2] <- "NA"
+        r[i,3] <- "Wei"
+      }     
+    }
+    g <- data.frame(r[1],r[2],r[3])
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
 }
