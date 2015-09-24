@@ -152,7 +152,7 @@ DSS_R <- function(params,d){
   for(i in 1:n){
     r[i,1] <- d$FT[i]
     r[i,2] <- exp(-(params$DSS_aMLE*d$FT[i]))
-    r[i,3] <- "JM"
+    r[i,3] <- "DSS"
   }
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Time","Reliability","Model")
