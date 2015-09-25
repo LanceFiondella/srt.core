@@ -34,14 +34,15 @@ data_set_global <- ""
 data_set_global_type <- ""
 FC_to_IF_data <- data.frame()
 
-DataModelIntervalStart <<- 1
-DataModelIntervalEnd <<- 5
+DataModelIntervalStart <- 1
+DataModelIntervalEnd <- 5
 
 # These two data frames hold model results as
 # well as the data to which models were applied.
 
 ModelResults <- data.frame()
 ModeledData <- data.frame()
+ModeledDataName <- ""
 
 # These two vectors identify the models that
 # ran successfully and those that did not.
@@ -196,7 +197,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
       # Add a column for test intervals.
       
-      data_generated$TI <- c(1:length(data$FC))
+      data$TI <- c(1:length(data$FC))
       
       FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
       
@@ -345,6 +346,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       ggsave(filespec)
     }
   )
+
+    
+  # Download handler for saving model result plots or tables.
+  
+  output$saveModelResults <- downloadHandler(
+    filename = function() {
+      paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+    },
+    content = function(filespec) {
+      ggsave(filespec)
+    }
+  )
   
   
   # There is a serious flaw in tracking the models selected
@@ -407,8 +420,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     dataModelRange <- input$modelDataRange
     
-    DataModelIntervalStart <- dataModelRange[1]
-    DataModelIntervalEnd <- dataModelRange[2]
+    DataModelIntervalStart <<- dataModelRange[1]
+    DataModelIntervalEnd <<- dataModelRange[2]
     
     # Keep the data interval used for modeling to 5 observations or more.
     
@@ -456,6 +469,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       # Subset the data according to the range we've specified.
       
       ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
+      ModeledDataName <<- data_set_global
       
       if(input$modelDataRange[1] == 1) {
         TimeOffset <- 0
@@ -552,7 +566,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   output$ModelPlot <- renderPlot({
     MRPlot <- NULL
     if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
-      MRPlot <- plot_model_results(ModelResults, ModeledData, data_set_global, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot)
+      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot)
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }
