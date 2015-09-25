@@ -269,7 +269,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("modelRelMissionTime", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
+                                             ),
+                                             br(),
+                                             column(12,
+                                                    actionButton("makePredictions", label = "Make Model Predictions")
                                              )
+                                           ),
+                                           fluidRow(
+                                             br(),
+                                             column(12, downloadButton(outputId = "saveModelPreds", label = "Save Model Predictions"))
                                            )
                               ),
                               
@@ -308,7 +316,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify the significance level for the selected test"),
                                                                  min = 0, max = 1, step = 0.001,
                                                                  value = .05)
-                                             )
+                                             ),
+                                             br(),
+                                             column(8, downloadButton(outputId = "saveModelEval", label = "Save"))
                                            )
 
                                   ),
