@@ -1,19 +1,10 @@
 library(shiny)#I wonder why this is here?
 library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
-<<<<<<< HEAD
-library(DT)
-#library(DT)
-=======
->>>>>>> allen-development
 
 #library(DT)
-#<<<<<<< HEAD
-#
-#=======
 sys.source("utility.R")
 sys.source("Model_specifications.R")
-#>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
 sys.source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
@@ -31,10 +22,6 @@ source("PlotModelResults.R")
 source("ModelResultTable.R")
 source("ErrorMessages.R")  # Text for error messages
 
-<<<<<<< HEAD
-
-=======
->>>>>>> allen-development
 # Initialize global variables -------------------------------
 
 openFileDatapath <- ""
@@ -43,19 +30,6 @@ data_set_global <- ""
 data_set_global_type <- ""
 FC_to_IF_data <- data.frame()
 
-<<<<<<< HEAD
-# These two lists are used to keep track of models
-# that executed successfully and those that did not.
-
-ModelsExecutedList <- list()
-ModelsFailedExecutionList <- list()
-
-# This is a list that will hold the list of model results.
-# Each set of model results is a data frame - there's a
-# separate data frame for each model that's run.
-
-ModelResultsList <- list()
-=======
 DataModelIntervalStart <- 1
 DataModelIntervalEnd <- 5
 
@@ -77,7 +51,6 @@ FailedModels <- c()
 
 #ModelsExecutedList <- list()
 #ModelsFailedExecutionList <- list()
->>>>>>> allen-development
 
 # This is a list that hold the list of model evaluations.
 # Each set of model evaluations is a data frame - there's a
@@ -94,21 +67,12 @@ K_CategoryLast <- 5
 
 # These lists identify the models used for each data type
 
-<<<<<<< HEAD
-K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="WEI")
-K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="WEI")
-
-# Colors that will be used in plotting model results
-
-K_ModelResultColors <- list("JM"="red", "GM"="blue", "GO"="green", "DSS"="yellow", "WEI"="orange")
-=======
 K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
 K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
 
 # Colors that will be used in plotting model results
 
 K_ModelResultColors <- list("JM"="red", "GM"="blue", "GO"="green", "DSS"="yellow", "Wei"="orange")
->>>>>>> allen-development
 
 # Tolerance used in determining whether a value is a whole number.
 
@@ -171,10 +135,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       #print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
-<<<<<<< HEAD
-=======
       data_original <<- data # ----? should think of its usage 'data_original'
->>>>>>> allen-development
       data_set <- inFile$filename
     }
     data_set_global <<- data_set
@@ -199,29 +160,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # estimation range
     
     DataModelIntervalStart <<- 1
-<<<<<<< HEAD
-    DataModelIntervalEnd <<- length(data[,1])
-    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-      output$InputFileError <- renderText({msgDataFileTooSmall})
-    } else {
-       output$InputFileError <- renderText({""})
-    }
-
-    # Complete all columns for FT/IF data, including failure number.
-    # This information will be used later for subsetting the data.
-    
-    if((length(grep("FT",names(data)))>0) || (length(grep("IF",names(data)))>0)) {
-      data_set_global_type <<- "IFTimes"
-      if (length(grep("FT",names(data))) == 0) {
-        data$FT <- interF_to_failureT(data$IF)
-      } else if (length(grep("IF",names(data))) == 0) {
-        data$IF <- failureT_to_interF(data$FT)
-      }
-      if (length(grep("FN",names(data))) == 0) {
-        data$FN <- c(1:length(data$IF))
-      }
-      
-=======
     DataModelIntervalEnd <<- length(data_generated[,1])
     if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
       output$InputFileError <- renderText({msgDataFileTooSmall})
@@ -235,7 +173,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     if(dataType(names(data))=="FR") {
       data_set_global_type <<- "IFTimes"
 
->>>>>>> allen-development
       # Update the selection list for the models that can be run.
       
       updateSelectInput(session, "modelsToRun", choices = K_IF_ModelsList, selected = K_IF_ModelsList)
@@ -243,23 +180,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       # Update failure data view choices for IF/FT data and model result views.
       
       updateSelectInput(session, "dataPlotChoice",
-<<<<<<< HEAD
-                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
-                                        "Failure Intensity" = "FI"), selected = "CF")
-      updateSelectInput(session, "modelPlotChoice",
-                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
-                                       "Failure Intensity" = "FI", "Reliability" = "REL"), selected = "CF")
-      
-    } else if((length(grep("CFC",names(data)))>0) || (length(grep("FC",names(data)))>0)) {
-      data_set_global_type <<- "FailureCounts"
-      if (length(grep("FC",names(data))) > 0) {
-        if (length(grep("CFC",names(data))) == 0) {
-          data$CFC <- FailureC_to_CumulativeFailureC(data$FC)
-        }
-      } else if (length(grep("CFC",names(data))) > 0) {
-        data$FC <- CumulativeFailureC_to_failureC(data$CFC)
-      }
-=======
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI"), selected = "CF")
       updateSelectInput(session, "modelPlotChoice",
@@ -268,7 +188,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
     } else if(dataType(names(data))=="FC") {
       data_set_global_type <<- "FailureCounts"
->>>>>>> allen-development
 
       # Add a column for test intervals.
       
@@ -284,22 +203,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       # Includes a "failure counts" view which IF/FT data does not.
       
       updateSelectInput(session, "dataPlotChoice",
-<<<<<<< HEAD
-                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
-                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
-      updateSelectInput(session, "modelPlotChoice",
-                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
-                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "REL"), selected = "CF")
-      
-    }
-
-    updateSliderInput(session, "modelDataRange",
-                     min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
-                     max = DataModelIntervalEnd)
-    updateSliderInput(session, "parmEstIntvl",
-                     min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                     max = DataModelIntervalEnd-1)
-=======
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
       updateSelectInput(session, "modelPlotChoice",
@@ -317,8 +220,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     
     # Finally, output data set
->>>>>>> allen-development
-    
+
     data_generated
 }) 
 
@@ -369,41 +271,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     Height
   })
 
-<<<<<<< HEAD
-  # A reactive data item that is used to control the height of the raw data and trend
-  # plot.  The height is computed based on the width - it the plot is not as high
-  # as it is wide, and if the width exceeds a minimum, then the height catches up with
-  # the width to make a square plot.
-  
-  DTP_height <- reactive({
-    Width <- session$clientData$output_DataAndTrendPlot_width
-    Height <- session$clientData$output_DataAndTrendPlot_height
-    if((Width > Height) && (Width > 400)) {
-      Height <- Width
-    }
-    Height
-  })
-
-  # Same idea as for DTP_height above, but for the model results plot.
-  
-  MP_height <- reactive({
-    Width <- session$clientData$output_ModelPlot_width
-    Height <- session$clientData$output_ModelPlot_height
-    if((Width > Height) && (Width > 400)) {
-      Height <- Width
-    }
-    Height
-  })
-  
-  
-  # Read the position of the mouse for the data and trend plot
-  
-  DTPranges <- reactiveValues(x = NULL, y = NULL)
-  
-  # Draw the plot of input data or selected trend test.  The height is controlled by the
-  # reactive data item specified above.
-  
-=======
   # Read the position of the mouse for the model results plot
   
   MPranges <- reactiveValues(x = NULL, y = NULL)
@@ -426,7 +293,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
   # Draw the plot of input data or selected trend test
   
->>>>>>> allen-development
   output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
     
     DataAndTrendPlot <- NULL   # Set the plot object to NULL to prevent error messages.
@@ -451,38 +317,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         input_data <- data
         source("Plot_Trend_Tests.R", local=TRUE)
       }
-<<<<<<< HEAD
 
       DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
       DataAndTrendPlot
-
-=======
       
-      DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
-      DataAndTrendPlot
-      
->>>>>>> allen-development
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
   }, height=DTP_height)
   
-<<<<<<< HEAD
-  # Event observer for double-click on data and trend plot.
-  # Double click and brush zooms in and out.
-  
-  observeEvent(input$DTPdblclick, {
-    DTPbrush <- input$DTP_brush
-    if (!is.null(DTPbrush)) {
-      DTPranges$x <- c(DTPbrush$xmin, DTPbrush$xmax)
-      DTPranges$y <- c(DTPbrush$ymin, DTPbrush$ymax)
-      
-    } else {
-      DTPranges$x <- NULL
-      DTPranges$y <- NULL
-    }
-  })
-=======
-  
+
   # Download handler for saving data and trend plots or tables.
   
   output$saveDataOrTrend <- downloadHandler(
@@ -510,8 +353,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   )
   
->>>>>>> allen-development
-  
+
   # Download handler for saving data and trend plots or tables.
   
   output$saveDataOrTrend <- downloadHandler(
@@ -564,54 +406,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
-<<<<<<< HEAD
-    source("DisplayDataAndTrendTables.R", local=TRUE)
-  })
-  
-  # Display the input data or selected trend test in tabular form.
-  
-  output$dataAndTrendTable <- DT::renderDataTable({
-    OutputTable <- data.frame(x=FailureDataTable())
-    if(length(OutputTable) > 1) {
-      names(OutputTable) <- gsub("x.", "", names(OutputTable))
-      names(OutputTable) <- gsub("value.", "", names(OutputTable))
-      names(OutputTable) <- gsub("Failure.Number", "Failure Number", names(OutputTable))
-      names(OutputTable) <- gsub("Times.Between.Failures", "Times Between Failures", names(OutputTable))
-      names(OutputTable) <- gsub("Failure.Time", "Failure Time", names(OutputTable))
-      names(OutputTable) <- gsub("Test.Interval", "Test Interval", names(OutputTable))
-      names(OutputTable) <- gsub("Cumulative.Test.Time", "Cumulative Test Time", names(OutputTable))
-      names(OutputTable) <- gsub("Failure.Counts", "Failure Counts", names(OutputTable))
-      names(OutputTable) <- gsub("Cumulative.Failure.Count", "Cumulative Failure Count", names(OutputTable))
-      names(OutputTable) <- gsub("Laplace.Test.Statistic", "Laplace Test Statistic", names(OutputTable))
-      names(OutputTable) <- gsub("Running.Average.IF.Time", "Running Average IF Time", names(OutputTable))
-    } else {
-      OutputTable <- data.frame()
-    }
-    OutputTable[,1:(length(names(OutputTable))-1)]
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
-  
-  # Display the input data or selected trend test in tabular form.
-  
-  output$ModelResultTable <- DT::renderDataTable({
-    OutputTable <- NULL
-    if(!is.null(input$runModels)) {
-      if(!is.null(ModelResultsList)) {
-        source("DisplayModelResultTables.R", local=TRUE)
-      } else {
-        OutputTable <- NULL
-      }
-      OutputTable <- data.frame(OutputTable)
-      if(length(OutputTable) <= 1) {
-        OutputTable <- data.frame()
-      }
-    } else {
-      OutputTable <- NULL
-    }
-    OutputTable[,1:(length(names(OutputTable)))]
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
-  
-    
-=======
     DataTrendTable <- NULL
     if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
       if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
@@ -623,58 +417,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   })
 
 
->>>>>>> allen-development
   # Here we monitor the data subset and model configuration controls in the
   # "Select, Analyze, and Subset Failure Data" and "Set Up and Apply Models"
   # tabs.  We read the values from the controls, and adjust the controls to make
   # sure that the modeling intervals and lengths of the modeling data set don't
   # go below specified minimal values.
-<<<<<<< HEAD
-  
-  output$DataSubsetError <- renderText({
-    data_local <- data.frame(x=data_global())
-    DataColNames <- names(data_local)
-    names(data_local) <- gsub("x.", "", DataColNames)
-    
-    outputMessage <- ""
-    
-    # Read the slider for the categories to be retained when filtering the data.
-    
-    DataCategoryFirst <- input$sliderDataSubsetChoice[1]
-    DataCategoryLast <- input$sliderDataSubsetChoice[2]
-    
-    # Set the slider for the initial parameter estimation range to be
-    # consistent with the data range over which models are applied
-    
-    dataModelRange <- input$modelDataRange
-    
-    DataModelIntervalStart <- dataModelRange[1]
-    DataModelIntervalEnd <- dataModelRange[2]
-    
-    # Keep the data interval used for modeling to 5 observations or more.
-    
-    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-      outputMessage <- msgDataIntervalTooSmall
-      while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-        if(DataModelIntervalStart > 1){
-          DataModelIntervalStart <- DataModelIntervalStart - 1
-        }
-        if(DataModelIntervalEnd < length(data_local[,1])){
-          DataModelIntervalEnd <- DataModelIntervalEnd + 1
-        }
-      }
 
-      updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
-    }  
-    updateSliderInput(session, "parmEstIntvl",
-                     min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                     max = DataModelIntervalEnd-1)    
-    
-    outputMessage
-  })
-  
-=======
-    
   output$DataSubsetError <- renderText({
     data_local <- data.frame(x=data_global())
     DataColNames <- names(data_local)
@@ -724,58 +472,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # ------------------------------------------------------------------------------------------------------
   # ------------------------------------------------------------------------------------------------------
   
->>>>>>> allen-development
-  
+
   # Run the models for the data type of the input file.
   
   observeEvent(input$runModels, {
     if(((input$modelDataRange[2] - input$modelDataRange[1] + 1) >= K_minDataModelIntervalWidth) && (length(as.list(input$modelsToRun)) > 0)) {
-<<<<<<< HEAD
-      # The results list will also hold the subsetted data on
-      # which the models are run.
-      
-      updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
-      updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
-      updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
-      
-      source("RunModels.R", local=TRUE)
-    }
-  })
-  
-  # Read the position of the mouse for the model results plot
-  
-  MPranges <- reactiveValues(x = NULL, y = NULL)  
-  
-  # Plot model results.
 
-  output$ModelPlot <- renderPlot({
-    ModelPlot <- NULL
-    source("PlotModelResults.R", local=TRUE)
-    if(length(ModelsExecutedList) > 0 && !(is.null(ModelPlot))) {
-      ModelPlot <- ModelPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
-    }
-    ModelPlot
-  }, height=MP_height)
-  
-  # Event observer for double-click on data and trend plot.
-  # Double click and brush zooms in and out.
-  
-  observeEvent(input$MPdblclick, {
-    MPbrush <- input$MP_brush
-    if (!is.null(MPbrush)) {
-      MPranges$x <- c(MPbrush$xmin, MPbrush$xmax)
-      MPranges$y <- c(MPbrush$ymin, MPbrush$ymax)
-      
-    } else {
-      MPranges$x <- NULL
-      MPranges$y <- NULL
-    }
-  })
-  
-
-
-=======
-      
       # Create temporary storage to hold model results and related modeling values.
       tempResultsList <- list()
       
@@ -899,7 +601,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 # ------------------------------------------------------------------------------------------------------
 
   
->>>>>>> allen-development
   output$mytable1 <- renderDataTable({
 
     inFile <- input$file
@@ -1283,52 +984,3 @@ output$mytable2 <- renderDataTable({
   })
 
 })
-<<<<<<< HEAD
-  
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-
-  numPlots = length(plots)
-
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                    ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-
- if (numPlots==1) {
-    print(plots[[1]])
-
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-
-custom_tabPanel <- function(){
-  br <- tags$br()
-  divtag <- tags$div(class='tab-pane',title=title,'data-value'=value, 'data-icon-class' = iconClass(icon),...)
-
-  r <- paste(br,divtag,sep="")
-  r
-}
-=======
-
->>>>>>> allen-development
