@@ -72,7 +72,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
         }
       },
       error = function(e){
-        #print(e)
+        print(e)
         #return(e)
       })
     sol
@@ -154,26 +154,6 @@ JM_FI <- function(param,d){
   names(r) <- c("Failure","Time")
   r  
 }
-
-# September 8, 2015.
-# Alternate computation of failure intensity for JM model.
-# Based on Chapter 3 of Handbook of SW Reliability
-# Engineering, paragraph 3.3.1.3, last equation in
-# this paragraph.
-
-JM_FR_alt1 <- function(param,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- param$N0*param$Phi*exp(-param$Phi*r[i,1])
-  }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","FailureInt")
-  r  
-}
-
 
 JM_R <- function(param,d){
   n <- length(d$FT)

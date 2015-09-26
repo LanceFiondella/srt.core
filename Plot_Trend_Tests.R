@@ -41,23 +41,6 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Running Average of Interfailure Times")
     DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Running Average trend test of"),data_set))
   }
-<<<<<<< HEAD
-  
-  names(plot_data) = c("index","trend_test_statistic")
-  
-  if(input$DataPlotType==1){
-    DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_step(data=plot_data)
-  }
-  if(input$DataPlotType==2){
-    DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))
-  }
-  if(input$DataPlotType==3){
-    DataAndTrendPlot <- DataAndTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
-  }
-  DataAndTrendPlot <- DataAndTrendPlot + theme(legend.position = "bottom")
-}
-
-=======
 }
 
 names(plot_data) = c("index","trend_test_statistic")
@@ -72,4 +55,3 @@ if(input$DataPlotType=="lines"){
   DataAndTrendPlot <- DataAndTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
 }
 DataAndTrendPlot <- DataAndTrendPlot + theme(legend.position = "bottom")
->>>>>>> allen-development

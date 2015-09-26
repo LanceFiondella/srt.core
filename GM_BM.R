@@ -68,18 +68,13 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       warning = function(w){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
-<<<<<<< HEAD
-          maxiter <<- maxiter+1 
-          #print(paste("recursive", maxiter,sep='_'))
-=======
           maxiter <- maxiter+1 
           print(paste("recursive", maxiter,sep='_'))
->>>>>>> allen-development
           soln(maxiter)
         }
       },
       error = function(e){
-        #print(e)
+        print(e)
         #return(e)
       })
     sol
@@ -152,48 +147,13 @@ GM_MTTF <- function(param,d){
 GM_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-<<<<<<< HEAD
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- (param$D0*(param$Phi^i))
-    }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
-  #print(r)
-  r  
-=======
   fail_count <- c(1:n)
   beta <- -log(param$GM_Phi)
   failIntensity <- (param$GM_D0/param$GM_Phi)/((beta*param$GM_D0/param$GM_Phi)*d$FT + 1)
   r <- data.frame(fail_count,failIntensity)
   names(r) <- c("Failure","Time")
   r
->>>>>>> allen-development
 }
-
-
-# September 8, 2015
-# Alternate computation for Geometric Model failure intensity.
-# Based on Handbook of Software Reliability Engineering, description
-# of Geometric model in Chapter 3, paragraph 3.5.2.3, page 101
-# equation for lambda(t).
-
-GM_FR_alt1 <- function(param,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- 1/((param$Phi/param$D0) - d$FT[i]*log(param$Phi))
-  }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
-  #print(r)
-  r  
-}
-
-
 
 GM_R <- function(param,d){
   n <- length(d$FT)
@@ -204,15 +164,9 @@ GM_R <- function(param,d){
     r[i,2] <- exp((-1*param$GM_D0*(param$GM_Phi^i)*d$FT[i]))
     r[i,3] <- "GM"
   }
-<<<<<<< HEAD
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
-  #print(r)
-=======
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Time","Reliability","Model")
   print(r)
->>>>>>> allen-development
   r
   
 }

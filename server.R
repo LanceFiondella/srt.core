@@ -3,8 +3,12 @@ library(gdata) #Used for read.xls function
 library(ggplot2)#ggplot function
 
 #library(DT)
+#<<<<<<< HEAD
+#
+#=======
 sys.source("utility.R")
 sys.source("Model_specifications.R")
+#>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
 sys.source("custom_functions.R")
 source("model.R")#Source for our reliabilty models
 source("JMmodel.R")
@@ -80,6 +84,9 @@ K_tol <- .Machine$double.eps^0.5
 
 # Start main program ------------------------------------
 
+openFileDatapath <- ""
+#data_global <- data.frame()
+data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
   
@@ -128,6 +135,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data_set <- input$dataSheetChoice
       
       data <- read.xls(inFile$datapath,sheet=data_set)
+      data_original <<- data
     } else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
         #print(inFile)
@@ -153,8 +161,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     # Set up the initial values for modeling data range and the initial parameter
     # estimation range
-    
-    data_set_global <<- data_set
     
     # Set up the initial values for modeling data range and the initial parameter
     # estimation range
@@ -220,7 +226,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     
     # Finally, output data set
-
+    
     data_generated
 }) 
 
@@ -317,7 +323,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         input_data <- data
         source("Plot_Trend_Tests.R", local=TRUE)
       }
-
+      
       DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
       DataAndTrendPlot
       
@@ -325,7 +331,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   }, height=DTP_height)
   
-
+  
   # Download handler for saving data and trend plots or tables.
   
   output$saveDataOrTrend <- downloadHandler(
@@ -353,33 +359,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   )
   
-
-  # Download handler for saving data and trend plots or tables.
-  
-  output$saveDataOrTrend <- downloadHandler(
-    filename = function() {
-      if(input$PlotDataOrTrend == 1) {
-        paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
-      } else if(input$PlotDataOrTrend == 2) {
-        paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
-      }
-    },
-    content = function(filespec) {
-      ggsave(filespec)
-    }
-  )
-
-  # Download handler for saving model results plots.
-  
-  output$saveModelResults <- downloadHandler(
-    filename = function() {
-      paste(paste0(data_set_global, "_ModelResults"), input$saveModelResultsType, sep=".")
-    },
-    content = function(filespec) {
-      ggsave(filespec)
-    }
-  )
-  
   
   # There is a serious flaw in tracking the models selected
   # But there is a strong necessity to track the models 
@@ -395,6 +374,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   #     if(!is.null(input$modelDetailChoice)){
   #       tracked_models <- input$modelDetailChoice
   #     }
+      
   #   }
   #   print(tracked_models)
   #   tracked_models
@@ -422,7 +402,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # tabs.  We read the values from the controls, and adjust the controls to make
   # sure that the modeling intervals and lengths of the modeling data set don't
   # go below specified minimal values.
-
+    
   output$DataSubsetError <- renderText({
     data_local <- data.frame(x=data_global())
     DataColNames <- names(data_local)
@@ -472,12 +452,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # ------------------------------------------------------------------------------------------------------
   # ------------------------------------------------------------------------------------------------------
   
-
+  
   # Run the models for the data type of the input file.
   
   observeEvent(input$runModels, {
     if(((input$modelDataRange[2] - input$modelDataRange[1] + 1) >= K_minDataModelIntervalWidth) && (length(as.list(input$modelsToRun)) > 0)) {
-
+      
       # Create temporary storage to hold model results and related modeling values.
       tempResultsList <- list()
       
@@ -984,3 +964,4 @@ output$mytable2 <- renderDataTable({
   })
 
 })
+

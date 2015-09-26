@@ -50,11 +50,7 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     CFC <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = CFC)), use.names=FALSE)
     CumT <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = T)), use.names=FALSE)
     TI <- c(unlist(subset(subset(input_data, input_data$TI >= DataIntervalStart, select = c(TI, T, FC, CFC)), TI <= DataIntervalEnd, select = TI)), use.names=FALSE)
-<<<<<<< HEAD
-
-=======
     
->>>>>>> allen-development
     FT <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_FT)), use.names=FALSE)
     IF <- c(unlist(subset(subset(FC_to_IF_data, FC_to_IF_data$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_IF)), use.names=FALSE)
     
@@ -98,15 +94,6 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     
   }
   
-<<<<<<< HEAD
-  if(input$DataPlotType==1) {
-    
-    # Data points and lines
-    
-    DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType))+ geom_step(data=plot_data)
-  }
-  if(input$DataPlotType==2) {
-=======
   if(input$DataPlotType=="points_and_lines") {
     
     # Data points and lines
@@ -114,25 +101,16 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType))+ geom_step(data=plot_data)
   }
   if(input$DataPlotType=="points") {
->>>>>>> allen-development
     
     # Data points only
     
     DataAndTrendPlot <- DataAndTrendPlot + geom_point(data=plot_data,aes(Index,FailureDisplayType))
   }
-<<<<<<< HEAD
-  if(input$DataPlotType==3) {
-=======
   if(input$DataPlotType=="lines") {
->>>>>>> allen-development
     
     # Lines only
     
     DataAndTrendPlot <- DataAndTrendPlot + geom_step(data=plot_data,aes(Index,FailureDisplayType))
   }
   DataAndTrendPlot <- DataAndTrendPlot + theme(legend.position = "bottom")
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> allen-development

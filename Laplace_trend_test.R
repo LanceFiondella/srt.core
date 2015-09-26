@@ -1,11 +1,10 @@
 
 source("Data_Format.R")
-laplace_trend_test <- function(inter_failure_in)
+laplace_trend_test <- function(inter_failure)
 {
   #laplace_score <- c()    
   #inte <- 0 
   
-  inter_failure <- c(unlist(inter_failure_in), use.names=FALSE)
   n <- length(inter_failure)
   #Time <- failute_time[n]         #the final time
   #inte=(sum(failute_time))-failute_time[n]        #sum of failure time for n-1
