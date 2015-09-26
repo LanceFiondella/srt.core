@@ -1,5 +1,5 @@
 library(shiny)
-models <- c("Musa Basic", "Musa Okumoto","Geometric", "Jelinski-Moranda", "Goel-okumoto")
+models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei")
 #source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
@@ -39,11 +39,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(11, 
+<<<<<<< HEAD
                                                     h5("Does data show reliability growth?"),
                                                     selectInput("trendPlotChoice", label = "", 
                                                                 choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
                                              ),
                                              column(8, textOutput("trendMessage"))
+=======
+                                                    radioButtons("DataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                                                                 inline=TRUE,
+                                                                 selected = "points_and_lines")
+                                             )
+>>>>>>> allen-development
                                            ),
                                            
                                            
@@ -70,7 +78,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                                                                  selected = "JPG")
                                              ),
+<<<<<<< HEAD
                                              column(8, downloadButton(outputId = "saveDataOrTrend", label = "Save"))
+=======
+                                             column(8, downloadButton('saveDataOrTrend', 'Save Display'))
+>>>>>>> allen-development
                                            ),
                                            
                                            fluidRow(
@@ -80,10 +92,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            fluidRow(
                                              br(),
+<<<<<<< HEAD
                                              column(9, h5("Subset the failure data by data range or by category")),
                                              column(9,
                                                     sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1)),
+=======
+                                             column(9, h5("Subset the failure data by data range")),
+                                             #     column(9,
+                                             #            sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
+                                             #                        min = 1, max = 5, value = c(1, 5), step = 1)),
+>>>>>>> allen-development
                                              column(9,
                                                     sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
                                                                 min = 1, max = 5, value = c(1, 5), step = 1))
@@ -92,8 +111,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
+<<<<<<< HEAD
                                   tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot", dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Data and Trend Test Table", DT::dataTableOutput("dataAndTrendTable")),
+=======
+                                  tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot",dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
+                                  tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
+>>>>>>> allen-development
                                   id="DataPlotAndTableTabset"),
                                 width=8
                               )
@@ -105,7 +129,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             sidebarLayout(
                               sidebarPanel(h4("Configure and Apply Models"),
                                            h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
-
+                                           
                                            fluidRow(
                                              column(12,
                                                     sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
@@ -146,11 +170,27 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(12, 
+<<<<<<< HEAD
+=======
+                                                    #<<<<<<< HEAD
+>>>>>>> allen-development
                                                     selectInput(
                                                       "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
                                                       choices=list("No model results to display"="None"),
                                                       multiple=TRUE, selected="None"
                                                     )
+<<<<<<< HEAD
+=======
+                                                    #=======
+                                                    #           br(),
+                                                    #           h5("Choose the model results to display."),
+                                                    #           selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
+                                                    #                       choices= models,
+                                                    #                       multiple=TRUE
+                                                                
+                                                    #           )
+                                                    ##>>>>>>> lfiondella/master
+>>>>>>> allen-development
                                              )
                                            ),
                                            
@@ -158,8 +198,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     h5("Choose the type of plot for model results."),
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
-                                                                choices = list("Times Between Failures" = 1, "Cumulative Failures" = 2,
-                                                                               "Failure Intensity" = 3, "Reliability" = 4), selected = 2)
+                                                                choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
+                                                                               "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
                                              )
                                            ),
                                            
@@ -172,9 +212,21 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
+<<<<<<< HEAD
                                                     radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
                                                                  choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
                                                                  selected = 1)
+=======
+                                                    #<<<<<<< HEAD
+                                                    #                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
+                                                    #                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                                                    #                                                                 selected = 1)
+                                                    #=======
+                                                    radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
+                                                                 choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
+                                                                 selected = "points_and_lines")
+                                                    #>>>>>>> lfiondella/master
+>>>>>>> allen-development
                                              )
                                            ),
                                            
@@ -193,20 +245,29 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 tabsetPanel(
                                   tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Model Result Table",
+<<<<<<< HEAD
                                     selectInput(
                                     "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
                                     choices=list("No model results to display"="None"),
                                     multiple=TRUE, selected="None"),
                                     DT::dataTableOutput("ModelResultTable")),
+=======
+                                           selectInput(
+                                             "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
+                                             choices=list("No model results to display"="None"),
+                                             multiple=TRUE, selected="None"),
+                                           dataTableOutput("ModelResultTable")),
+>>>>>>> allen-development
                                   id="ModelPlotAndTableTabset"), width=8
+                              )
                             )
-                          )
                    ),
                    
                    tabPanel("Query Model Results",
                             sidebarLayout(
                               sidebarPanel(h4("Make Detailed Predictions From Model Results"),
                                            fluidRow(
+<<<<<<< HEAD
                                              column(12, 
                                                     br(),
                                                     h5("Choose one or more models for which detailed predictions will be made."),
@@ -215,6 +276,20 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                       choices=list("No model results to display"="None"),
                                                       multiple=TRUE, selected="None"
                                                     )
+=======
+                                             column(12,
+                                                    selectInput(
+                                                      "modelDetailChoice", label = h6("Choose one or more sets of model results to display."), 
+                                                      choices=list("No model results to display"="None"),
+                                                      multiple=TRUE, selected="None"
+                                                    )
+                                                    #           br(),
+                                                    #           h5("Choose one or more models for which detailed predictions will be made."),
+                                                    #           selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
+                                                    #                       choices=models,
+                                                    #                       multiple=TRUE,
+                                                    #                       )
+>>>>>>> allen-development
                                              ),
                                              
                                              column(12, 
@@ -271,6 +346,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    
                    tabPanel("Evaluate Models",
                             sidebarLayout(
+<<<<<<< HEAD
                               sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
 
                                              # Project Master called this "EvalResultChoice"
@@ -288,12 +364,28 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              fluidRow(
+=======
+                                sidebarPanel(h4("Evaluate Model goodness of fit and Applicability"),
+                                    fluidRow(
+                                     column(12, 
+                                            br(),
+                                            h5("Choose one or more models for which the results will be evaluated."),
+                                            selectInput(
+                                              "modelResultsForEval", label = h6("Choose one or more sets of model results"), 
+                                              choices=list("No model results to display"="None"),
+                                              multiple=TRUE, selected="None"
+                                            )
+                                     )
+                                    ),
+                                             
+                                    fluidRow(
+>>>>>>> allen-development
                                              column(12, 
                                                     h5("Select a model evaluation technique to apply"),
                                                     selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
                                                                 choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
-                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
-                                                                               "Model Bias" = "MB", "Model Bias Trend" = "BT"), selected = "PLR")
+                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC"
+                                                                               ), selected = "PLR")
                                              ),
                                              
                                              column(12,
@@ -302,8 +394,25 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0, max = 1, step = 0.001,
                                                                  value = .05)
                                              )
-                                           ),
+                                           )
+
+                                  ),
+                              
+                            # sidebarLayout(
+                            #   sidebarPanel(h4("Evaluate Model Goodness-of-Fit and Applicability"),
+                            #                 fluidRow(
+                            #                  column(12, 
+                            #                         br(),
+                            #                         h5("Choose the model results to display."),
+                            #                         selectInput("EvalResultChoice", label = h6("Choose one or more sets of model results"), 
+                            #                                     models,
+                            #                                     multiple=TRUE
+                                                              
+                            #                                     )
+                            #                  )
+                            #                ),
                                            
+<<<<<<< HEAD
                                            fluidRow(
                                              column(12, 
                                                     radioButtons("radioEvalPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
@@ -311,48 +420,58 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = 1)
                                              )
                                            ),
+=======
                                            
-                                           fluidRow(
-                                             h5("Rank models by evaluation criteria"),
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioGOFRankEvalOrder", label = h6("Goodness of Fit"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 1, inline = TRUE)
-                                             ),
-                                             column(2, ""),
-                                             column(10, 
-                                                    checkboxInput("checkboxGOFScreen", label = "Use GOF test as screen", value = TRUE)
-                                             )
-                                           ),
+                            #                fluidRow(
+                            #                  column(12, 
+                            #                         radioButtons("radioEvalPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                            #                                      choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                            #                                      selected = 1)
+                            #                  )
+                            #                ),
+>>>>>>> allen-development
                                            
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioAICRankEvalOrder", label = h6("Akaike Information Criterion"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 2, inline = TRUE)
-                                             )
-                                           ),
+                            #                fluidRow(
+                            #                  column(12, 
+                            #                         radioButtons("radioEvalPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only??"),
+                            #                                      choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
+                            #                                      selected = 1)
+                            #                  )
+                            #                ),
                                            
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 3, inline = TRUE)
-                                             )
-                                           ),
+                            #                fluidRow(
+                            #                  h5("Rank models by evaluation criteria"),
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioGOFRankEvalOrder", label = h6("Goodness of Fit"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 1, inline = TRUE)
+                            #                  ),
+                            #                  column(2, ""),
+                            #                  column(10, 
+                            #                         checkboxInput("checkboxGOFScreen", label = "Use GOF test as screen", value = TRUE)
+                            #                  )
+                            #                ),
                                            
-                                           fluidRow(
-                                             column(1, ""),
-                                             column(11, 
-                                                    radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
-                                                                 choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
-                                                                 selected = 4, inline = TRUE)
-                                             )
-                                           ),
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioAICRankEvalOrder", label = h6("Akaike Information Criterion"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 2, inline = TRUE)
+                            #                  )
+                            #                ),
                                            
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioPLRankEvalOrder", label = h6("Prequential Likelihood"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 3, inline = TRUE)
+                            #                  )
+                            #                ),
+                                           
+<<<<<<< HEAD
                                            fluidRow(
                                              column(1, ""),
                                              column(11, 
@@ -379,11 +498,31 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(8, downloadButton(outputId = "saveModelEval", label = "Save"))
                                            )
                               ),
+=======
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioBiasRankEvalOrder", label = h6("Model Bias"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 4, inline = TRUE)
+                            #                  )
+                            #                ),
+                                           
+                            #                fluidRow(
+                            #                  column(1, ""),
+                            #                  column(11, 
+                            #                         radioButtons("radioBiasTrendRankEvalOrder", label = h6("Model Bias Trend"),
+                            #                                      choices = list("1" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5),
+                            #                                      selected = 5, inline = TRUE)
+                            #                  )
+                            #                )
+                            #   ),
+>>>>>>> allen-development
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel('Table',dataTableOutput('mytable2')),
-                                  tabPanel("Plot",plotOutput("Evalationplot"))
+                                  tabPanel('Table',dataTableOutput('mytable2'))
+                                  #tabPanel("Plot",plotOutput("Evalationplot"))
                                 )                              
                               )
                             )

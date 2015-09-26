@@ -10,7 +10,12 @@ Team:
   Miles Wilhelms-Tricarico
   George Haddad
   Brain Etienne
-  Matthew Furtardo
+  Eric J Pires
+  Jarred Trottier
+  Jimmy Rodriguez
+  Rebecca E Field	
+  William P Foley
+  Karthik Katipally
   Sameer Bharadwaj Kencham
   Varun Kumar Reddy Garlapati
   Vidhyashree Nagaraju
@@ -20,6 +25,7 @@ R version >= 3.0
 shiny  R Package
 gdata R Package
 ggplot2 R Package
+rootSolve R Package
 These can be resolved using the install.Packages() function from the R command Line
 
 To Run:

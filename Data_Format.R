@@ -52,6 +52,57 @@ return(failure_T)#return interfailure times(interfailure)
 
 #################################
 
+FCFrame_to_IFFrame <- function(time_vec_in,num_count_in) #transforms FC data to an IF/FT frame
+{
+  failure_T <- c()
+  failure_IF <- c()
+  failure_IntTag <- c()
+  time_vec <- c(0,c(unlist(time_vec_in), use.names=FALSE))
+  num_count <- c(unlist(num_count_in), use.names=FALSE)
+  m <- 1
+  for(j in 1:(length(time_vec)-1))
+  {
+    for(i in 1:num_count[j])
+    {
+      if(num_count[j]!=0)
+      {
+        failure_T[m] <- time_vec[j]+ ((i-0.5)*((time_vec[j+1]-time_vec[j])/num_count[j]))
+        failure_IntTag[m] <- j
+        m <- m+1
+      }
+    }
+  }
+  temp <- c(0, failure_T)
+  for (i in 1:length(failure_T)) {
+    failure_IF[i] <- failure_T[i] - temp[i]
+  }
+  temp <- c()
+  return(data.frame("FC_FN" = c(1:length(failure_T)), "FC_TI" = failure_IntTag, "FC_IF" = failure_IF, "FC_FT" = failure_T))
+}
+
+
+
+failureC_to_failureT_BinTag <- function(time_vec_in,num_count_in) #failure count to failure time
+{
+  failure_T <- c()
+  failure_BinTag <- c()
+  time_vec <- c(0,c(unlist(time_vec_in), use.names=FALSE))
+  num_count <- c(unlist(num_count_in), use.names=FALSE)
+  m <- 1
+  for(j in 1:(length(time_vec)-1))
+  {
+    for(i in 1:num_count[j])
+    {
+      if(num_count[j]!=0)
+      {
+        failure_T[m] <- time_vec[j]+ ((i-0.5)*((time_vec[j+1]-time_vec[j])/num_count[j]))
+        failure_BinTag[m] <- j  # specifies the time interval in which the failure occurred.
+        m <- m+1
+      }
+    }
+  }
+  return(data.frame(matrix(c(failure_T, failure_BinTag), ncol=2)), names=c("FC_FT", "FC_TI"))
+}
 
 FCFrame_to_IFFrame <- function(time_vec_in,num_count_in) #transforms FC data to an IF/FT frame
 {
