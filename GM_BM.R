@@ -170,3 +170,7 @@ GM_R <- function(param,d){
   r
   
 }
+
+GM_lnL  <- function(){
+  
+}

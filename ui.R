@@ -1,5 +1,5 @@
 library(shiny)
-models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei")
+models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei","Example New Model"='ExNM')
 #source("custom_functions.R")
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
@@ -190,6 +190,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = "points_and_lines")
                                                     #>>>>>>> lfiondella/master
                                              )
+<<<<<<< HEAD
                                            ),
                                            
                                            fluidRow(
@@ -199,6 +200,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = "JPG")
                                              ),
                                              column(8, downloadButton(outputId = "saveModelResults", label = "Save"))
+=======
+                                             ,
+                                             column(12,
+                                                    conditionalPanel(
+                                                      condition = "input.modelPlotChoice == 'R_growth'",
+                                                    #  sliderInput("breakCount", "Break Count", min=1, max=1000, value=10),
+                                                    #)
+                                                    numericInput("modelRelMissionTime", 
+                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                 min = 0, value = 1)
+                                             )
+                                                    )
+>>>>>>> pr/5
                                            ),width=4
                                            
                               ),
@@ -266,7 +280,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
-                                                    numericInput("modelRelMissionTime", 
+                                                    numericInput("modelRelMissionTime2", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              ),

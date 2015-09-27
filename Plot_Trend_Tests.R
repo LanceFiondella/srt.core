@@ -1,6 +1,7 @@
 DataIntervalStart <- input$modelDataRange[1]
 DataIntervalEnd <- input$modelDataRange[2]
 
+<<<<<<< HEAD
 if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
   DataAndTrendPlot <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
   if((length(grep("FT",names(input_data)))>0) || (length(grep("IF",names(input_data))) > 0)) {
@@ -41,6 +42,19 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
     DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Running Average of Interfailure Times")
     DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Running Average trend test of"),data_set))
   }
+=======
+if(input$trendPlotChoice=="LP") {
+  plot_data <- laplace_trend_test(IF)
+  q <- q + xlab("Failure Number")+ylab("Laplace Test Statistic")
+  q <- q+ggtitle(paste(c("Laplace trend test of"),data_set))
+  significance_levels <<-c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001")
+  q <- q + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),linetype=significance_levels),alpha=0.8,show_guide=TRUE)
+  q <- q+xlab("Failure Number")+ylab("Laplace Test Statistic")
+} else if(input$trendPlotChoice=="RA") {
+  plot_data <- running_average_test(IF)
+  q <- q + xlab("Failure Number")+ylab("Running Average of Interfailure Times")
+  q <- q+ggtitle(paste(c("Running Average trend test of"),data_set))
+>>>>>>> pr/5
 }
 
 names(plot_data) = c("index","trend_test_statistic")
@@ -54,4 +68,8 @@ if(input$DataPlotType=="points"){
 if(input$DataPlotType=="lines"){
   DataAndTrendPlot <- DataAndTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
 }
+<<<<<<< HEAD
 DataAndTrendPlot <- DataAndTrendPlot + theme(legend.position = "bottom")
+=======
+q 
+>>>>>>> pr/5

@@ -24,9 +24,9 @@ aic <- function(p,lnL){
 	return (2*p - 2*lnL)
 }
 
-psse_times <- function(data, model_params){
+psse_times <- function(model, data, model_params){
 	t <- 0
-	mvf_data <- JM_MVF(model_params, data)
+	mvf_data <- get(paste(model,"MVF",sep="_"))(model_params, data)
 	for(i in 1:length(data$FT)){
 		t <- (data$FT[i] - mvf_data$Time[i])^2 + t
 	}

@@ -34,7 +34,7 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	leftEndPointMLE <- GO_MLEeq(leftEndPoint)
 	rightEndPoint <- 2*rightEndPoint
 	rightEndPointMLE <- GO_MLEeq(rightEndPoint)
-	i <- i+1	
+	i <- i+1
 }
 
 #Step-3: Invoke uniroot or report non convergence to calling environment
@@ -62,12 +62,17 @@ maxiter <- 20
     sol
   }
   bMLE <- soln(maxiter)
+<<<<<<< HEAD
 
 
 
 
 	#bMLE <- stats::uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
 	#bMLE <- stats::uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
+=======
+	#bMLE <- uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
+	#bMLE <- uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
+>>>>>>> pr/5
 }
 
 #print(bMLE)
@@ -152,6 +157,7 @@ GO_MTTF <- function(param,d) {
   r
 }
 
+<<<<<<< HEAD
 
 # Estimate and forecast failure intensities
 
@@ -170,18 +176,131 @@ GO_FI <- function(param,d) {
 }
 
 
+=======
+GO_MTTF <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <-(1/(params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))))
+    r[i,3] <- "GO"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
+  r
+}
+
+GO_FI <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))
+    r[i,3] <- "GO"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  r
+
+}
+
+
+
+GO_R <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- exp(-params$GO_bMLE*d$FT[i])
+    r[i,3] <- "GO"
+  }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Reliability","Model")
+  r
+}
+
+>>>>>>> pr/5
 GO_lnL <- function(x,params){
   n <- length(x)
   tn <- x[n]
   firstSumTerm <- 0
   for(i in 1:n){
     firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
-
   }
   lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
   lnL
 }
-	 
+
+GO_MVF_cont <- function(params,t){
+  return(params$GO_aMLE*(1-exp(-params$GO_bMLE*t)))
+}
+
+GO_R_delta <- function(params,cur_time,delta){
+  return(exp(-(GO_MVF_cont(params,(cur_time+delta)) -GO_MVF_cont(params,cur_time))))
+}
+
+GO_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - exp(params$GO_aMLE*(1-exp(-params$GO_bMLE*cur_time)) -params$GO_aMLE*(1-exp(-params$GO_bMLE*(cur_time+delta))))
+  return(root_equation)
+}
+
+maxiter <- 1000
+GO_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(GO_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- GO_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            GO_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+GO_R_growth <- function(params,cur_time,delta, reliability){  
+  
+  r <-data.frame()
+  tt_index <- seq(0,cur_time,cur_time/1000)
+    for(i in 1:length(tt_index)){   
+      r[i,1] <- tt_index[i]
+      temp <- GO_R_delta(params,tt_index[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+        r[i,3] <- "GO"
+      }
+      else{
+        r[i,2] <- "NA"
+        r[i,3] <- "GO"
+      }     
+    }
+    g <- data.frame(r[1],r[2],r[3])
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
+}
+
 #NHPP log-likelihood function
 
 #lnl <- -aMLE*(1-exp(-bMLE*tn))+n*log(aMLE)+n*log(bMLE)-bMLE*sum(x)
