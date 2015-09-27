@@ -190,7 +190,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = "points_and_lines")
                                                     #>>>>>>> lfiondella/master
                                              )
-<<<<<<< HEAD
                                            ),
                                            
                                            fluidRow(
@@ -200,7 +199,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = "JPG")
                                              ),
                                              column(8, downloadButton(outputId = "saveModelResults", label = "Save"))
-=======
                                              ,
                                              column(12,
                                                     conditionalPanel(
@@ -212,7 +210,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0, value = 1)
                                              )
                                                     )
->>>>>>> pr/5
                                            ),width=4
                                            
                               ),

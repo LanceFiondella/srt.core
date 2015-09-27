@@ -15,30 +15,51 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
   scaleManBreaks <- c()
   scaleManColors <- c()
   
+  # Create plot axes
+  
+  if(DataView == "MTTF") {
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Interfailure Times vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
+  } else if(DataView == "MVF") {
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Cumulative Failures vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Cumulative Failures")
+  } else if(DataView == "FI") {
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Failure Intensity vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Failure Intensity")
+  } else if(DataView == "R") {
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability")
+  } else if(DataView == "R_Growth") {
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability Growth vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability Growth")
+  } else if (DataView == "FC") {
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Failure Counts vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Failures per Test Interval")
+  } else {
+    
+    # Couldn't identify view of data to display.
+    # Print an error message.
+    
+    print(msgModelDataViewUnknown)
+    PlotFault <- TRUE
+  }
+  
   for (modelIndex in DisplayModels) {
     # Create plot data, axes, and titles based on the view
     # of the data selected by the user (e.g., MTTFs)
     
     if(DataView == "MTTF") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "IF", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
-      localResultsPlot <- localResultsPlot + ggtitle(paste0("Interfailure Times vs. Cumulative Test Time for ", DataSetName))
-      localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
     } else if(DataView == "MVF") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[["Failure"]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
-      localResultsPlot <- localResultsPlot + ggtitle(paste0("Cumulative Failures vs. Cumulative Test Time for ", DataSetName))
-      localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Cumulative Failures")
     } else if(DataView == "FI") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FI", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
-      localResultsPlot <- localResultsPlot + ggtitle(paste0("Failure Intensity vs. Cumulative Test Time for ", DataSetName))
-      localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Failure Intensity")
     } else if(DataView == "R") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "Rel", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
-      localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability vs. Cumulative Test Time for ", DataSetName))
-      localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability")
+    } else if(DataView == "R_Growth") {
+      model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "R_Growth", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if (DataView == "FC") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FC", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
-      localResultsPlot <- localResultsPlot + ggtitle(paste0("Failure Counts vs. Cumulative Test Time for ", DataSetName))
-      localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Failures per Test Interval")
     } else {
       
       # Couldn't identify view of data to display.

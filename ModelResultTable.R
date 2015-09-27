@@ -15,6 +15,7 @@ model_result_table <- function (in_data, ResultsToShow) {
       local_MR_Table[[paste0(modelID, "_IF")]] <- in_data[[paste0(modelID, "_IF")]]
       local_MR_Table[[paste0(modelID, "_FI")]] <- in_data[[paste0(modelID, "_FI")]]
       local_MR_Table[[paste0(modelID, "_Rel")]] <- in_data[[paste0(modelID, "_Rel")]]
+      local_MR_Table[[paste0(modelID, "_R_Growth")]] <- in_data[[paste0(modelID, "_R_Growth")]]
     }
   } else {
     

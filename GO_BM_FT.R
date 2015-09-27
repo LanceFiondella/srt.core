@@ -62,17 +62,9 @@ maxiter <- 20
     sol
   }
   bMLE <- soln(maxiter)
-<<<<<<< HEAD
-
-
-
 
 	#bMLE <- stats::uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
 	#bMLE <- stats::uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
-=======
-	#bMLE <- uniroot(GO_MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10, maxiter=2000)$root
-	#bMLE <- uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
->>>>>>> pr/5
 }
 
 #print(bMLE)
@@ -132,12 +124,13 @@ GO_MVF <- function(param,d) {
   r
 }
 
+
 # September 8, 2015
 # Alternate method for computing interfailure times for GO model.
 # Based on SMERFS Library Access manual, NSWCDD TR 84-371, Rev 3,
 # September 1993.  Uses IF equations for NHPP times to failure
 # model, Chapter 7, p 7-3.
-
+  
 GO_MTTF <- function(param,d) {
   n <- length(d$FT)
   r <- data.frame()
@@ -146,18 +139,31 @@ GO_MTTF <- function(param,d) {
   currentFailNums <- c(2:n)
   prevFailNums <- c(1:(n-1))
   IFTimes <- ((currentFailNums*currentTimes$FT)/(param$GO_aMLE*(1-exp(-param$GO_bMLE*currentTimes$FT)))) - ((prevFailNums*prevTimes$FT)/(param$GO_aMLE*(1-exp(-param$GO_bMLE*prevTimes$FT))))
-#  r[1,1] <- 1
-#  r[1,2] <- ((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1]))))
-#  for(i in 2:n){
-#    r[i,1] <- i
-#    r[i,2] <- ((i*d$FT[i])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i])))) - (((i-1)*d$FT[i-1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i-1]))))
-#  }
-  r <- data.frame(c(1, currentFailNums), c(((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1])))), IFTimes))
-  names(r) <- c("Failure","Time")
+  #  r[1,1] <- 1
+  #  r[1,2] <- ((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1]))))
+  #  for(i in 2:n){
+  #    r[i,1] <- i
+  #    r[i,2] <- ((i*d$FT[i])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i])))) - (((i-1)*d$FT[i-1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i-1]))))
+  #  }
+  r <- data.frame(c(1, currentFailNums), c(((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1])))), IFTimes), rep("GO", n))
+  names(r) <- c("Failure","Time", "Model")
   r
 }
 
-<<<<<<< HEAD
+    
+#GO_MTTF <- function(params,d){
+#  n <- length(d$FT)
+#  r <-data.frame()
+#  cumulr <-data.frame()
+#  for(i in 1:n){
+#    r[i,1] <- i
+#    r[i,2] <-(1/(params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))))
+#    r[i,3] <- "GO"
+#    }
+#  r <- data.frame(r[1],r[2],r[3])
+#  names(r) <- c("Failure_Number","MTTF","Model")
+#  r
+#}
 
 # Estimate and forecast failure intensities
 
@@ -166,45 +172,30 @@ GO_FI <- function(param,d) {
   r <- data.frame()
   fail_number <- c(1:n)
   failIntensity <- param$GO_aMLE*param$GO_bMLE*exp(-param$GO_bMLE*d$FT)
-#  for(i in 1:length(fail_number)){
-#    r[i,1] <- fail_number[i]
-#    r[i,2] <- param$GO_aMLE*param$GO_bMLE*exp(-param$GO_bMLE*d$FT[i])
-#  }
-  r <- data.frame(fail_number,failIntensity)
-  names(r) <- c("Failure","Time")
+  #  for(i in 1:length(fail_number)){
+  #    r[i,1] <- fail_number[i]
+  #    r[i,2] <- param$GO_aMLE*param$GO_bMLE*exp(-param$GO_bMLE*d$FT[i])
+  #  }
+  r <- data.frame(fail_number,failIntensity, rep("GO", n))
+  names(r) <- c("Failure","Time", "Model")
   r
 }
 
 
-=======
-GO_MTTF <- function(params,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <-(1/(params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))))
-    r[i,3] <- "GO"
-    }
-  r <- data.frame(r[1],r[2],r[3])
-  names(r) <- c("Failure_Number","MTTF","Model")
-  r
-}
-
-GO_FI <- function(params,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))
-    r[i,3] <- "GO"
-    }
-  r <- data.frame(r[1],r[2],r[3])
-  names(r) <- c("Failure_Count","Failure_Rate","Model")
-  r
-
-}
+#GO_FI <- function(params,d){
+#  n <- length(d$FT)
+#  r <-data.frame()
+#  cumulr <-data.frame()
+#  for(i in 1:n){
+#    r[i,1] <- d$FT[i]
+#    r[i,2] <- params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))
+#    r[i,3] <- "GO"
+#    }
+#  r <- data.frame(r[1],r[2],r[3])
+#  names(r) <- c("Failure_Count","Failure_Rate","Model")
+#  r
+#
+#}
 
 
 
@@ -222,7 +213,6 @@ GO_R <- function(params,d){
   r
 }
 
->>>>>>> pr/5
 GO_lnL <- function(x,params){
   n <- length(x)
   tn <- x[n]

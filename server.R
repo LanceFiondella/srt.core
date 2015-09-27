@@ -1,26 +1,10 @@
-<<<<<<< HEAD
-library(shiny)#I wonder why this is here?
-library(gdata) #Used for read.xls function
-library(ggplot2)#ggplot function
-
-#library(DT)
-#<<<<<<< HEAD
-#
-#=======
-sys.source("utility.R")
-sys.source("Model_specifications.R")
-#>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
-sys.source("custom_functions.R")
-source("model.R")#Source for our reliabilty models
-=======
 library(shiny)
 library(gdata) 
 library(ggplot2)
-source("utility.R")
+sys.source("utility.R")
 source("Model_specifications.R")
 source("custom_functions.R")
 source("model.R")
->>>>>>> pr/5
 source("JMmodel.R")
 sys.source("JM_BM.R")
 sys.source("GO_BM_FT.R")
@@ -31,16 +15,10 @@ source("Data_Format.R")
 source("Laplace_trend_test.R")
 source("DataAndTrendTables.R")
 source("RA_Test.R")
-<<<<<<< HEAD
 source("RunModels.R")
 source("PlotModelResults.R")
 source("ModelResultTable.R")
 source("ErrorMessages.R")  # Text for error messages
-=======
-source("ErrorMessages.R")
-
-# Text for error messages
->>>>>>> pr/5
 
 # Initialize global variables -------------------------------
 
@@ -192,7 +170,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # Complete all columns for FT/IF data, including failure number.
     # This information will be used later for subsetting the data.
     
-    if(dataType(names(data))=="FR") {
+    if(dataType(names(data_generated))=="FR") {
       data_set_global_type <<- "IFTimes"
 
       # Update the selection list for the models that can be run.
@@ -206,9 +184,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                                        "Failure Intensity" = "FI"), selected = "CF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Reliability" = "REL"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       
-    } else if(dataType(names(data))=="FC") {
+    } else if(dataType(names(data_generated))=="FC") {
       data_set_global_type <<- "FailureCounts"
 
       # Add a column for test intervals.
@@ -229,7 +207,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "REL"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       
     }
     
@@ -376,29 +354,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   )
   
   
-  # There is a serious flaw in tracking the models selected
-  # But there is a strong necessity to track the models 
-  # selected.
 
-
-  # track_models <- reactive({
-  #   tracked_models <- c()
-  #   if(!is.null(input$modelResultChoice)) {
-  #     tracked_models <- input$modelResultChoice
-  #   }
-  #   else{
-  #     if(!is.null(input$modelDetailChoice)){
-  #       tracked_models <- input$modelDetailChoice
-  #     }
-      
-  #   }
-  #   print(tracked_models)
-  #   tracked_models
-
-  #   # Returns indeces of the models selected
-  #   # The indices should be same throughout the
-  # })
-  
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
@@ -428,7 +384,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     # Read the slider for the categories to be retained when filtering the data.
     
-<<<<<<< HEAD
     # DataCategoryFirst <- input$sliderDataSubsetChoice[1]
     # DataCategoryLast <- input$sliderDataSubsetChoice[2]
     
@@ -451,15 +406,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         if(DataModelIntervalEnd < length(data_local[,1])){
           DataModelIntervalEnd <- DataModelIntervalEnd + 1
         }
-=======
-     
-    print(model_params)
-    if(typeof(model_params)!="character"){ 
-      MVF_construct <- get(paste(model,input$modelPlotChoice,sep="_")) # ----> should be more general
-      mvf_plot_data <- MVF_construct(model_params,data)
-      if(input$ModelDataPlotType=="points_and_lines"){
-        p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model,linetype=Model))
->>>>>>> pr/5
       }
       
       updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
@@ -502,7 +448,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       } else {
         TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
       }
-      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, K_tol)
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, input$modelTargetReliability, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
@@ -533,44 +479,44 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       # Release temporary storage of model results
       tempResultsList <- list()
     }
-<<<<<<< HEAD
+#<<<<<<< HEAD
   })
-=======
-  }
-  if(input$modelPlotChoice=="R_growth"){
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data$FT[length(data$FT)],input$modelRelMissionTime,input$modelTargetReliability))
-
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability_Growth,color=Model)) # can we use Reliability_Growth without underscore
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
-
-    }
-    if(is.null(input$dataSheetChoice)){
-      p1 <- p1+ggtitle("Reliabililty Growth function plot")
-    }
-    else{
-       p1 <- p1+ggtitle(paste(c("Reliabililty Growth function plot ["),input$dataSheetChoice,"]"))
-    }
-
-
-  }
-  }
-
-  else if(dataType(names(data))=="FC"){
-  # To be programmed
-
-
-  }
-  p1          
- 
-
-}
->>>>>>> pr/5
+#=======
+#  }
+#  if(input$modelPlotChoice=="R_growth"){
+#    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data$FT[length(data$FT)],input$modelRelMissionTime,input$modelTargetReliability))
+#
+#    if(input$ModelDataPlotType=="points_and_lines"){
+#      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability_Growth,color=Model)) # can we use Reliability_Growth without underscore
+#    }
+#    if(input$ModelDataPlotType=="points"){
+#      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
+#    }
+#    if(input$ModelDataPlotType=="lines"){
+#      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
+#
+#    }
+#    if(is.null(input$dataSheetChoice)){
+#      p1 <- p1+ggtitle("Reliabililty Growth function plot")
+#    }
+#    else{
+#       p1 <- p1+ggtitle(paste(c("Reliabililty Growth function plot ["),input$dataSheetChoice,"]"))
+#    }
+#
+#
+#  }
+#  }
+#
+#  else if(dataType(names(data))=="FC"){
+#  # To be programmed
+#
+#
+#  }
+#  p1          
+# 
+#
+#}
+#>>>>>>> pr/5
   
   
 
@@ -615,7 +561,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         MR_Table <- data.frame()
       }
       MR_Table
-      #MR_Table[,1:(length(names(MR_Table)))]
     }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
 
@@ -633,15 +578,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }
-<<<<<<< HEAD
-    }
-    MRPlot
-  }, height=MP_height) 
-=======
      }
-    })
+    }, height=MP_height)
 
->>>>>>> pr/5
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
