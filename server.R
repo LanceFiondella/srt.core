@@ -2,7 +2,7 @@ library(shiny)
 library(gdata) 
 library(ggplot2)
 sys.source("utility.R")
-source("Model_specifications.R")
+sys.source("Model_specifications.R")
 source("custom_functions.R")
 source("model.R")
 source("JMmodel.R")
@@ -578,8 +578,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }
-     }
-    }, height=MP_height)
+    }
+    MRPlot
+  }, height=MP_height)
 
 
 # ------------------------------------------------------------------------------------------------------
