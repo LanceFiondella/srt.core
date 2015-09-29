@@ -29,7 +29,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
   } else if(DataView == "R") {
     localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability vs. Cumulative Test Time for ", DataSetName))
     localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability")
-  } else if(DataView == "R_Growth") {
+  } else if(DataView == "R_growth") {
     localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability Growth vs. Cumulative Test Time for ", DataSetName))
     localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability Growth")
   } else if (DataView == "FC") {
@@ -56,7 +56,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FI", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if(DataView == "R") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "Rel", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
-    } else if(DataView == "R_Growth") {
+    } else if(DataView == "R_growth") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "R_Growth", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if (DataView == "FC") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FC", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
@@ -121,7 +121,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
       model_plot_data <- data.frame("Time"=FT, "Failure"=c(1/IF), "Model"=rep("Data", length(FT)))
     } else if (DataView == "FC") {
       model_plot_data <- data.frame("Time"=FT, "Failure"=FC, "Model"=rep("Data", length(FT)))
-    } else {
+    } else if (!((DataView == "R") || (DataView == "R_growth"))) {
       
       # Couldn't identify view of data to display.
       # Print an error message.

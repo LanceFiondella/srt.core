@@ -198,18 +198,15 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                                                                  selected = "JPG")
                                              ),
-                                             column(8, downloadButton(outputId = "saveModelResults", label = "Save"))
-                                             ,
+                                             column(8, downloadButton(outputId = "saveModelResults", label = "Save")),
                                              column(12,
                                                     conditionalPanel(
                                                       condition = "input.modelPlotChoice == 'R_growth'",
-                                                    #  sliderInput("breakCount", "Break Count", min=1, max=1000, value=10),
-                                                    #)
-                                                    numericInput("modelRelMissionTime", 
-                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                 min = 0, value = 1)
-                                             )
+                                                      numericInput("modelRelMissionTime", 
+                                                                   label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                   min = 0, value = 1)
                                                     )
+                                             )
                                            ),width=4
                                            
                               ),

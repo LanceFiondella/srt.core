@@ -114,6 +114,11 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
         local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInF)
         pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = head(local_results[[paste0(modelID, "_MVF")]], length(in_data[["FT"]])+length(FillData)))
         local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsZero)
+        
+        # Place holder for the time being.  We'll use an illegal value to make sure we know it needs to be replaced later.
+        
+        local_results[[paste0(modelID, "_R_Growth")]] <- rep(-1, length(local_results[[paste0(modelID, "_MVF")]]))
+        
         #local_results[[paste0(modelID, "_R_Growth")]] <-get(paste(modelID,"R_Growth",sep="_"))(model_params,data$FT[length(data$FT)],RelMissionTime, RelTarget)
         local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
         #local_results[[paste0(modelID, "_Rel")]] <- NaNFill
