@@ -7,16 +7,6 @@ GM_BM_MLE <- function(interFail){
 n <-length(interFail)
 
 
-
-# interFail <- c(NULL)
-
-# for(i in 2:n){
-#   interFail[i-1]=x[i]-x[i-1]
-# }
-
-# interFail <- c(x[1], interFail)
-
-#Define MLE of parameter 'phi'
 MLEeq<-function(phi){
   NrTerm  <- 0
   DrTerm  <- 0
@@ -189,4 +179,73 @@ GM_R <- function(param,d){
 
 GM_lnL  <- function(){
   
+}
+
+
+GM_MVF_cont <- function(params,t){
+  return( (-1/log(params$GM_Phi))*log(1+params$GM_D0*(-log(params$GM_Phi)*exp(-log(params$GM_Phi)))*t))
+  #return(log(params$GM_D0*(1-exp(-params$JM_Phi*t)))
+}
+
+GM_R_delta <- function(params,cur_time,delta){
+  return(exp(-(GM_MVF_cont(params,(cur_time+delta)) -GM_MVF_cont(params,cur_time))))
+}
+
+GM_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - GM_R_delta(params,cur_time,delta)
+  return(root_equation)
+}
+
+maxiter <- 1000
+GM_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(GM_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- GM_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            GM_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+GM_R_growth <- function(params,cur_time,delta, reliability){  
+  
+  r <-data.frame()
+  tt_index <- seq(0,cur_time,cur_time/1000)
+    for(i in 1:length(tt_index)){   
+      r[i,1] <- tt_index[i]
+      temp <- GM_R_delta(params,tt_index[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+        r[i,3] <- "GM"
+      }
+      else{
+        r[i,2] <- "NA"
+        r[i,3] <- "GM"
+      }     
+    }
+    g <- data.frame(r[1],r[2],r[3])
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
 }

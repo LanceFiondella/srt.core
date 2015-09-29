@@ -221,6 +221,75 @@ JM_lnL <- function(x,params){ # ----> params should be the option to generalize
   return(Reliability)
  }
  
+
+
+JM_MVF_cont <- function(params,t){
+  return(params$JM_N0*(1-exp(-params$JM_Phi*t)))
+}
+
+JM_R_delta <- function(params,cur_time,delta){
+  return(exp(-(JM_MVF_cont(params,(cur_time+delta)) -JM_MVF_cont(params,cur_time))))
+}
+
+JM_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - exp(params$JM_N0*(1-exp(-params$JM_Phi*cur_time)) - params$JM_N0*(1-exp(-params$JM_Phi*(cur_time+delta))))
+  return(root_equation)
+}
+
+maxiter <- 1000
+JM_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(JM_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- JM_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            JM_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+JM_R_growth <- function(params,cur_time,delta, reliability){  
+  
+  r <-data.frame()
+  tt_index <- seq(0,cur_time,cur_time/1000)
+    for(i in 1:length(tt_index)){   
+      r[i,1] <- tt_index[i]
+      temp <- JM_R_delta(params,tt_index[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+        r[i,3] <- "JM"
+      }
+      else{
+        r[i,2] <- "NA"
+        r[i,3] <- "JM"
+      }     
+    }
+    g <- data.frame(r[1],r[2],r[3])
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
+}
+
  #MTTF
  
  # JM_MTTF <- function(n,params){ # params should be passed instead
