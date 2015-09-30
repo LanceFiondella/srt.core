@@ -35,6 +35,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
       for (paramNum in 1:length(get(paste(modelID,"params",sep="_")))) {
         local_results[[paste0(modelID, "_parm_", paramNum)]] <- naFill
       }
+      local_results[[paste0(modelID, "_CumTime")]] <- NaNFill
       local_results[[paste0(modelID, "_MVF")]] <- NaNFill
       local_results[[paste0(modelID, "_IF")]] <- NaNFill
       local_results[[paste0(modelID, "_FI")]] <- NaNFill
@@ -75,6 +76,13 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
         FillData <- rep(NA, PredAheadSteps)
         EmptyDataEntries <- rep(NA, PredAheadSteps)
         
+        # Compute the MVF, IF, FI, Reliability, and Reliability Growth functions for the model.
+        
+        pred_input_data <- data.frame("IF" = in_data[["IF"]], "FT" = in_data[["FT"]])
+        
+        # First estimate MVF, then forecast.
+        local_estim <- get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Failure"]]
+        
         # The next thing we do is determine whether this is a finite-failures
         # model.  If it is, we may have to add some fill onto the end of the
         # predictions vector we get, because we may have asked the model to
@@ -108,10 +116,8 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
           }
         } # Endif - are we working with a finite or infinite failures model?
         
-        # Compute the MVF, IF, FI, Reliability, and Reliability Growth functions for the model.
         
-        pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = c(in_data[["FT"]], FillData))
-        local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInF)
+        #local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInF)
         pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = head(local_results[[paste0(modelID, "_MVF")]], length(in_data[["FT"]])+length(FillData)))
         local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsZero)
         

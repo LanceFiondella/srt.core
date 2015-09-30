@@ -118,6 +118,19 @@ JM_MVF <- function(param,d) {
   n <- length(d$FT)
   r <- data.frame()
   fail_number <- c(1:n)
+  cumFailures <- param$JM_N0*(1-exp(-param$JM_Phi*d$FT))
+  r <- data.frame(cumFailures, d$FT)
+  names(r) <- c("Failure","Time")
+  r
+}
+
+# This does an "inverse" MVF function, solving for time given
+# a specific value of MVF.
+
+JM_MVF_inv <- function(param,d) {
+  n <- length(d$FT)
+  r <- data.frame()
+  fail_number <- c(1:n)
   cumFailTimes <- -(log((param$JM_N0-fail_number)/param$JM_N0))/param$JM_Phi
   r <- data.frame(fail_number,cumFailTimes)
   names(r) <- c("Failure","Time")
