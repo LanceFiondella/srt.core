@@ -117,6 +117,9 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
             ModelPredsZero <- rep(0, PredAheadSteps-length(invMVFinput))
             ModelPredsOnes <- rep(1, PredAheadSteps-length(invMVFinput))
           }
+        } else {
+          ExpectedTotalFailures <- 0
+          invMVFinput <- c((floor(local_estim[length(local_estim)])+1):(floor(local_estim[length(local_estim)])+PredAheadSteps))
         } # Endif - are we working with a finite or infinite failures model?
 
         pred_input_data <- data.frame("FN" = invMVFinput)

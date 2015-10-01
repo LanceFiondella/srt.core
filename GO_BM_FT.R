@@ -118,9 +118,19 @@ GO_MVF <- function(param,d) {
   n <- length(d$FT)
   r <- data.frame()
   fail_number <- c(1:n)
-  cumFailTimes <- -(log((param$GO_aMLE-fail_number)/param$GO_aMLE))/param$GO_bMLE
-  r <- data.frame(fail_number,cumFailTimes)
-  names(r) <- c("Failure","Time")
+  MVF <- param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT))
+  r <- data.frame(MVF,d$FT,rep("GO", n))
+  names(r) <- c("Failure","Time","Model")
+  r
+}
+
+
+GO_MVF_inv <- function(param,d) {
+  n <- length(d$FN)
+  r <- data.frame()
+  cumFailTimes <- -(log((param$GO_aMLE-d$FN)/param$GO_aMLE))/param$GO_bMLE
+  r <- data.frame(d$FN,cumFailTimes, rep("GO", n))
+  names(r) <- c("Failure","Time","Model")
   r
 }
 
@@ -267,29 +277,53 @@ GO_Target_T <- function(params,cur_time,delta, reliability){
     sol
   }
 
-GO_R_growth <- function(params,cur_time,delta, reliability){  
+GO_R_growth <- function(params,d,delta, reliability){  
   
   r <-data.frame()
-  tt_index <- seq(0,cur_time,cur_time/1000)
-    for(i in 1:length(tt_index)){   
-      r[i,1] <- tt_index[i]
-      temp <- GO_R_delta(params,tt_index[i],delta)
-      #print(typeof(temp))
-      if(typeof(temp) != typeof("character")){
-        r[i,2] <- temp
-        r[i,3] <- "GO"
-      }
-      else{
-        r[i,2] <- "NA"
-        r[i,3] <- "GO"
-      }     
+  for(i in 1:length(d$FT)){   
+    r[i,1] <- d$FT[i]
+    temp <- GO_R_delta(params,d$FT[i],delta)
+    #print(typeof(temp))
+    if(typeof(temp) != typeof("character")){
+      r[i,2] <- temp
+      r[i,3] <- "GO"
     }
-    g <- data.frame(r[1],r[2],r[3])
-    names(g) <- c("Time","Reliability_Growth","Model")
-    #print(g)
-    g
-      
+    else{
+      r[i,2] <- "NA"
+      r[i,3] <- "GO"
+    }     
+  }
+  g <- data.frame(r[1],r[2],r[3])
+  names(g) <- c("Time","Reliability_Growth","Model")
+  #print(g)
+  g
 }
+
+
+#GO_R_growth <- function(params,cur_time,delta, reliability){  
+#  
+#  r <-data.frame()
+#  tt_index <- seq(0,cur_time,cur_time/1000)
+#  for(i in 1:length(tt_index)){   
+#    r[i,1] <- tt_index[i]
+#    temp <- GO_R_delta(params,tt_index[i],delta)
+#    #print(typeof(temp))
+#    if(typeof(temp) != typeof("character")){
+#      r[i,2] <- temp
+#      r[i,3] <- "GO"
+#    }
+#    else{
+#      r[i,2] <- "NA"
+#      r[i,3] <- "GO"
+#    }     
+#  }
+#  g <- data.frame(r[1],r[2],r[3])
+#  names(g) <- c("Time","Reliability_Growth","Model")
+#  #print(g)
+#  g
+#  
+#}
+
 
 #NHPP log-likelihood function
 
