@@ -43,7 +43,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
    maxiter <<- 20
   soln <- function(maxiter){
     sol <- tryCatch(
-      uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
+      stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
       warning = function(w){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
@@ -77,7 +77,7 @@ params
 
 }
 
-#Mean Value function
+# Mean Value function
 DSS_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
@@ -86,16 +86,41 @@ DSS_MVF <- function(param,d){
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
-  t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
-  for(i in 1:length(t_index)){
-    r[i,1] <- t_index[i]
-    r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
-    r[i,3] <- "DSS"
-  }
-  r <- data.frame(r[1],r[2],r[3])
+  #t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+  #for(i in 1:length(t_index)){
+  #  r[i,1] <- t_index[i]
+  #  r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
+  #  r[i,3] <- "DSS"
+  #}
+  MVF <- param$DSS_aMLE*(1-exp(-1*d$FT*param$DSS_bMLE)*(1+param$DSS_bMLE*d$FT))
+  r <- data.frame(d$FT,MVF,rep("DS",n))
   names(r) <- c("Time","Failure","Model")
   r
 }
+
+
+# Inverse Mean Value function
+DSS_MVF_inv <- function(param,d){
+  
+  #param$aMLE <- 100
+  n <- length(d$FT)
+  r <- data.frame()
+  print(param)
+  #t_index <- seq(0,9000,1)
+  # param$aMLE <- 142.8809
+  # param$bMLE <- 3.420379e-05
+  #t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+  for(i in 1:n){
+  #  r[i,1] <- t_index[i]
+    r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
+  #  r[i,3] <- "DSS"
+  }
+  r <- data.frame(d$FT,r[2],rep("DS",n))
+  names(r) <- c("Time","Failure","Model")
+  r
+}
+
+
 
 # log-Likelihood
 DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
@@ -191,7 +216,7 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
   current_rel <- DSS_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
       sol <- tryCatch(
-        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
         #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){

@@ -65,8 +65,8 @@ K_CategoryLast <- 5
 
 # These lists identify the models used for each data type
 
-K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
-K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
 
 # Colors that will be used in plotting model results
 
