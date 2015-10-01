@@ -124,6 +124,26 @@ Wei_MVF <- function(param,d){
   #a(1-e^(-bt^c))
 }
 
+
+Wei_MVF_inv <- function(param,d){
+  #param$aMLE <- 100
+  n <- length(d$FN)
+  r <- data.frame()
+  print(param)
+  #print(param)
+  #t_index <- seq(0,9000,1)
+  # param$aMLE <- 142.8809
+  # param$bMLE <- 3.420379e-05
+  #print(param$Wei_aMLE)
+  #print(t_index)
+  cumFailTimes <- (log((param$Wei_aMLE-d$FN)/param$Wei_aMLE)/param$Wei_bMLE)^(1/param$Wei_cMLE)
+  r <- data.frame(d$FN,cumFailTimes,rep("Wei", n))
+  names(r) <- c("Failure","Time","Model")
+  r
+  #a(1-e^(-bt^c))
+}
+
+
 Wei_lnL <- function(){
 
 }
