@@ -107,8 +107,8 @@ JM_MVF_efficient <- function(param,d){
     }
   }
 
-  g <- data.frame(cumulr[2],cumulr[1])
-  names(g) <- c("Time","Failure")
+  g <- data.frame(cumulr[2],cumulr[1], rep("JM", n))
+  names(g) <- c("Time","Failure", "Model")
   #print(g)
   g  
 }
@@ -119,8 +119,8 @@ JM_MVF <- function(param,d) {
   r <- data.frame()
   fail_number <- c(1:n)
   cumFailures <- param$JM_N0*(1-exp(-param$JM_Phi*d$FT))
-  r <- data.frame(cumFailures, d$FT)
-  names(r) <- c("Failure","Time")
+  r <- data.frame(cumFailures, d$FT, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
   r
 }
 
@@ -128,12 +128,11 @@ JM_MVF <- function(param,d) {
 # a specific value of MVF.
 
 JM_MVF_inv <- function(param,d) {
-  n <- length(d$FT)
+  n <- length(d$FN)
   r <- data.frame()
-  fail_number <- c(1:n)
-  cumFailTimes <- -(log((param$JM_N0-fail_number)/param$JM_N0))/param$JM_Phi
-  r <- data.frame(fail_number,cumFailTimes)
-  names(r) <- c("Failure","Time")
+  cumFailTimes <- -(log((param$JM_N0-d$FN)/param$JM_N0))/param$JM_Phi
+  r <- data.frame(d$FN,cumFailTimes, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
   r
 }
 
@@ -143,8 +142,8 @@ JM_MTTF <- function(param,d){
   r <-data.frame()
   fail_number <- c(0:(n-1))
   IFTimes <- 1/(param$JM_Phi*(param$JM_N0 - fail_number))
-  r <- data.frame(c(1:n),IFTimes)
-  names(r) <- c("Failure","Time")
+  r <- data.frame(c(1:n),IFTimes, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
   r  
 }
 
@@ -165,9 +164,8 @@ JM_R <- function(param,d){
   for(i in 1:n){
     r[i,1] <- d$FT[i]
     r[i,2] <- exp(-param$JM_Phi*(param$JM_N0-(n-1))*d$FT[i])
-    r[i,3] <- "JM"
   }
-  r <- data.frame(r[1],r[2],r[3])
+  r <- data.frame(r[1],r[2], rep("JM", n))
   names(r) <- c("Time","Reliability","Model")
   r
 }
@@ -180,8 +178,8 @@ JM_MVF_r <- function(param,d){
     r[i,1] <- t_index[i]
     r[i,2] <- param$JM_N0*(1-exp(-1*t_index[i]*param$JM_Phi))
   }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2], rep("JM", n))
+  names(r) <- c("Time","Failure", "Model")
   r
 }
 
@@ -259,29 +257,54 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
     sol
   }
 
-JM_R_growth <- function(params,cur_time,delta, reliability){  
+
+JM_R_growth <- function(params,d,delta, reliability){  
   
   r <-data.frame()
-  tt_index <- seq(0,cur_time,cur_time/1000)
-    for(i in 1:length(tt_index)){   
-      r[i,1] <- tt_index[i]
-      temp <- JM_R_delta(params,tt_index[i],delta)
-      #print(typeof(temp))
-      if(typeof(temp) != typeof("character")){
-        r[i,2] <- temp
-        r[i,3] <- "JM"
-      }
-      else{
-        r[i,2] <- "NA"
-        r[i,3] <- "JM"
-      }     
+  for(i in 1:length(d$FT)){   
+    r[i,1] <- d$FT[i]
+    temp <- JM_R_delta(params,d$FT[i],delta)
+    #print(typeof(temp))
+    if(typeof(temp) != typeof("character")){
+      r[i,2] <- temp
+      r[i,3] <- "JM"
     }
-    g <- data.frame(r[1],r[2],r[3])
-    names(g) <- c("Time","Reliability_Growth","Model")
-    #print(g)
-    g
-      
+    else{
+      r[i,2] <- "NA"
+      r[i,3] <- "JM"
+    }     
+  }
+  g <- data.frame(r[1],r[2],r[3])
+  names(g) <- c("Time","Reliability_Growth","Model")
+  #print(g)
+  g
+  
 }
+
+
+#JM_R_growth <- function(params,cur_time,delta, reliability){  
+#  
+#  r <-data.frame()
+#  tt_index <- seq(0,cur_time,cur_time/1000)
+#    for(i in 1:length(tt_index)){   
+#      r[i,1] <- tt_index[i]
+#      temp <- JM_R_delta(params,tt_index[i],delta)
+#      #print(typeof(temp))
+#      if(typeof(temp) != typeof("character")){
+#        r[i,2] <- temp
+#        r[i,3] <- "JM"
+#      }
+#      else{
+#        r[i,2] <- "NA"
+#        r[i,3] <- "JM"
+#      }     
+#    }
+#    g <- data.frame(r[1],r[2],r[3])
+#    names(g) <- c("Time","Reliability_Growth","Model")
+#    #print(g)
+#    g
+#      
+#}
 
  #MTTF
  

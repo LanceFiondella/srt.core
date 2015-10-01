@@ -185,7 +185,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
                                        "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+
+      # Update the default mission time for computing reliability.
       
+      updateSliderInput(session, "modelRelMissionTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+
     } else if(dataType(names(data_generated))=="FC") {
       data_set_global_type <<- "FailureCounts"
 
@@ -217,7 +222,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     updateSliderInput(session, "parmEstIntvl",
                       min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
                       max = DataModelIntervalEnd-1)
-    
     
     # Finally, output data set
     
@@ -574,7 +578,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   output$ModelPlot <- renderPlot({
     MRPlot <- NULL
     if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
-      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot)
+      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$modelRelMissionTime, input$modelTargetReliability)
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }

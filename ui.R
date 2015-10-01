@@ -117,11 +117,11 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify for how many failures into the future the models will predict"),
                                                                  min = 1, value = 1)
                                              ),
-                                             column(12,
-                                                    numericInput("modelRelInterval", 
-                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                 min = 1, value = 1)
-                                             ),
+#                                             column(12,
+#                                                    numericInput("modelRelInterval", 
+#                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
+#                                                                 min = 1, value = 1)
+#                                             ),
                                              column(12, 
                                                     selectInput(
                                                       "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
@@ -168,6 +168,18 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
                                                                 choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
                                                                                "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                             ),
+                                             column(12,
+                                                    conditionalPanel(
+                                                      condition = "input.modelPlotChoice == 'R_growth'",
+                                                      numericInput("modelRelMissionTime", 
+                                                                   label = h6("Specify the length of the interval for which reliability will be computed"),
+                                                                   min = 0, value = 1),
+                                                      numericInput("modelTargetReliability",
+                                                                   label=h6("Specify the reliability to be achieved"),
+                                                                   min=0, max=1, step=0.01, value=0.9) 
+                                                      
+                                                    )
                                              )
                                            ),
                                            
@@ -198,15 +210,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                                                                  selected = "JPG")
                                              ),
-                                             column(8, downloadButton(outputId = "saveModelResults", label = "Save")),
-                                             column(12,
-                                                    conditionalPanel(
-                                                      condition = "input.modelPlotChoice == 'R_growth'",
-                                                      numericInput("modelRelMissionTime", 
-                                                                   label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                   min = 0, value = 1)
-                                                    )
-                                             )
+                                             column(8, downloadButton(outputId = "saveModelResults", label = "Save"))
                                            ),width=4
                                            
                               ),
