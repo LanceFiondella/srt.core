@@ -143,7 +143,7 @@ JM_MTTF <- function(param,d){
   fail_number <- c(0:(n-1))
   IFTimes <- 1/(param$JM_Phi*(param$JM_N0 - fail_number))
   r <- data.frame(c(1:n),IFTimes, rep("JM", n))
-  names(r) <- c("Failure","Time", "Model")
+  names(r) <- c("Failure_Number","MTTF","Model")
   r  
 }
 
@@ -152,8 +152,8 @@ JM_FI <- function(param,d){
   r <-data.frame()
   fail_number <- c(1:n)
   failIntensity <- param$JM_N0*param$JM_Phi*exp(-param$JM_Phi*d$FT)
-  r <- data.frame(fail_number,failIntensity)
-  names(r) <- c("Failure","Time")
+  r <- data.frame(fail_number,failIntensity, rep("JM",n))
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   r  
 }
 
@@ -258,7 +258,7 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
   }
 
 
-JM_R_growth <- function(params,d,delta, reliability){  
+JM_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
   for(i in 1:length(d$FT)){   

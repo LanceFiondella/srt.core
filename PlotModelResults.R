@@ -1,6 +1,6 @@
 # Plot model results (and raw data, if specified)
 
-plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, RelMissionTime, RelTarget) {
+plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, RelMissionTime) {
   
   require(ggplot2)
   
@@ -67,7 +67,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
         model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
       }
       names(model_params) <- paste(modelIndex, get(paste0(modelIndex, "_params")), sep="_")
-      ModResults[[paste0(modelIndex, "_R_growth")]] <- c(get(paste(modelIndex,"R_growth",sep="_"))(model_params, rg_input_data, RelMissionTime, RelTarget)[["Reliability_Growth"]], rep(1, length(ModResults[[paste(modelIndex, "CumTime", sep="_")]])-length(rg_input_data[[1]])))
+      ModResults[[paste0(modelIndex, "_R_growth")]] <- c(get(paste(modelIndex,"R_growth",sep="_"))(model_params, rg_input_data, RelMissionTime)[["Reliability_Growth"]], rep(1, length(ModResults[[paste(modelIndex, "CumTime", sep="_")]])-length(rg_input_data[[1]])))
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "R_growth", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if (DataView == "FC") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FC", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))

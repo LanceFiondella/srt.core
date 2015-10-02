@@ -141,7 +141,7 @@ GM_FI <- function(param,d){
   beta <- -log(param$GM_Phi)
   failIntensity <- (param$GM_D0/param$GM_Phi)/((beta*param$GM_D0/param$GM_Phi)*d$FT + 1)
   r <- data.frame(fail_count,failIntensity,rep("GM", n))
-  names(r) <- c("Failure","Time","Model")
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   r
 }
 
@@ -210,7 +210,7 @@ GM_Target_T <- function(params,cur_time,delta, reliability){
     sol
   }
 
-GM_R_growth <- function(params,d,delta, reliability){  
+GM_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
     for(i in 1:length(d$FT)){   

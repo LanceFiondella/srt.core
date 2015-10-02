@@ -174,10 +174,10 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                       condition = "input.modelPlotChoice == 'R_growth'",
                                                       numericInput("modelRelMissionTime", 
                                                                    label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                   min = 0, value = 1),
-                                                      numericInput("modelTargetReliability",
-                                                                   label=h6("Specify the reliability to be achieved"),
-                                                                   min=0, max=1, step=0.01, value=0.9) 
+                                                                   min = 0, value = 1)
+#                                                      numericInput("modelTargetReliability",
+#                                                                   label=h6("Specify the reliability to be achieved"),
+#                                                                   min=0, max=1, step=0.01, value=0.9) 
                                                       
                                                     )
                                              )

@@ -34,7 +34,7 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  print('In Step 2 while loop of Wei_BM.R')
+  #print('In Step 2 while loop of Wei_BM.R')
   leftEndPoint <- leftEndPoint/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
   rightEndPoint <- 2*rightEndPoint
@@ -53,7 +53,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
@@ -69,7 +69,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 
   #b_initial <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
 }
-print(b_initial)
+#print(b_initial)
 
 
 b0 <- b_initial
@@ -105,20 +105,14 @@ Wei_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  print(param)
   #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
-  print(param$Wei_aMLE)
-  t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+  #print(param$Wei_aMLE)
   #print(t_index)
-  for(i in 1:length(t_index)){
-    r[i,1] <- t_index[i]
-    r[i,2] <- (param$Wei_aMLE)*(1-exp(-1*(t_index[i]^param$Wei_cMLE)*param$Wei_bMLE))
-    r[i,3] <- "Wei"
-  }
-  r <- data.frame(r[1],r[2],r[3])
+  MVF <- (param$Wei_aMLE)*(1-exp(-1*(d$FT^param$Wei_cMLE)*param$Wei_bMLE))
+  r <- data.frame(d$FT,MVF,rep("Wei", n))
   names(r) <- c("Time","Failure","Model")
   r
   #a(1-e^(-bt^c))
@@ -129,14 +123,13 @@ Wei_MVF_inv <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FN)
   r <- data.frame()
-  print(param)
   #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
   #print(param$Wei_aMLE)
   #print(t_index)
-  cumFailTimes <- (log((param$Wei_aMLE-d$FN)/param$Wei_aMLE)/param$Wei_bMLE)^(1/param$Wei_cMLE)
+  cumFailTimes <- (-log((param$Wei_aMLE-d$FN)/param$Wei_aMLE)/param$Wei_bMLE)^(1/param$Wei_cMLE)
   r <- data.frame(d$FN,cumFailTimes,rep("Wei", n))
   names(r) <- c("Failure","Time","Model")
   r
@@ -213,7 +206,7 @@ Wei_Target_T <- function(params,cur_time,delta, reliability){
         #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- maxiter+10
-            print(paste("recursive", maxiter,sep='_'))
+            #print(paste("recursive", maxiter,sep='_'))
             Wei_Target_T(a,b,cur_time,delta, reliability)
           }
         },
@@ -228,24 +221,21 @@ Wei_Target_T <- function(params,cur_time,delta, reliability){
     sol
   }
 
-Wei_R_growth <- function(params,cur_time,delta, reliability){  
+Wei_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
-  tt_index <- seq(0,cur_time,cur_time/1000)
-    for(i in 1:length(tt_index)){   
-      r[i,1] <- tt_index[i]
-      temp <- Wei_R_delta(params,tt_index[i],delta)
+    for(i in 1:length(d$FT)){   
+      r[i,1] <- d$FT[i]
+      temp <- Wei_R_delta(params,d$FT[i],delta)
       #print(typeof(temp))
       if(typeof(temp) != typeof("character")){
         r[i,2] <- temp
-        r[i,3] <- "Wei"
       }
       else{
         r[i,2] <- "NA"
-        r[i,3] <- "Wei"
       }     
     }
-    g <- data.frame(r[1],r[2],r[3])
+    g <- data.frame(r[1],r[2],rep("Wei", length(d$FT)))
     names(g) <- c("Time","Reliability_Growth","Model")
     #print(g)
     g

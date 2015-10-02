@@ -156,7 +156,7 @@ GO_MTTF <- function(param,d) {
   #    r[i,2] <- ((i*d$FT[i])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i])))) - (((i-1)*d$FT[i-1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i-1]))))
   #  }
   r <- data.frame(c(1, currentFailNums), c(((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1])))), IFTimes), rep("GO", n))
-  names(r) <- c("Failure","Time", "Model")
+  names(r) <- c("Failure_Number","MTTF","Model")
   r
 }
 
@@ -187,7 +187,7 @@ GO_FI <- function(param,d) {
   #    r[i,2] <- param$GO_aMLE*param$GO_bMLE*exp(-param$GO_bMLE*d$FT[i])
   #  }
   r <- data.frame(fail_number,failIntensity, rep("GO", n))
-  names(r) <- c("Failure","Time", "Model")
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   r
 }
 
@@ -277,7 +277,7 @@ GO_Target_T <- function(params,cur_time,delta, reliability){
     sol
   }
 
-GO_R_growth <- function(params,d,delta, reliability){  
+GO_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
   for(i in 1:length(d$FT)){   

@@ -27,7 +27,7 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  print('In Step 2 while loop of DSS_BM_FT.R')
+  #print('In Step 2 while loop of DSS_BM_FT.R')
   leftEndPoint <- leftEndPoint/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
   rightEndPoint <- 2*rightEndPoint
@@ -48,7 +48,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
@@ -66,11 +66,11 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   #bMLE <- uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
 }
 
-print(bMLE)
+#print(bMLE)
 #Step-4
 #MLE of parameter 'a'
 aMLE <- n/(1-exp(-bMLE*tn)*(1+bMLE*tn))
-print(aMLE)
+#print(aMLE)
 
 params <- data.frame("DSS_aMLE"=aMLE,"DSS_bMLE"=bMLE)
 params
@@ -82,7 +82,7 @@ DSS_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  print(param)
+  #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
@@ -105,7 +105,7 @@ DSS_MVF_inv <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  print(param)
+  #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
@@ -221,7 +221,7 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
         #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- maxiter+10
-            print(paste("recursive", maxiter,sep='_'))
+            #print(paste("recursive", maxiter,sep='_'))
             DSS_Target_T(a,b,cur_time,delta, reliability)
           }
         },
@@ -236,24 +236,21 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
     sol
   }
 
-DSS_R_growth <- function(params,cur_time,delta, reliability){  
+DSS_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
-  tt_index <- seq(0,cur_time,cur_time/1000)
-    for(i in 1:length(tt_index)){   
-      r[i,1] <- tt_index[i]
-      temp <- DSS_R_delta(params,tt_index[i],delta)
+    for(i in 1:length(d$FT)){   
+      r[i,1] <- d$FT[i]
+      temp <- DSS_R_delta(params,d$FT[i],delta)
       #print(typeof(temp))
       if(typeof(temp) != typeof("character")){
         r[i,2] <- temp
-        r[i,3] <- "DSS"
       }
       else{
         r[i,2] <- "NA"
-        r[i,3] <- "DSS"
       }     
     }
-    g <- data.frame(r[1],r[2],r[3])
+    g <- data.frame(r[1],r[2],rep("DSS", length(d$FT)))
     names(g) <- c("Time","Reliability_Growth","Model")
     #print(g)
     g
