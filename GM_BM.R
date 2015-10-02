@@ -7,16 +7,6 @@ GM_BM_MLE <- function(interFail){
 n <-length(interFail)
 
 
-
-# interFail <- c(NULL)
-
-# for(i in 2:n){
-#   interFail[i-1]=x[i]-x[i-1]
-# }
-
-# interFail <- c(x[1], interFail)
-
-#Define MLE of parameter 'phi'
 MLEeq<-function(phi){
   NrTerm  <- 0
   DrTerm  <- 0
@@ -104,29 +94,30 @@ params <- data.frame("GM_D0"=D_MLE,"GM_Phi"=phiMLE)
 params
 }
 
-# GM_MVF <- function(param,d){
-#   n <- length(d$FT)
-#   r <- data.frame()
-#   t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
-#   for(i in 1:length(t_index)){
-#     r[i,1] <- t_index[i]
-#     r[i,2] <- param$D0*(1-exp(-1*t_index[i]*param$Phi))
-#   }
-#   r <- data.frame(r[1],r[2])
-#   names(r) <- c("Time","Failure")
-#   r
-# } 
-
-
-
 GM_MVF <- function(param,d){
-  n <- length(d$FT)
+ n <- length(d$FT)
+ r <- data.frame()
+ beta <- -log(param$GM_Phi)
+# t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+# for(i in 1:length(t_index)){
+#   r[i,1] <- t_index[i]
+#   r[i,2] <- param$D0*(1-exp(-1*t_index[i]*param$Phi))
+# }
+ MVF <- (1/beta)*log((param$GM_D0*d$FT*beta/param$GM_Phi)+1)
+ r <- data.frame(d$FT,MVF,rep("GM", n))
+ names(r) <- c("Time","Failure","Model")
+ r
+} 
+
+
+
+GM_MVF_inv <- function(param,d){
+  n <- length(d$FN)
   r <-data.frame()
-  fail_count <- c(1:n)
   beta <- -log(param$GM_Phi)
-  cumFailTimes <- (exp(-beta)*(exp(beta*fail_count) - 1))/(param$GM_D0*beta)
-  r <- data.frame(fail_count,cumFailTimes)
-  names(r) <- c("Failure","Time")
+  cumFailTimes <- (exp(-beta)*(exp(beta*d$FN) - 1))/(param$GM_D0*beta)
+  r <- data.frame(d$FN,cumFailTimes, rep("GM", n))
+  names(r) <- c("Failure","Time","Model")
   r
 }
 
@@ -137,9 +128,8 @@ GM_MTTF <- function(param,d){
   for(i in 1:n){
     r[i,1] <- i
     r[i,2] <- 1/(param$GM_D0*(param$GM_Phi)^i)
-    r[i,3] <- "GM"
     }
-  r <- data.frame(r[1],r[2],r[3])
+  r <- data.frame(r[1],r[2],rep("GM", n))
   names(r) <- c("Failure_Number","MTTF","Model")
   r  
 }
@@ -150,8 +140,8 @@ GM_FI <- function(param,d){
   fail_count <- c(1:n)
   beta <- -log(param$GM_Phi)
   failIntensity <- (param$GM_D0/param$GM_Phi)/((beta*param$GM_D0/param$GM_Phi)*d$FT + 1)
-  r <- data.frame(fail_count,failIntensity)
-  names(r) <- c("Failure","Time")
+  r <- data.frame(fail_count,failIntensity,rep("GM", n))
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   r
 }
 
@@ -170,3 +160,100 @@ GM_R <- function(param,d){
   r
   
 }
+
+GM_lnL  <- function(){
+  
+}
+
+
+GM_MVF_cont <- function(params,t){
+  return( (-1/log(params$GM_Phi))*log(1+params$GM_D0*(-log(params$GM_Phi)*exp(-log(params$GM_Phi)))*t))
+  #return(log(params$GM_D0*(1-exp(-params$JM_Phi*t)))
+}
+
+GM_R_delta <- function(params,cur_time,delta){
+  return(exp(-(GM_MVF_cont(params,(cur_time+delta)) -GM_MVF_cont(params,cur_time))))
+}
+
+GM_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - GM_R_delta(params,cur_time,delta)
+  return(root_equation)
+}
+
+maxiter <- 1000
+GM_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(GM_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- GM_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            GM_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+GM_R_growth <- function(params,d,delta){  
+  
+  r <-data.frame()
+    for(i in 1:length(d$FT)){   
+      r[i,1] <- d$FT[i]
+      temp <- GM_R_delta(params,d$FT[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+        r[i,3] <- "GM"
+      }
+      else{
+        r[i,2] <- "NA"
+        r[i,3] <- "GM"
+      }     
+    }
+    g <- data.frame(r[1],r[2],r[3])
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
+}
+
+
+#GM_R_growth <- function(params,cur_time,delta, reliability){  
+#  
+#  r <-data.frame()
+#  tt_index <- seq(0,cur_time,cur_time/1000)
+#  for(i in 1:length(tt_index)){   
+#    r[i,1] <- tt_index[i]
+#    temp <- GM_R_delta(params,tt_index[i],delta)
+#    #print(typeof(temp))
+#    if(typeof(temp) != typeof("character")){
+#      r[i,2] <- temp
+#      r[i,3] <- "GM"
+#    }
+#    else{
+#      r[i,2] <- "NA"
+#      r[i,3] <- "GM"
+#    }     
+#  }
+#  g <- data.frame(r[1],r[2],r[3])
+#  names(g) <- c("Time","Reliability_Growth","Model")
+#  #print(g)
+#  g
+#  
+#}

@@ -1,11 +1,10 @@
-#x <- c(3, 33, 146, 227, 342, 351, 353, 444,556, 571, 709, 759, 836, 860, 968,1056, 1726, 1846, 1872, 1986, 2311,2366, 2608, 2676, 3098, 3278, 3288,4434, 5034, 5049, 5085, 5089, 5089,5097, 5324, 5389, 5565, 5623, 6080,6380, 6477, 6740, 7192, 7447, 7644,7837, 7843, 7922, 8738, 10089, 10237,10258, 10491, 10625, 10982, 11175,11411, 11442, 11811, 12559, 12559,12791, 13121, 13486, 14708, 15251,15261, 15277, 15806, 16185, 16229,16358, 17168, 17458, 17758, 18287,18568, 18728, 19556, 20567, 21012,21308, 23063, 24127, 25910, 26770,27753, 28460, 28493, 29361, 30085,32408, 35338, 36799, 37642, 37654,37915, 39715, 40580, 42015, 42045,42188, 42296, 42296, 45406, 46653,47596, 48296, 49171, 49416, 50145,52042, 52489, 52875, 53321, 53443,54433, 55381, 56463, 56485, 56560, 57042, 62551, 62651, 62661, 63732,64103, 64893, 71043, 74364, 75409,76057, 81542, 82702, 84566, 88682)
-#require("Rmpfr")
+# require("Rmpfr")
 require("utils")
-#x is interfailure times
+# x is interfailure times
 JM_BM_MLE<-function(interFail){
 n <- length(interFail)
 
-#Define MLE of parameter 'N0'
+# Define MLE of parameter 'N0'
 
 MLEeq<-function(N0){
 leftTerm = 0
@@ -20,12 +19,12 @@ N0_MLE <- leftTerm-((n* interFailSum)/rightTermDenominator)
 return(N0_MLE)
 }
 
-#Step-1: Determine initial parameter estimate for parameter 'b0'
+# Step-1: Determine initial parameter estimate for parameter 'b0'
 
-#b0 <- n/sum(interFail)
+# b0 <- n/sum(interFail)
 b0 <- n
-#print(paste("b): ",b0))
-#Step-2: Bracket root
+# print(paste("b): ",b0))
+# Step-2: Bracket root
 
 i <- 1
 maxIterations <- 100000
@@ -38,8 +37,8 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 
-#print(paste("left:",leftEndPointMLE))
-#print(paste("right:",rightEndPointMLE))
+#------> ! print(paste("left:",leftEndPointMLE))
+#------> ! print(paste("right:",rightEndPointMLE))
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	#print('In Step 2 while loop of JM_BM.R')
@@ -49,9 +48,9 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 	rightEndPointMLE <- MLEeq(rightEndPoint)
 	i <- i+1	
 }
-#
-#print(c(leftEndPointMLE,rightEndPointMLE))
-#Step-3: Invoke uniroot or report non convergence to calling environment
+
+# -----> ! print(c(leftEndPointMLE,rightEndPointMLE))
+# -----> ! Step-3: Invoke uniroot or report non convergence to calling environment
 
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	return('nonconvergence')
@@ -64,7 +63,6 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
     sol <- tryCatch(
       stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10)$root,
       warning = function(w){
-      #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <- maxiter+10
           #print(paste("recursive", maxiter,sep='_'))
@@ -73,33 +71,25 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       },
       error = function(e){
         print(e)
-        #return(e)
       })
     sol
   }
   N0_MLE <- soln(maxiter)
-  #print(N0_MLE)
 
   if(N0_MLE < n){
     return("nonconvergence")
   }
-	#N0_MLE <- stats::unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
-	#N0_MLE <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes",maxiter=10000, tol = 1e-24)$root
-	#N0_MLE <- stats::unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
+  # ----> ! N0_MLE <- stats::unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
+  # ----> ! N0_MLE <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes",maxiter=10000, tol = 1e-24)$root
+  # ----> ! N0_MLE <- stats::unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
 }
-#print(N0_MLE)
-
-#Step-4
-#MLE of parameter '\phi'
 tmp_phi <- numeric(0)
 for(i in 1:n-1){
 	tmp_phi[i] <- (N0_MLE-(i-1))*interFail[i]
 }
-#print(tmp_phi)
 Phi <- n/sum(tmp_phi)
 
 JM_params <-  data.frame("JM_N0"=N0_MLE,"JM_Phi"=Phi)
-#         a     b
 return(JM_params)
 }
 
@@ -117,8 +107,8 @@ JM_MVF_efficient <- function(param,d){
     }
   }
 
-  g <- data.frame(cumulr[2],cumulr[1])
-  names(g) <- c("Time","Failure")
+  g <- data.frame(cumulr[2],cumulr[1], rep("JM", n))
+  names(g) <- c("Time","Failure", "Model")
   #print(g)
   g  
 }
@@ -128,9 +118,21 @@ JM_MVF <- function(param,d) {
   n <- length(d$FT)
   r <- data.frame()
   fail_number <- c(1:n)
-  cumFailTimes <- -(log((param$JM_N0-fail_number)/param$JM_N0))/param$JM_Phi
-  r <- data.frame(fail_number,cumFailTimes)
-  names(r) <- c("Failure","Time")
+  cumFailures <- param$JM_N0*(1-exp(-param$JM_Phi*d$FT))
+  r <- data.frame(cumFailures, d$FT, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
+  r
+}
+
+# This does an "inverse" MVF function, solving for time given
+# a specific value of MVF.
+
+JM_MVF_inv <- function(param,d) {
+  n <- length(d$FN)
+  r <- data.frame()
+  cumFailTimes <- -(log((param$JM_N0-d$FN)/param$JM_N0))/param$JM_Phi
+  r <- data.frame(d$FN,cumFailTimes, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
   r
 }
 
@@ -140,8 +142,8 @@ JM_MTTF <- function(param,d){
   r <-data.frame()
   fail_number <- c(0:(n-1))
   IFTimes <- 1/(param$JM_Phi*(param$JM_N0 - fail_number))
-  r <- data.frame(c(1:n),IFTimes)
-  names(r) <- c("Failure","Time")
+  r <- data.frame(c(1:n),IFTimes, rep("JM", n))
+  names(r) <- c("Failure_Number","MTTF","Model")
   r  
 }
 
@@ -150,8 +152,8 @@ JM_FI <- function(param,d){
   r <-data.frame()
   fail_number <- c(1:n)
   failIntensity <- param$JM_N0*param$JM_Phi*exp(-param$JM_Phi*d$FT)
-  r <- data.frame(fail_number,failIntensity)
-  names(r) <- c("Failure","Time")
+  r <- data.frame(fail_number,failIntensity, rep("JM",n))
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
   r  
 }
 
@@ -162,9 +164,8 @@ JM_R <- function(param,d){
   for(i in 1:n){
     r[i,1] <- d$FT[i]
     r[i,2] <- exp(-param$JM_Phi*(param$JM_N0-(n-1))*d$FT[i])
-    r[i,3] <- "JM"
   }
-  r <- data.frame(r[1],r[2],r[3])
+  r <- data.frame(r[1],r[2], rep("JM", n))
   names(r) <- c("Time","Reliability","Model")
   r
 }
@@ -177,46 +178,140 @@ JM_MVF_r <- function(param,d){
     r[i,1] <- t_index[i]
     r[i,2] <- param$JM_N0*(1-exp(-1*t_index[i]*param$JM_Phi))
   }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2], rep("JM", n))
+  names(r) <- c("Time","Failure", "Model")
   r
 }
 
 # Maximum value of Log-likelihood
 
-  JM_BM_lnl <- function(x,N0_MLE,phi){ # ----> params should be the option to generalize
+JM_lnL <- function(x,params){ # ----> params should be the option to generalize
     n <- length(x)          
     secondTerm=0
     thirdTerm = 0
 
     for(i in 1:n){
-        secondTerm = secondTerm +log((N0_MLE-(i-1)))
-        thirdTerm = thirdTerm +((N0_MLE-(i-1))*x[i])#x=interFail
+        secondTerm = secondTerm +log((params$JM_N0-(i-1)))
+        thirdTerm = thirdTerm +((params$JM_N0-(i-1))*x[i])#x=interFail
       }
-      llf <- n*log(phi)+ secondTerm-(phi*thirdTerm)
-      return(llf)
+      lnL <- n*log(params$JM_Phi)+ secondTerm-(params$JM_Phi*thirdTerm)
+      return(lnL)
   }
  
  #Faults Remaining
  
- JM_BM_FaultsRemaining <- function(N0_MLE,n){ # ----> params should be passed instead
-  return(floor(N0_MLE-n))
+ JM_FaultsRemaining <- function(params,n){ # ----> params should be passed instead
+  return(floor(params$JM_N0-n))
  }
  
  #Reliability
 
- JM_BM_Reliability <- function(n,x,N0_MLE,phi){ # params should be passed instead
+ JM_Reliability <- function(n,x,params){ # params should be passed instead
   Reliability <- numeric(0)
-  Reliability <- exp(-phi*(N0_MLE-(i-1))*x[i])
+  Reliability <- exp(-params$Phi*(params$JM_N0-(i-1))*x[i])
   return(Reliability)
  }
  
+
+
+JM_MVF_cont <- function(params,t){
+  return(params$JM_N0*(1-exp(-params$JM_Phi*t)))
+}
+
+JM_R_delta <- function(params,cur_time,delta){
+  return(exp(-(JM_MVF_cont(params,(cur_time+delta)) -JM_MVF_cont(params,cur_time))))
+}
+
+JM_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - exp(params$JM_N0*(1-exp(-params$JM_Phi*cur_time)) - params$JM_N0*(1-exp(-params$JM_Phi*(cur_time+delta))))
+  return(root_equation)
+}
+
+maxiter <- 1000
+JM_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(JM_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- JM_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            print(paste("recursive", maxiter,sep='_'))
+            JM_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+
+JM_R_growth <- function(params,d,delta){  
+  
+  r <-data.frame()
+  for(i in 1:length(d$FT)){   
+    r[i,1] <- d$FT[i]
+    temp <- JM_R_delta(params,d$FT[i],delta)
+    #print(typeof(temp))
+    if(typeof(temp) != typeof("character")){
+      r[i,2] <- temp
+      r[i,3] <- "JM"
+    }
+    else{
+      r[i,2] <- "NA"
+      r[i,3] <- "JM"
+    }     
+  }
+  g <- data.frame(r[1],r[2],r[3])
+  names(g) <- c("Time","Reliability_Growth","Model")
+  #print(g)
+  g
+  
+}
+
+
+#JM_R_growth <- function(params,cur_time,delta, reliability){  
+#  
+#  r <-data.frame()
+#  tt_index <- seq(0,cur_time,cur_time/1000)
+#    for(i in 1:length(tt_index)){   
+#      r[i,1] <- tt_index[i]
+#      temp <- JM_R_delta(params,tt_index[i],delta)
+#      #print(typeof(temp))
+#      if(typeof(temp) != typeof("character")){
+#        r[i,2] <- temp
+#        r[i,3] <- "JM"
+#      }
+#      else{
+#        r[i,2] <- "NA"
+#        r[i,3] <- "JM"
+#      }     
+#    }
+#    g <- data.frame(r[1],r[2],r[3])
+#    names(g) <- c("Time","Reliability_Growth","Model")
+#    #print(g)
+#    g
+#      
+#}
+
  #MTTF
  
- JM_BM_MTTF <- function(n,N0_MLE,phi){ # params should be passed instead
-  MTTF=0
-  for(i in 1:n){
-    MTTF = MTTF +(1/(phi*(N0_MLE-(n+(i-1)))))
-  }
-  return(MTTF)
- }
+ # JM_MTTF <- function(n,params){ # params should be passed instead
+ #  MTTF=0
+ #  for(i in 1:n){
+ #    MTTF = MTTF +(1/(params$JM_Phi*(params$JM_N0-(n+(i-1)))))
+ #  }
+ #  return(MTTF)
+ # }

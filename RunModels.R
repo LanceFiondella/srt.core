@@ -1,6 +1,6 @@
 library(rootSolve)
 
-run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, tol_local) {
+run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
   
   in_data <- raw_data
   if (dataType(names(in_data)) == "FR") {
@@ -10,6 +10,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
   }
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
+  OffsetFailure <- DataStart-1
   localEstIntvlEnd <- ParmInitIntvl-DataStart+1
   
   # Set up two local vectors to hold the names of models that completed
@@ -18,7 +19,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
   PlottableModels <- c()
   UnplottableModels <- c()
   
-  local_results <- data.frame("Failure"=c(DataStart:(DataEnd+PredAheadSteps)))
+  local_results <- data.frame("Failure"=c((DataStart:DataEnd), rep(NA,PredAheadSteps)))
   
   # Set up a vector of fill data (use NA for fill)
   
@@ -35,6 +36,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
       for (paramNum in 1:length(get(paste(modelID,"params",sep="_")))) {
         local_results[[paste0(modelID, "_parm_", paramNum)]] <- naFill
       }
+      local_results[[paste0(modelID, "_CumTime")]] <- NaNFill
       local_results[[paste0(modelID, "_MVF")]] <- NaNFill
       local_results[[paste0(modelID, "_IF")]] <- NaNFill
       local_results[[paste0(modelID, "_FI")]] <- NaNFill
@@ -70,10 +72,17 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
         
         ModelPredsNA <- c()
         ModelPredsNaN <- c()
-        ModelPredsInF <- c()
+        ModelPredsInf <- c()
         ModelPredsZero <- c()
+        ModelPredsOnes <- c()
         FillData <- rep(NA, PredAheadSteps)
-        EmptyDataEntries <- rep(NA, PredAheadSteps)
+
+        # Compute the MVF, IF, FI, Reliability, and Reliability Growth functions for the model.
+        
+        pred_input_data <- data.frame("IF" = in_data[["IF"]], "FT" = in_data[["FT"]]-OffsetTime)
+        
+        # First estimate MVF, then forecast.
+        local_estim <- get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Failure"]]
         
         # The next thing we do is determine whether this is a finite-failures
         # model.  If it is, we may have to add some fill onto the end of the
@@ -81,40 +90,64 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
         # make predictions for more future failures than the model thinks
         # there actually are.
         
-        if (get(paste(modelID,"failcount",sep="_"))[1] == "finite") {
+        if (get(paste(modelID,"Finite",sep="_"))) {
           ExpectedTotalFailures <- model_params[get(paste(modelID,"numfailsparm",sep="_"))[1]]
-          if(DataEnd-DataStart+1+PredAheadSteps < ExpectedTotalFailures) {
-            FillData <- rep(NA, PredAheadSteps)
-            EmptyDataEntries <- rep(NA, PredAheadSteps)
+          
+          if(abs(local_estim[length(local_estim)]-round(local_estim[length(local_estim)])) < tol_local) {
+            lower_pred_bound <- local_estim[length(local_estim)]+1
+          } else {
+            lower_pred_bound <- floor(local_estim[length(local_estim)])+1
+          }
+          
+          if(PredAheadSteps < ExpectedTotalFailures-(DataEnd-DataStart+1)) {
+            invMVFinput <- c(lower_pred_bound:(lower_pred_bound+PredAheadSteps-1))
+            FillData <- c()
           } else {
             # Here we take care of the situation in which we're asking for
             # predictions further ahead than the model thinks there are
             # failures left to discover.
             
-            if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < tol_local) {
-              
-              # The model's expected number of failures is a whole number
-              
-              FillData <- rep(NA, (ExpectedTotalFailures-length(in_data[[1]])-1))
+            if(lower_pred_bound < ExpectedTotalFailures) {
+              if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < tol_local) {
+                
+                # The model's expected number of failures is a whole number
+                
+                invMVFinput <- c(lower_pred_bound:(floor(ExpectedTotalFailures)-1))
+              } else {
+                # The model's expected number of failures is not a whole number
+                
+                invMVFinput <- c(lower_pred_bound:as.integer(ExpectedTotalFailures))
+              }
             } else {
-              # The model's expected number of failures is not a whole number
-              
-              FillData <- rep(NA, (floor(ExpectedTotalFailures)-length(in_data[[1]])))
+              invMVFinput <- c()
             }
-            ModelPredsNA <- rep(NA, PredAheadSteps-length(FillData))
-            ModelPredsNaN <- rep(NaN, PredAheadSteps-length(FillData))
-            ModelPredsInF <- rep(Inf, PredAheadSteps-length(FillData))
-            ModelPredsZero <- rep(0, PredAheadSteps-length(FillData))
+            ModelPredsNA <- rep(NA, PredAheadSteps-length(invMVFinput))
+            ModelPredsNaN <- rep(NaN, PredAheadSteps-length(invMVFinput))
+            ModelPredsInf <- rep(Inf, PredAheadSteps-length(invMVFinput))
+            ModelPredsZero <- rep(0, PredAheadSteps-length(invMVFinput))
+            ModelPredsOnes <- rep(1, PredAheadSteps-length(invMVFinput))
           }
+        } else {
+          ExpectedTotalFailures <- 0
+          invMVFinput <- c((floor(local_estim[length(local_estim)])+1):(floor(local_estim[length(local_estim)])+PredAheadSteps))
         } # Endif - are we working with a finite or infinite failures model?
+
+        if(length(invMVFinput) > 0) {
+          pred_input_data <- data.frame("FN" = invMVFinput)
+          local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]], get(paste(modelID,"MVF_inv",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
+          local_results[[paste0(modelID, "_MVF")]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
+        } else {
+          local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]], ModelPredsInf)
+          local_results[[paste0(modelID, "_MVF")]] <- c(local_estim+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), PredAheadSteps))
+        }
+
+        pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime"))), select=get(paste0(modelID, "_CumTime"))))
+        names(pred_input_data) <- c("FT")
+        local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Failure_Rate"]], ModelPredsZero)
+        local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["MTTF"]], ModelPredsInf)
         
-        # Compute the MVF, IF, FI, and Reliability functions for the model.
+        local_results[[paste0(modelID, "_R_growth")]] <-c(get(paste(modelID,"R_growth",sep="_"))(model_params, pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes)
         
-        pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = c(in_data[["FT"]], FillData))
-        local_results[[paste0(modelID, "_MVF")]] <- c(get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInF)
-        pred_input_data <- data.frame("IF" = c(in_data[["IF"]], FillData), "FT" = head(local_results[[paste0(modelID, "_MVF")]], length(in_data[["FT"]])+length(FillData)))
-        local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsZero)
-        local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["Time"]], ModelPredsInF)
         #local_results[[paste0(modelID, "_Rel")]] <- NaNFill
         pred_input_data <- NULL
         

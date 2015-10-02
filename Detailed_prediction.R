@@ -1,34 +1,40 @@
 # Detailed prediction
-get_prediction_n <- function(x,time,n){
+get_prediction_n <- function(x,t,n){
+
 	total_time <- 0
+	print("Inside function")
+	print(t)
 	i <- 0
 	if('JM_N0' %in% names(x)){
-		while( total_time < time){
+		while( total_time < t){
 			i <- i + 1
-			total_time <- (1/(x$JM_Phi*(x$JM_N0-(time+i-1)))) + total_time
-			if(total_time > time){
+			total_time <- (1/(x$JM_Phi*(x$JM_N0-(t+i-1)))) + total_time
+			if(total_time > t){
 				i <- i - 1 
 			}			
 		}
 	}
 	else if('GM_D0' %in% names(x)){
-		while( total_time < time){
+		while( total_time < t){
 			i <- i +1
-			total_time <- (1/(x$D0*(x$Phi)^(time+i-1))) + total_time
-			if(total_time > time){
+			total_time <- (1/(x$GM_D0*(x$GM_Phi)^(t+i-1))) + total_time
+			if(total_time > t){
 				i <- i - 1 
 			}	
 		}
 	}
-	else if('G0' %in% names(x)){
-			while(total_time < time){
+	else if('GO_aMLE' %in% names(x)){
+			while(total_time < t){
 				i <- i +1
-				total_time <- (1/(x$G0*(x$Phi)^(time+i-1))) + total_time
-				if(total_time > time){
+				total_time <- (1/(x$GO_aMLE*(x$GO_bMLE)^(t+i-1))) + total_time
+				if(total_time > t){
 					i <- i - 1 
 				}	
 			}
 		}
+	else{
+		i <- "Model parameter not defined"
+	}
 	i	
 }
 
@@ -49,26 +55,28 @@ get_prediction_t <- function(x,steps,n){
 			}
 		}
 	}
-	else if('D0' %in% names(x)){
+	else if('GM_D0' %in% names(x)){
 		t <- 0
 		if(steps!=0){
 			for(i in 1:steps){
-				if((x$JM_N0 - n)>=i){
-					t <- (1/(x$GO_D0*(x$GO_Phi)^(n+i-1)))+ t
-					time_indexes[i] <- t
-				}
-				else{
-					time_indexes[i] <- "NA"
-				}
+				t <- (1/(x$GM_D0*(x$GM_Phi)^(n+i-1)))+ t
+				time_indexes[i] <- t
+				# if((x$GM_N0 - n)>=i){
+				# 	t <- (1/(x$GM_D0*(x$GM_Phi)^(n+i-1)))+ t
+				# 	time_indexes[i] <- t
+				# }
+				# else{
+				# 	time_indexes[i] <- "NA"
+				# }
 			}
 		}
 	}
-	else if("G0" %in% names(x)){
+	else if("GO_aMLE" %in% names(x)){
 		t <- 0
 		if(steps!=0){
 			t_prev <- 0
 			for(i in 1:steps){
-				t_now <- (1/(x$G0*(x$Phi)^(n+i-1)))
+				t_now <- (1/(x$GO_aMLE*(x$GO_bMLE)^(n+i-1)))
 				t <- t_now + t_prev
 				time_indexes[i] <- t
 				t_prev <-t_now
@@ -76,14 +84,14 @@ get_prediction_t <- function(x,steps,n){
 	 			}
 	 		}
 	else{
-		return("No parameter defined")
+		return("Model Parameter not defined")
 	}
 	time_indexes
 
 }
 
 
-mvf_nhpp <- function(){
+mvf_nhpp <- function(a,b,t){
 	return(a*(1-exp(-b*t)))
 }
 

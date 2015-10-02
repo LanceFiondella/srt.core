@@ -11,10 +11,12 @@ model_result_table <- function (in_data, ResultsToShow) {
       for (paramNum in 1:length(get(paste(modelID,"params",sep="_")))) {
         local_MR_Table[[paste0(modelID, "_parm_", paramNum)]] <- in_data[[paste0(modelID, "_parm_", paramNum)]]
       }
+      local_MR_Table[[paste0(modelID, "_CumTime")]] <- in_data[[paste0(modelID, "_CumTime")]]
       local_MR_Table[[paste0(modelID, "_MVF")]] <- in_data[[paste0(modelID, "_MVF")]]
       local_MR_Table[[paste0(modelID, "_IF")]] <- in_data[[paste0(modelID, "_IF")]]
       local_MR_Table[[paste0(modelID, "_FI")]] <- in_data[[paste0(modelID, "_FI")]]
       local_MR_Table[[paste0(modelID, "_Rel")]] <- in_data[[paste0(modelID, "_Rel")]]
+      local_MR_Table[[paste0(modelID, "_R_growth")]] <- in_data[[paste0(modelID, "_R_growth")]]
     }
   } else {
     

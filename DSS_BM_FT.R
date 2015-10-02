@@ -27,7 +27,7 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  print('In Step 2 while loop of DSS_BM_FT.R')
+  #print('In Step 2 while loop of DSS_BM_FT.R')
   leftEndPoint <- leftEndPoint/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
   rightEndPoint <- 2*rightEndPoint
@@ -40,15 +40,15 @@ while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 if(leftEndPointMLE*rightEndPointMLE > 0 ){
   return('nonconvergence')
 } else {
-   maxiter <- 20
+   maxiter <<- 20
   soln <- function(maxiter){
     sol <- tryCatch(
       stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
       warning = function(w){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
-          maxiter <- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          maxiter <<- maxiter+1 
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
@@ -62,40 +62,65 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   if(bMLE < 0){
     return('nonconvergence')
   }
-  #bMLE <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
-  #bMLE <- stats::uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
+  #bMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
+  #bMLE <- uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
 }
 
-print(bMLE)
+#print(bMLE)
 #Step-4
 #MLE of parameter 'a'
 aMLE <- n/(1-exp(-bMLE*tn)*(1+bMLE*tn))
-print(aMLE)
+#print(aMLE)
 
 params <- data.frame("DSS_aMLE"=aMLE,"DSS_bMLE"=bMLE)
 params
 
 }
 
-#Mean Value function
+# Mean Value function
 DSS_MVF <- function(param,d){
   #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  print(param)
+  #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
-  t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
-  for(i in 1:length(t_index)){
-    r[i,1] <- t_index[i]
-    r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
-    r[i,3] <- "DSS"
-  }
-  r <- data.frame(r[1],r[2],r[3])
+  #t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+  #for(i in 1:length(t_index)){
+  #  r[i,1] <- t_index[i]
+  #  r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
+  #  r[i,3] <- "DSS"
+  #}
+  MVF <- param$DSS_aMLE*(1-exp(-1*d$FT*param$DSS_bMLE)*(1+param$DSS_bMLE*d$FT))
+  r <- data.frame(d$FT,MVF,rep("DS",n))
   names(r) <- c("Time","Failure","Model")
   r
 }
+
+
+# Inverse Mean Value function
+DSS_MVF_inv <- function(param,d){
+  
+  #param$aMLE <- 100
+  n <- length(d$FT)
+  r <- data.frame()
+  #print(param)
+  #t_index <- seq(0,9000,1)
+  # param$aMLE <- 142.8809
+  # param$bMLE <- 3.420379e-05
+  #t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
+  for(i in 1:n){
+  #  r[i,1] <- t_index[i]
+    r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
+  #  r[i,3] <- "DSS"
+  }
+  r <- data.frame(d$FT,r[2],rep("DS",n))
+  names(r) <- c("Time","Failure","Model")
+  r
+}
+
+
 
 # log-Likelihood
 DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
@@ -113,5 +138,121 @@ DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
       lnL
   }
 
+
+DSS_MTTF <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*(i))))
+    r[i,3] <- "DSS"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
+  r
+
+}
+
+
+DSS_FI <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- (params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i]))
+    r[i,3] <- "DSS"
+    }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  r
+}
+
+
+DSS_R <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- exp(-(params$DSS_aMLE*d$FT[i]))
+    r[i,3] <- "DSS"
+  }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Time","Reliability","Model")
+  r
+}
+
+# DSS_R_growth <- function(){
+
+# }
 #MVF <- aMLE*(1-(1+bMLE*x)*exp(-bMLE*x))
 
+DSS_Faults_Remain <- function(){
+  # a(1+ bt)e^(-bt)
+}
+
+DSS_MVF_cont <- function(param,t){
+  return(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
+}
+
+DSS_R_delta <- function(params,cur_time,delta){
+  return(exp(-(DSS_MVF_cont(params,(cur_time+delta)) - DSS_MVF_cont(params,cur_time))))
+}
+
+DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
+  root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
+  return(root_equation)
+}
+
+maxiter <- 1000
+DSS_Target_T <- function(params,cur_time,delta, reliability){
+
+  f <- function(t){
+    return(DSS_R_MLE_root(params,t,delta, reliability))
+  }
+
+  current_rel <- DSS_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+      sol <- tryCatch(
+        stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+        #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+10
+            #print(paste("recursive", maxiter,sep='_'))
+            DSS_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+  }
+  else {
+    sol <- "Target reliability already achieved"
+  }
+    sol
+  }
+
+DSS_R_growth <- function(params,d,delta){  
+  
+  r <-data.frame()
+    for(i in 1:length(d$FT)){   
+      r[i,1] <- d$FT[i]
+      temp <- DSS_R_delta(params,d$FT[i],delta)
+      #print(typeof(temp))
+      if(typeof(temp) != typeof("character")){
+        r[i,2] <- temp
+      }
+      else{
+        r[i,2] <- "NA"
+      }     
+    }
+    g <- data.frame(r[1],r[2],rep("DSS", length(d$FT)))
+    names(g) <- c("Time","Reliability_Growth","Model")
+    #print(g)
+    g
+      
+}
