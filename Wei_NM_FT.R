@@ -6,6 +6,7 @@ library(rootSolve)
 
 
 Wei_NM_MLE <- function(tVec){
+  tVec <- as.numeric(tVec)
 n <- length(tVec)
 tn <- tVec[n]
 sumT <- sum(tVec)
@@ -143,7 +144,7 @@ Wei_FI <- function(params,d){
 }
 
 Wei_R <- function(){
-
+  # TODO
 }
 
 # Wei_R_growth <- function(){
