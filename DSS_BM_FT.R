@@ -99,24 +99,32 @@ DSS_MVF <- function(param,d){
 }
 # MVF = a(1-(1+bT)e^(-bT))
 
+
 # Inverse Mean Value function
 DSS_MVF_inv <- function(param,d){
   
-  #param$aMLE <- 100
-  n <- length(d$FT)
+  f <- function(t,numFails) param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+t*param$DSS_bMLE))-numFails
+
+  n <- length(d$FN)
   r <- data.frame()
-  #print(param)
-  #t_index <- seq(0,9000,1)
-  # param$aMLE <- 142.8809
-  # param$bMLE <- 3.420379e-05
-  #t_index <- seq(d$FT[1],d$FT[n],(d$FT[n]-d$FT[1])/100)
   for(i in 1:n){
-  #  r[i,1] <- t_index[i]
-    r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
-  #  r[i,3] <- "DSS"
+    lowerBound <- -(log((param$DSS_aMLE-d$FN[i])/param$DSS_aMLE))/param$DSS_bMLE
+    upperBound <- lowerBound*10
+    sol <- tryCatch(
+      stats::uniroot(f,lower=lowerBound, upper=upperBound, extendInt="yes", maxiter=maxiter, tol=1e-10, numFails=d$FN[i])$root,
+      warning = function(w){
+        if(length(grep("_NOT_ converged",w[1]))>0){
+          maxiter <<- maxiter+10
+          DSS_MVF_inv(a,b,d)
+        }
+      },
+      error = function(e){
+        print(e)
+      })
+    r[i,1] <- sol
   }
-  r <- data.frame(d$FT,r[2],rep("DSS",n))
-  names(r) <- c("Time","Failure","Model")
+  r <- data.frame(d$FN,r[1],rep("DSS",n))
+  names(r) <- c("Failure","Time","Model")
   r
 }
 
