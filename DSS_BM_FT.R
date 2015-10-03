@@ -93,11 +93,11 @@ DSS_MVF <- function(param,d){
   #  r[i,3] <- "DSS"
   #}
   MVF <- param$DSS_aMLE*(1-exp(-1*d$FT*param$DSS_bMLE)*(1+param$DSS_bMLE*d$FT))
-  r <- data.frame(d$FT,MVF,rep("DS",n))
+  r <- data.frame(d$FT,MVF,rep("DSS",n))
   names(r) <- c("Time","Failure","Model")
   r
 }
-
+# MVF = a(1-(1+bT)e^(-bT))
 
 # Inverse Mean Value function
 DSS_MVF_inv <- function(param,d){
@@ -115,7 +115,7 @@ DSS_MVF_inv <- function(param,d){
     r[i,2] <- param$DSS_aMLE*(1-exp(-1*t_index[i]*param$DSS_bMLE)*(1+param$DSS_bMLE*t_index[i]))
   #  r[i,3] <- "DSS"
   }
-  r <- data.frame(d$FT,r[2],rep("DS",n))
+  r <- data.frame(d$FT,r[2],rep("DSS",n))
   names(r) <- c("Time","Failure","Model")
   r
 }
@@ -145,7 +145,7 @@ DSS_MTTF <- function(params,d){
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*(i))))
+    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i])))
     r[i,3] <- "DSS"
     }
   r <- data.frame(r[1],r[2],r[3])

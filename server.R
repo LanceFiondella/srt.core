@@ -187,7 +187,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                                        "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
 
       # Update the default mission time for computing reliability.
+      # We choose the most recent IF time that is greater than 0.
       
+      for (dataIndex in length(data_generated$IF):1) {
+        if(data_generated$IF[dataIndex] > 0) {break}
+      }
       updateSliderInput(session, "modelRelMissionTime",
                         min=0, value=data_generated$IF[length(data_generated$IF)])
 
@@ -558,7 +562,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
           
           # User has selected at one model to display as a table.
           
-          MR_Table <- model_result_table(ModelResults, input$AllModelsRun)
+          MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
         }
       }
       if (length(MR_Table) <= 1) {

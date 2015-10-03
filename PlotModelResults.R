@@ -30,7 +30,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability vs. Cumulative Test Time for ", DataSetName))
     localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability")
   } else if(DataView == "R_growth") {
-    localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability Growth vs. Cumulative Test Time for ", DataSetName))
+    localResultsPlot <- localResultsPlot + ggtitle(paste0("Reliability Growth vs. Cumulative Test Time for ", DataSetName, ": Operational Time of ", as.character(RelMissionTime)))
     localResultsPlot <- localResultsPlot + xlab("Cumulative Test Time")+ylab("Reliability Growth")
   } else if (DataView == "FC") {
     localResultsPlot <- localResultsPlot + ggtitle(paste0("Failure Counts vs. Cumulative Test Time for ", DataSetName))
@@ -57,8 +57,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     } else if(DataView == "R") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "Rel", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if(DataView == "R_growth") {
-      # This is an interactive plot - users can change the target reliability
-      # or the mission time for which reliability will be computed.
+      
+      # This is an interactive plot - users can change the mission time for
+      # which reliability will be computed.  The plot will then be redrawn.
       
       rg_input_data <- data.frame("FT" = subset(ModResults, !is.infinite(get(paste0(modelIndex, "_CumTime"))), select=get(paste0(modelIndex, "_CumTime"))))
       names(rg_input_data) <- c("FT")
@@ -67,8 +68,8 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
         model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
       }
       names(model_params) <- paste(modelIndex, get(paste0(modelIndex, "_params")), sep="_")
-      ModResults[[paste0(modelIndex, "_R_growth")]] <- c(get(paste(modelIndex,"R_growth",sep="_"))(model_params, rg_input_data, RelMissionTime)[["Reliability_Growth"]], rep(1, length(ModResults[[paste(modelIndex, "CumTime", sep="_")]])-length(rg_input_data[[1]])))
-      model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "R_growth", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
+      temp_R_growth <- data.frame("Reliability_Growth"=c(get(paste(modelIndex,"R_growth",sep="_"))(model_params, rg_input_data, RelMissionTime)[["Reliability_Growth"]], rep(1, length(ModResults[[paste(modelIndex, "CumTime", sep="_")]])-length(rg_input_data[[1]]))))
+      model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = temp_R_growth[["Reliability_Growth"]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if (DataView == "FC") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FC", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else {
