@@ -3,7 +3,7 @@
 
 #Define n, tn and sumT
 DSS_BM_MLE <- function(x){
-
+x <- as.numeric(x)
 n <- length(x)
 tn <- x[n]
 sumT <- sum(x)
@@ -80,6 +80,7 @@ params
 #Mean Value function
 DSS_MVF <- function(param,d){
   #param$aMLE <- 100
+
   n <- length(d$FT)
   r <- data.frame()
   print(param)
@@ -109,18 +110,20 @@ DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
         firstSumTerm = firstSumTerm + log(x[i])
         secondSumTerm = secondSumTerm + (-params$DSS_bMLE*x[i])
       }
-      lnL <- -params$DSS_aMLE*(1-(1+params$DSS_bMLE*tn)*exp(-bMLE*tn))+ n*(log(params$DSS_aMLE)) + 2*n*log(params$DSS_bMLE) +  firstSumTerm + secondSumTerm
-      lnL
+      lnL <- -params$DSS_aMLE*(1-(1+params$DSS_bMLE*tn)*exp(-params$DSS_bMLE*tn))+ n*(log(params$DSS_aMLE)) + 2*n*log(params$DSS_bMLE) +  firstSumTerm + secondSumTerm
+      return(lnL)
   }
 
 
 DSS_MTTF <- function(params,d){
+  x <- as.numeric(d$FT)
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*(i))))
+    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*x[i]*(exp(-params$DSS_bMLE*x[i])))
+    # r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i]))
     r[i,3] <- "DSS"
     }
   r <- data.frame(r[1],r[2],r[3])
