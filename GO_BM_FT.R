@@ -4,9 +4,10 @@
 #Define n, tn and sumT
 
 GO_BM_MLE <- function(x){
+  x <- as.numeric(x)
 n <- length(x)
 tn <- x[n]
-sumT <- sum(x)
+sumT <- sum(as.numeric(x))
 #print("GO_BM_R\n")
 #Define MLE of parameter 'b'
 GO_MLEeq<-function(b){
