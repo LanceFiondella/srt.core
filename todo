@@ -64,6 +64,7 @@ todo
 
 # Move todo list to lfiondela/SRT
 
+<<<<<<< HEAD
 
 
 
@@ -73,3 +74,8 @@ todo
 
 # ?----> result sheet names based on test_script and 
 # 
+=======
+# Model_data.xlsx new formatting for test script
+
+>>>>>>> 548d37be0089421756ae9350a2052f761535219f
+
