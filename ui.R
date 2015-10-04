@@ -280,21 +280,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12,
                                                     numericInput("modelRelMissionTime2", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
-<<<<<<< HEAD
-                                                                 min = 0, value = 1)
-                                             ),
-                                             br(),
-                                             column(12,
-                                                    actionButton("makePredictions", label = "Make Model Predictions")
-=======
                                                                  min = 0, value = 1),
-                                                    downloadButton('downloadData', 'Download')
->>>>>>> pr/7
+                                                    downloadButton('downloadData', 'Save Model Predictions')
                                              )
-                                           ),
-                                           fluidRow(
-                                             br(),
-                                             column(12, downloadButton(outputId = "saveModelPreds", label = "Save Model Predictions"))
                                            )
                               ),
                               
@@ -320,32 +308,28 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                     ),
                                              
                                     fluidRow(
-                                             column(12, 
-                                                    h5("Select a model evaluation technique to apply"),
-                                                    selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
-                                                                choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
-                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
-                                                                               "Predictive Sum Of Squares" = "PSSE"
-                                                                               ), selected = "PSSE")
-                                             ),
+#                                             column(12, 
+#                                                    h5("Select a model evaluation technique to apply"),
+#                                                    selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
+#                                                                choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
+#                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
+#                                                                               "Predictive Sum Of Squares" = "PSSE"
+#                                                                               ), selected = "PSSE")
+#                                             ),
                                              
                                              column(12,
-                                                    numericInput("numericEvalSigValue", 
-                                                                 label = h6("Specify the significance level for the selected test"),
-                                                                 min = 0, max = 1, step = 0.001,
-<<<<<<< HEAD
-                                                                 value = .05)
-                                             ),
-                                             br(),
-                                             column(8, downloadButton(outputId = "saveModelEval", label = "Save"))
-=======
-                                                                 value = .05),
+#                                                    numericInput("numericEvalSigValue", 
+#                                                                 label = h6("Specify the significance level for the selected test"),
+#                                                                 min = 0, max = 1, step = 0.001,
+#                                                                 value = .05),
                                                     numericInput("percentData", 
                                                                  label = h6("Specify the Percent Data for PSSE"),
                                                                  min = 0.1, max = 1.0, step = 0.001,
                                                                  value = .90)
+                                             ),
+                                             column(12,
+                                                    downloadButton('saveModelEvals', 'Save Model Evaluations')
                                              )
->>>>>>> pr/7
                                            )
 
                                   ),

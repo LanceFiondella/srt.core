@@ -488,46 +488,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       # Release temporary storage of model results
       tempResultsList <- list()
     }
-#<<<<<<< HEAD
   })
-#=======
-#  }
-#  if(input$modelPlotChoice=="R_growth"){
-#    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data$FT[length(data$FT)],input$modelRelMissionTime,input$modelTargetReliability))
-#
-#    if(input$ModelDataPlotType=="points_and_lines"){
-#      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability_Growth,color=Model)) # can we use Reliability_Growth without underscore
-#    }
-#    if(input$ModelDataPlotType=="points"){
-#      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
-#    }
-#    if(input$ModelDataPlotType=="lines"){
-#      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
-#
-#    }
-#    if(is.null(input$dataSheetChoice)){
-#      p1 <- p1+ggtitle("Reliabililty Growth function plot")
-#    }
-#    else{
-#       p1 <- p1+ggtitle(paste(c("Reliabililty Growth function plot ["),input$dataSheetChoice,"]"))
-#    }
-#
-#
-#  }
-#  }
-#
-#  else if(dataType(names(data))=="FC"){
-#  # To be programmed
-#
-#
-#  }
-#  p1          
-# 
-#
-#}
-#>>>>>>> pr/5
-  
-  
 
 
 # ------------------------------------------------------------------------------------------------------
@@ -678,7 +639,7 @@ output$mytable1 <- renderDataTable({
     
 
     if(is.null(inFile)){
-      return("Please upload an a file")
+      return("Please upload a file")
     }
 
     data <- data_global()
@@ -709,7 +670,7 @@ output$mytable1 <- renderDataTable({
       names(tab3_table1) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
     tab3_table1
   }
-  })
+}, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 tracked_models <- reactive({
   input$modelDetailChoice
@@ -772,7 +733,13 @@ tab4_table1_construct <- function(model,data,input){
   }
 }
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ----------------------------------------   TAB4 Table   ----------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
 
 output$mytable2 <- renderDataTable({
     source("GOF.R")
@@ -799,5 +766,6 @@ output$mytable2 <- renderDataTable({
     }
 
     tab4_table1
-  })
+  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+
 })
