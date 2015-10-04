@@ -2,6 +2,7 @@
 require("utils")
 # x is interfailure times
 JM_BM_MLE<-function(interFail){
+  interFail <- as.numeric(interFail)
 n <- length(interFail)
 
 # Define MLE of parameter 'N0'
@@ -255,7 +256,7 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
     sol <- "Target reliability already achieved"
   }
     sol
-  }
+}
 
 
 JM_R_growth <- function(params,d,delta){  

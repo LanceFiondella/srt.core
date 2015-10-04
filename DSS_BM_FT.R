@@ -3,78 +3,78 @@
 
 #Define n, tn and sumT
 DSS_BM_MLE <- function(x){
-
-n <- length(x)
-tn <- x[n]
-sumT <- sum(x)
-
-#Define MLE of parameter 'b'
-MLEeq<-function(b){
-  (2/b)-((b*tn^2)/(exp(b*tn)-1-b*tn))-((sum(x))/(n)) 
-}
-
-#Step-1: Determine initial parameter estimate for parameter 'b'
-
-b0 <- n/sumT
-
-#Step-2: Bracket root
-
-i <- 0 
-maxIterations <- 10
-leftEndPoint <- b0/2
-leftEndPointMLE <- MLEeq(leftEndPoint)
-rightEndPoint <- 2*b0
-rightEndPointMLE <- MLEeq(rightEndPoint)
-
-while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  #print('In Step 2 while loop of DSS_BM_FT.R')
-  leftEndPoint <- leftEndPoint/2
+  x <- as.numeric(x)
+  n <- length(x)
+  tn <- x[n]
+  sumT <- sum(x)
+  
+  #Define MLE of parameter 'b'
+  MLEeq<-function(b){
+    (2/b)-((b*tn^2)/(exp(b*tn)-1-b*tn))-((sum(x))/(n)) 
+  }
+  
+  #Step-1: Determine initial parameter estimate for parameter 'b'
+  
+  b0 <- n/sumT
+  
+  #Step-2: Bracket root
+  
+  i <- 0 
+  maxIterations <- 10
+  leftEndPoint <- b0/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
-  rightEndPoint <- 2*rightEndPoint
+  rightEndPoint <- 2*b0
   rightEndPointMLE <- MLEeq(rightEndPoint)
-  i <- i+1	
-}
-
-#Step-3: Invoke uniroot or report non convergence to calling environment
-
-if(leftEndPointMLE*rightEndPointMLE > 0 ){
-  return('nonconvergence')
-} else {
-   maxiter <<- 20
-  soln <- function(maxiter){
-    sol <- tryCatch(
-      stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
-      warning = function(w){
-      #print(f.lower)
-        if(length(grep("_NOT_ converged",w[1]))>0){
-          maxiter <<- maxiter+1 
-          #print(paste("recursive", maxiter,sep='_'))
-          soln(maxiter)
-        }
-      },
-      error = function(e){
-        print(e)
-        #return(e)
-      })
-    sol
+  
+  while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
+    #print('In Step 2 while loop of DSS_BM_FT.R')
+    leftEndPoint <- leftEndPoint/2
+    leftEndPointMLE <- MLEeq(leftEndPoint)
+    rightEndPoint <- 2*rightEndPoint
+    rightEndPointMLE <- MLEeq(rightEndPoint)
+    i <- i+1	
   }
-  bMLE <- soln(maxiter)
-  if(bMLE < 0){
+  
+  #Step-3: Invoke uniroot or report non convergence to calling environment
+  
+  if(leftEndPointMLE*rightEndPointMLE > 0 ){
     return('nonconvergence')
+  } else {
+    maxiter <<- 20
+    soln <- function(maxiter){
+      sol <- tryCatch(
+        stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
+        warning = function(w){
+          #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- maxiter+1 
+            #print(paste("recursive", maxiter,sep='_'))
+            soln(maxiter)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+      sol
+    }
+    bMLE <- soln(maxiter)
+    if(bMLE < 0){
+      return('nonconvergence')
+    }
+    #bMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
+    #bMLE <- uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
   }
-  #bMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
-  #bMLE <- uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
-}
-
-#print(bMLE)
-#Step-4
-#MLE of parameter 'a'
-aMLE <- n/(1-exp(-bMLE*tn)*(1+bMLE*tn))
-#print(aMLE)
-
-params <- data.frame("DSS_aMLE"=aMLE,"DSS_bMLE"=bMLE)
-params
-
+  
+  #print(bMLE)
+  #Step-4
+  #MLE of parameter 'a'
+  aMLE <- n/(1-exp(-bMLE*tn)*(1+bMLE*tn))
+  #print(aMLE)
+  
+  params <- data.frame("DSS_aMLE"=aMLE,"DSS_bMLE"=bMLE)
+  params
+  
 }
 
 # Mean Value function
@@ -104,7 +104,7 @@ DSS_MVF <- function(param,d){
 DSS_MVF_inv <- function(param,d){
   
   f <- function(t,numFails) param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+t*param$DSS_bMLE))-numFails
-
+  
   n <- length(d$FN)
   r <- data.frame()
   for(i in 1:n){
@@ -132,34 +132,35 @@ DSS_MVF_inv <- function(param,d){
 
 # log-Likelihood
 DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
-    #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
-    n <- length(x)
-    tn <- x[n]
-    firstSumTerm=0
-    secondSumTerm = 0
-
-    for(i in 1:n){
-        firstSumTerm = firstSumTerm + log(x[i])
-        secondSumTerm = secondSumTerm + (-params$DSS_bMLE*x[i])
-      }
-      lnL <- -params$DSS_aMLE*(1-(1+params$DSS_bMLE*tn)*exp(-bMLE*tn))+ n*(log(params$DSS_aMLE)) + 2*n*log(params$DSS_bMLE) +  firstSumTerm + secondSumTerm
-      lnL
+  #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
+  n <- length(x)
+  tn <- x[n]
+  firstSumTerm=0
+  secondSumTerm = 0
+  
+  for(i in 1:n){
+    firstSumTerm = firstSumTerm + log(x[i])
+    secondSumTerm = secondSumTerm + (-params$DSS_bMLE*x[i])
   }
+  lnL <- -params$DSS_aMLE*(1-(1+params$DSS_bMLE*tn)*exp(-params$DSS_bMLE*tn))+ n*(log(params$DSS_aMLE)) + 2*n*log(params$DSS_bMLE) +  firstSumTerm + secondSumTerm
+  return(lnL)
+}
 
 
 DSS_MTTF <- function(params,d){
+  x <- as.numeric(d$FT)
   n <- length(d$FT)
   r <-data.frame()
   cumulr <-data.frame()
   for(i in 1:n){
     r[i,1] <- i
-    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i])))
+    r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*x[i]*(exp(-params$DSS_bMLE*x[i])))
+    # r[i,2] <- 1/((params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i]))
     r[i,3] <- "DSS"
-    }
+  }
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Failure_Number","MTTF","Model")
   r
-
 }
 
 
@@ -171,7 +172,7 @@ DSS_FI <- function(params,d){
     r[i,1] <- d$FT[i]
     r[i,2] <- (params$DSS_aMLE)*(params$DSS_bMLE^2)*d$FT[i]*(exp(-params$DSS_bMLE*d$FT[i]))
     r[i,3] <- "DSS"
-    }
+  }
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Failure_Count","Failure_Rate","Model")
   r
@@ -216,51 +217,50 @@ DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
 
 maxiter <- 1000
 DSS_Target_T <- function(params,cur_time,delta, reliability){
-
+  
   f <- function(t){
     return(DSS_R_MLE_root(params,t,delta, reliability))
   }
-
+  
   current_rel <- DSS_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
-      sol <- tryCatch(
-        stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
-        warning = function(w){
+    sol <- tryCatch(
+      stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+      warning = function(w){
         #print(f.lower)
-          if(length(grep("_NOT_ converged",w[1]))>0){
-            maxiter <<- maxiter+10
-            #print(paste("recursive", maxiter,sep='_'))
-            DSS_Target_T(a,b,cur_time,delta, reliability)
-          }
-        },
-        error = function(e){
-          print(e)
-          #return(e)
-        })
+        if(length(grep("_NOT_ converged",w[1]))>0){
+          maxiter <<- maxiter+10
+          #print(paste("recursive", maxiter,sep='_'))
+          DSS_Target_T(a,b,cur_time,delta, reliability)
+        }
+      },
+      error = function(e){
+        print(e)
+        #return(e)
+      })
   }
   else {
     sol <- "Target reliability already achieved"
   }
-    sol
-  }
+  sol
+}
 
 DSS_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
-    for(i in 1:length(d$FT)){   
-      r[i,1] <- d$FT[i]
-      temp <- DSS_R_delta(params,d$FT[i],delta)
-      #print(typeof(temp))
-      if(typeof(temp) != typeof("character")){
-        r[i,2] <- temp
-      }
-      else{
-        r[i,2] <- "NA"
-      }     
+  for(i in 1:length(d$FT)){   
+    r[i,1] <- d$FT[i]
+    temp <- DSS_R_delta(params,d$FT[i],delta)
+    #print(typeof(temp))
+    if(typeof(temp) != typeof("character")){
+      r[i,2] <- temp
     }
-    g <- data.frame(r[1],r[2],rep("DSS", length(d$FT)))
-    names(g) <- c("Time","Reliability_Growth","Model")
-    #print(g)
-    g
-      
+    else{
+      r[i,2] <- "NA"
+    }     
+  }
+  g <- data.frame(r[1],r[2],rep("DSS", length(d$FT)))
+  names(g) <- c("Time","Reliability_Growth","Model")
+  #print(g)
+  g
 }

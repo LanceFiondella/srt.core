@@ -6,6 +6,7 @@ tVec <- c(3, 33, 146, 227, 342, 351, 353, 444, 556, 571, 709, 759, 836, 860, 968
 
 
 Wei_NM_MLE <- function(tVec){
+  tVec <- as.numeric(tVec)
 n <- length(tVec)
 tn <- tVec[n]
 sumT <- sum(tVec)
@@ -156,7 +157,7 @@ Wei_FI <- function(params,d){
 }
 
 Wei_R <- function(){
-
+  # TODO
 }
 
 # Wei_R_growth <- function(){
