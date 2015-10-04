@@ -7,6 +7,11 @@ JM_fullname <- c("Jelinski-Moranda")
 JM_plotcolor <- c("red")
 JM_type <- c("FR","Exp")
 JM_Finite <- TRUE
+JM_Results<- data.frame("format"="xlsx","fileName"="model_data") # Sheet name is generated in test script, based on method.
+# JM_Results<- data.frame("format"="xlsx","fileName"="model_data","sheet"="JM_Results")
+
+
+
 # JM_MVF <- 
 # JM_MTTF <-
 # JM_FI <-
@@ -17,13 +22,14 @@ JM_Finite <- TRUE
 
 # Geometric Model
 GM_input <- c("IF")
-GM_methods <- c("BM","EM")
+GM_methods <- c("BM")
 GM_params <- c("D0","Phi")
 GM_type <- c("Exp")
 GM_numfailsparm <- c(0)
 GM_fullname <- c("Geometric")
 GM_plotcolor <- c("blue")
 GM_Finite <- FALSE
+GM_Results <- data.frame("format"="xlsx","fileName"="model_data")
 #GM_prefer_method <- c("BM")
 
 

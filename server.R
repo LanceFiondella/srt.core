@@ -61,6 +61,7 @@ ModelEvalsList <- list()
 K_minDataModelIntervalWidth <- 5
 
 K_CategoryFirst <- 1
+
 K_CategoryLast <- 5
 
 # These lists identify the models used for each data type
@@ -79,7 +80,7 @@ K_tol <- .Machine$double.eps^0.5
 # Start main program ------------------------------------
 
 openFileDatapath <- ""
-#data_global <- data.frame()
+# data_global <- data.frame()
 data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
@@ -102,11 +103,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
     })
 
-  #output$message <- renderUI({
+  # output$message <- renderUI({
   #    sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE,  ticks = TRUE, animate = TRUE, width = NULL)
   #    animationOptions(interval = 1000, loop = FALSE, playButton = NULL, pauseButton = NULL)
   #    p("HEllO")
-  #  })
+  # })
 
   # Select and read in a data file.  This is a reactive data item.
   
@@ -605,20 +606,37 @@ tab3_table1_construct <- function(model,data,input){
     # ----> ! print(model_params)
     # ----> ! print(data)
     # ----> ! print(count)
-    t <- input$modelDetailPredTime
-
+    print("==============")
+    print(model_params)
     #print()
     if(typeof(model_params)!="character"){
-      number_fails <- get_prediction_n(model_params,t,length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      number_fails <- get_prediction_k( model,
+                                        model_params, 
+                                        input$modelDetailPredTime, 
+                                        data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                        length(get("data")[[get(paste(model,"input",sep="_"))]]))
       
-      time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
-      #----> !  print(time_fails)
-      #----> !  print(number_fails)
+      time_fails <- get_prediction_t( model,
+                                      model_params, 
+                                      input$modelDetailPredFailures,
+                                      data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                      length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      print(time_fails)
+      print(number_fails)
+      # LOCK <- FALSE
       for( i in 1:length(time_fails)){
-        count <<- count+1
-        tab3_table1[count,1]<<- model
-        tab3_table1[count,2]<<- number_fails
-        tab3_table1[count,3]<<- time_fails[i]
+        # if(!LOCK){
+          count <<- count+1
+          tab3_table1[count,1]<<- model
+          tab3_table1[count,2]<<- number_fails
+          tab3_table1[count,3]<<- time_fails[i]
+
+          # Create Row of NA only once logic
+          # if(time_fails=="NA"){
+          #   LOCK <- TRUE
+          #   break
+          # }
+        # }
       }
     }
     else if(typeof(model_params)=="character"){
@@ -626,7 +644,7 @@ tab3_table1_construct <- function(model,data,input){
         count<<-count+1
         tab3_table1[count,1] <<- model
         tab3_table1[count,2] <<- "Given-model not defined"
-        tab3_table1[count,3] <<- "Given-model not defined" 
+        tab3_table1[count,3] <<- "Given-model not defined"
       }
       else{
         count<<-count+1
@@ -635,12 +653,23 @@ tab3_table1_construct <- function(model,data,input){
         tab3_table1[count,3] <<- "NON-CONV"
       }
     }
-
   }
   else{
-    # -----> FC data should be handled here
+    # ----> FC data should be handled here
   }
 }
+
+output$downloadData <- downloadHandler(
+    filename <- function() { return("TAB3_DATA.pdf")},
+    content <- function(file) {
+      out_put<-capture.output(tab3_table1)
+      pdf(file)
+      plot.new()
+      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+      dev.off()
+      # write.csv(tab3_table1, file)
+    }
+  )
   
 output$mytable1 <- renderDataTable({
 
@@ -700,6 +729,8 @@ tab4_table1_construct <- function(model,data,input){
       # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
       #----> !  print(time_fails)
       #----> !  print(number_fails)
+      print("Log LIkehood -----------------------------------------")
+      print(max_lnL)
       if(length(grep("not found",max_lnL))) {
         count<<-count+1
         tab4_table1[count,1] <<- model
@@ -714,7 +745,7 @@ tab4_table1_construct <- function(model,data,input){
       }
       else {
         AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
-        PSSE <- psse_times(model,data,model_params)
+        PSSE <- psse(model,data,model_params,input$percentData)
         count <<- count+1
         tab4_table1[count,1]<<- model
         tab4_table1[count,2]<<- AIC
@@ -726,10 +757,10 @@ tab4_table1_construct <- function(model,data,input){
         count<<-count+1
         tab4_table1[count,1] <<- model
         tab4_table1[count,2] <<- "Given-model not defined"
-        tab4_table1[count,3] <<- "Given-model not defined"        
-      }      
+        tab4_table1[count,3] <<- "Given-model not defined" 
+      }
       else {
-        count<<-count+1
+        count<<-count + 1
         tab4_table1[count,1] <<- model
         tab4_table1[count,2] <<- "NON-CONV"
         tab4_table1[count,3] <<- "NON-CONV"
@@ -742,7 +773,7 @@ tab4_table1_construct <- function(model,data,input){
 }
 
 # --------------------------------------------------------------------
-  
+
 output$mytable2 <- renderDataTable({
     source("GOF.R")
     inFile <- input$file

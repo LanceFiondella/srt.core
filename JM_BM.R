@@ -2,6 +2,7 @@
 require("utils")
 # x is interfailure times
 JM_BM_MLE<-function(interFail){
+  interFail <- as.numeric(interFail)
 n <- length(interFail)
 
 # Define MLE of parameter 'N0'
@@ -124,6 +125,7 @@ JM_MVF <- function(param,d) {
   r
 }
 
+<<<<<<< HEAD
 # This does an "inverse" MVF function, solving for time given
 # a specific value of MVF.
 
@@ -134,6 +136,12 @@ JM_MVF_inv <- function(param,d) {
   r <- data.frame(d$FN,cumFailTimes, rep("JM", n))
   names(r) <- c("Failure","Time", "Model")
   r
+=======
+  g <- data.frame("Time"=cumulr[2],"Failure"=cumulr[1],"Model"=cumulr[3]) # ----> naming doesn't work should find why
+  names(g) <- c("Time","Failure","Model") # ----> I have to use this reduntantly because of above comment(reason)
+  print(g)
+  g
+>>>>>>> pr/7
 }
 
 
@@ -255,7 +263,7 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
     sol <- "Target reliability already achieved"
   }
     sol
-  }
+}
 
 
 JM_R_growth <- function(params,d,delta){  
