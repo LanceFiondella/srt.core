@@ -339,14 +339,33 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveDataOrTrend <- downloadHandler(
     filename = function() {
-      if(input$PlotDataOrTrend == 1) {
-        paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
-      } else if(input$PlotDataOrTrend == 2) {
-        paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+      if(input$DataPlotAndTableTabset == "Plot") {
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+        }
+      } else { # Save data table
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data"), "csv", sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), "csv", sep=".")
+        }
       }
     },
     content = function(filespec) {
-      ggsave(filespec)
+      if(input$DataPlotAndTableTabset == "Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- data.frame(x=FailureDataTable())
+        if(length(OutputTable) > 1) {
+          DataColNames <- names(OutputTable)
+          names(OutputTable) <- gsub("x.", "", DataColNames)
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec)
+      }
     }
   )
 
@@ -355,10 +374,38 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveModelResults <- downloadHandler(
     filename = function() {
-      paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        
+        # Save model results plot
+        
+        paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      } else {
+        
+        # Save model results table
+        
+        paste(paste0(ModeledDataName, "_Results"), "csv", sep=".")
+      }
     },
     content = function(filespec) {
-      ggsave(filespec)
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- ModelResults
+        
+        # Turn OutputTable to character representations to avoid
+        # difficulties with NA, Inf, and NaN.
+        
+        TableNames <- names(OutputTable)
+        for (nameIndex in TableNames) {
+          OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+        }
+        
+        if(length(OutputTable) > 1) {
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+      }
     }
   )
   
@@ -584,20 +631,20 @@ tab3_table1_construct <- function(model,data,input){
                                       length(get("data")[[get(paste(model,"input",sep="_"))]]))
       print(time_fails)
       print(number_fails)
-      # LOCK <- FALSE
+      ExpectedNumFailuresExceeded <- FALSE
       for( i in 1:length(time_fails)){
-        # if(!LOCK){
+        if(!ExpectedNumFailuresExceeded){
           count <<- count+1
           tab3_table1[count,1]<<- model
           tab3_table1[count,2]<<- number_fails
           tab3_table1[count,3]<<- time_fails[i]
 
-          # Create Row of NA only once logic
-          # if(time_fails=="NA"){
-          #   LOCK <- TRUE
-          #   break
-          # }
-        # }
+          #  Create Row of NA only once logic
+          if(time_fails[i]=="NA"){
+             ExpectedNumFailuresExceeded <- TRUE
+             break
+           }
+         }
       }
     }
     else if(typeof(model_params)=="character"){
@@ -643,9 +690,11 @@ output$mytable1 <- renderDataTable({
     }
 
     data <- data_global()
-    if(is.null(input$modelDetailChoice)){
-        return
-      }
+    
+    ModelsToQuery <- input$modelDetailChoice
+    if(length(ModelsToQuery)<=0) {
+      return
+    }
     
       ###################################################
       if(!is.numeric(input$modelDetailPredTime)){
@@ -656,13 +705,12 @@ output$mytable1 <- renderDataTable({
       }
       ###################################################
       #input$modelDetailChoice <- track_models()
-      if(length(input$modelDetailChoice)>0){
+      if(length(ModelsToQuery)>0){
         source("Detailed_prediction.R")
-        #model_params <- JM_BM_MLE(data$IF)
-      #if(length(track_models())>0) {
+
         count <<- 0
         tab3_table1<<- data.frame()
-        for(i in input$modelDetailChoice){
+        for(i in ModelsToQuery){
           count <<- count+1
           tab3_table1_construct(i,data,input)
         }
@@ -675,6 +723,15 @@ output$mytable1 <- renderDataTable({
 tracked_models <- reactive({
   input$modelDetailChoice
 })
+
+
+
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ----------------------------------------   TAB4 Table   ----------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
 
 tab4_table1_construct <- function(model,data,input){
   if(dataType(names(data))=="FR"){
@@ -733,31 +790,27 @@ tab4_table1_construct <- function(model,data,input){
   }
 }
 
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ----------------------------------------   TAB4 Table   ----------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-
-
 
 output$mytable2 <- renderDataTable({
     source("GOF.R")
     inFile <- input$file
     if(is.null(inFile)){
-      return("Please upload an a file")
+      return("Please upload a file")
     }
+    
+    ModelsToEval <- input$modelResultsForEval
 
-    if(length(tracked_models())<=0) {
+    if(length(ModelsToEval)<=0) {
         return
-      }
-    print(tracked_models())
+    }
+    
+    print(ModelsToEval)
     tab4_table1 <<- data.frame()
     data <- data_global()
-      if(length(tracked_models())>0){
+      if(length(ModelsToEval)>0){
         count <<- 0
         
-        for(i in tracked_models()){
+        for(i in ModelsToEval){
           tab4_table1_construct(i,data,input)
         }
 

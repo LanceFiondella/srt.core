@@ -6,27 +6,23 @@ get_prediction_k <- function(model,params, t_offset,tn,n){
 	# ! -----> print(params)
 	if("JM_N0" %in% names(params)){
 		est_faults <- JM_MVF_cont(params,tn + t_offset) - JM_MVF_cont(params,tn)
-		return(floor(est_faults))
 	}
 	else if("GM_D0" %in% names(params)){
 		est_faults <- GM_MVF_cont(params,tn + t_offset) - GM_MVF_cont(params,tn)
-		return(floor(est_faults))
 	}
 	else if("GO_aMLE" %in% names(params)){
 		est_faults <- GO_MVF_cont(params,tn + t_offset) - GO_MVF_cont(params,tn)
-		return(floor(est_faults))
 	}
 	else if("DSS_aMLE" %in% names(params)){
 		est_faults <- DSS_MVF_cont(params,tn + t_offset) - DSS_MVF_cont(params,tn)
-		return(floor(est_faults))
 	}
 	else if("Wei_aMLE" %in% names(params)){
 		est_faults <- Wei_MVF_cont(params,tn + t_offset) - Wei_MVF_cont(params,tn)
-		return(floor(est_faults))
 	}
 	else{
-		return("Not Implemented")
+		est_faults <- "Not Implemented"
 	}
+  return(floor(est_faults))
 }
 
 
