@@ -339,14 +339,33 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveDataOrTrend <- downloadHandler(
     filename = function() {
-      if(input$PlotDataOrTrend == 1) {
-        paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
-      } else if(input$PlotDataOrTrend == 2) {
-        paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+      if(input$DataPlotAndTableTabset == "Plot") {
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+        }
+      } else { # Save data table
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data"), "csv", sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), "csv", sep=".")
+        }
       }
     },
     content = function(filespec) {
-      ggsave(filespec)
+      if(input$DataPlotAndTableTabset == "Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- data.frame(x=FailureDataTable())
+        if(length(OutputTable) > 1) {
+          DataColNames <- names(OutputTable)
+          names(OutputTable) <- gsub("x.", "", DataColNames)
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec)
+      }
     }
   )
 
@@ -355,10 +374,38 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveModelResults <- downloadHandler(
     filename = function() {
-      paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        
+        # Save model results plot
+        
+        paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      } else {
+        
+        # Save model results table
+        
+        paste(paste0(ModeledDataName, "_Results"), "csv", sep=".")
+      }
     },
     content = function(filespec) {
-      ggsave(filespec)
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- ModelResults
+        
+        # Turn OutputTable to character representations to avoid
+        # difficulties with NA, Inf, and NaN.
+        
+        TableNames <- names(OutputTable)
+        for (nameIndex in TableNames) {
+          OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+        }
+        
+        if(length(OutputTable) > 1) {
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+      }
     }
   )
   
