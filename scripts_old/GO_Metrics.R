@@ -29,7 +29,7 @@ lnl <- ln1+sum(kVec*log(ln2))-ln3
 
 GO_BM_FT_FaultsRemaining <- function(aMLE,n){
 	FaultsRemaining <- abs(aMLE-n)
-	return(FaultsRemaining )
+	return(FaultsRemaining)
 }
 #Reliability
 GO_BM_FT_Reliability <- function(bMLE,tn){
