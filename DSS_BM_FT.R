@@ -193,11 +193,6 @@ DSS_R <- function(params,d){
   r
 }
 
-# DSS_R_growth <- function(){
-
-# }
-#MVF <- aMLE*(1-(1+bMLE*x)*exp(-bMLE*x))
-
 DSS_Faults_Remain <- function(){
   # a(1+ bt)e^(-bt)
 }
@@ -214,7 +209,7 @@ DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
   root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
   return(root_equation)
 }
-
+dlt <<- 100
 maxiter <- 1000
 DSS_Target_T <- function(params,cur_time,delta, reliability){
   
@@ -225,11 +220,12 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
   current_rel <- DSS_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
     sol <- tryCatch(
-      stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+      stats::uniroot(f, c(cur_time,cur_time + dlt), maxiter=maxiter, tol=1e-10)$root,
       warning = function(w){
         #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+10
+          dlt <<- dlt+100
           #print(paste("recursive", maxiter,sep='_'))
           DSS_Target_T(a,b,cur_time,delta, reliability)
         }
