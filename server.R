@@ -764,6 +764,8 @@ tab4_table1_construct <- function(model,data,input){
       else {
         AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
         PSSE <- psse(model,data,model_params,input$percentData)
+        print("PSSE -----------------------------------------")
+        print(PSSE)
         count <<- count+1
         tab4_table1[count,1]<<- model
         tab4_table1[count,2]<<- AIC
