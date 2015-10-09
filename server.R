@@ -537,7 +537,22 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
 
-
+  
+  # If one or more of the models didn't complete successfully, display a message
+  # notifying the user of that fact.
+  
+  output$UnsuccessfulModels <- renderText({
+    outputMessage <- ""
+    if(length(FailedModels) > 0) {
+      outputMessage <- msgUnsuccessfulModels
+      for (FailedModelsIndex in 1:(length(FailedModels)-1)) {
+        paste0(outputMessage, get(paste0(FailedModels[FailedModelsIndex], "_fullname")), ", ")
+      }
+      paste0(outputMessage, get(paste0(FailedModels[FailedModelsIndex], "_fullname")))
+    }
+    outputMessage
+  })
+ 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 # ----------------- Display the input data or selected trend test in tabular form  ---------------------
