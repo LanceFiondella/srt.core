@@ -240,6 +240,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     data_generated
 }) 
 
+  ParmIntervalEnd <- reactive({
+    parmObsNum <- input$parmEstIntvl
+  })
+
   # A reactive data item that is used to control the height of the raw data and trend
   # plot.  The height is computed based on the width - it the plot is not as high
   # as it is wide, and if the width exceeds a minimum, then the height catches up with
