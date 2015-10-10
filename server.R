@@ -597,6 +597,22 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       if (length(MR_Table) <= 1) {
         MR_Table <- data.frame()
+      } else {
+        # Set column names for the model results table
+        
+        MR_Table_Names <- c("Failure")
+        for (modelName in input$AllModelsRun) {
+          for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+            MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
+          }
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
+          names(MR_Table) <- MR_Table_Names
+        }
       }
       MR_Table
     }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
