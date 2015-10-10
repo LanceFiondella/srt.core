@@ -187,13 +187,20 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
                                        "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
 
-      # Update the default mission time for computing reliability.
-      # We choose the most recent IF time that is greater than 0.
+      # Update the default mission time for computing reliability
+      # on both Tab 2 and Tab 3.  Also update the default time on
+      # Tab 3 for which we want to know how many failures we'll
+      # observe in the future.  We choose the most recent IF time
+      # that is greater than 0.
       
       for (dataIndex in length(data_generated$IF):1) {
         if(data_generated$IF[dataIndex] > 0) {break}
       }
       updateSliderInput(session, "modelRelMissionTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelDetailPredTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelRelMissionTime2",
                         min=0, value=data_generated$IF[length(data_generated$IF)])
 
     } else if(dataType(names(data_generated))=="FC") {
@@ -408,7 +415,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
     }
   )
-  
   
 
   # Set up the data and trend test statistics tables for display

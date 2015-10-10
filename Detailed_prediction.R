@@ -53,7 +53,7 @@ get_prediction_t <- function(model, params, faults, tn, n){
 				print("_")
 				print("_")
 				
-				if(typeof(tn_n)=="double"){
+				if((typeof(tn_n)=="double") && (tn_n >= 0)){
 					t <- tn_n - tn
 					time_indexes[i] <- t
 				}
