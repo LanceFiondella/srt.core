@@ -243,6 +243,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     data_generated
 }) 
 
+  # This slider that controls the end of the initial parameter estimation interval
+  # is dynamically created to ensure that its value is always in sync with those of
+  # the start and end points of the current data range.
+  
   output$ParameterInterval <- renderUI({
     DataModelIntervalStart <- input$modelDataRange[1]
     DataModelIntervalEnd <- input$modelDataRange[2]
@@ -638,7 +642,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
   output$ModelPlot <- renderPlot({
     MRPlot <- NULL
-    if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+    if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
       MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$modelRelMissionTime)
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
