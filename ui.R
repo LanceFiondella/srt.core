@@ -77,14 +77,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              )
                                            ),
                                            
-#                                           fluidRow(
-#                                             column(12,
-#                                                    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-#                                                                min = 1, max = 4, value = 3)
-#                                             )
-#                                           ),
-                                           
-                                           
                                            fluidRow(
                                              br(),
                                              column(9, h5("Subset the failure data by data range")),
@@ -113,13 +105,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               sidebarPanel(h4("Configure and Apply Models"),
                                            h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
                                            
-#                                           fluidRow(
-#                                             column(12,
-#                                                    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-#                                                                min = 1, max = 4, value = 3)
-#                                             )
-#                                           ),
-                                           
                                            fluidRow(
                                              column(12,
                                                     uiOutput("ParameterInterval")
@@ -133,11 +118,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                )
                                              ),
 
-#                                             column(12,
-#                                                    numericInput("modelRelInterval", 
-#                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
-#                                                                 min = 1, value = 1)
-#                                             ),
                                              column(12, 
                                                     selectInput(
                                                       "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
