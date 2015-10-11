@@ -60,6 +60,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     selectInput("trendPlotChoice", label = "", 
                                                                 choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
                                              ),
+                                             column(11,
+                                                    conditionalPanel(
+                                                      condition = "input.trendPlotChoice == 'LP'",
+                                                      numericInput("confidenceLP", 
+                                                                   label = h6("Specify the confidence level for the Laplace Test"),
+                                                                   min = 0, max=1, value = 0.9, step=0.01)
+                                                    )
+                                             ),
                                              column(8, textOutput("trendMessage"))
                                            ),
                                            
