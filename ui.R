@@ -182,22 +182,21 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12, 
                                                     checkboxInput("checkboxDataOnPlot", label = "Show data on plot", value = TRUE)
+                                             ),
+                                             column(12, 
+                                                    checkboxInput("checkboxDataEndOnPlot", label = "Show end of data on plot", value = TRUE)
                                              )
                                            ),
                                            
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
-                                                    #<<<<<<< HEAD
-                                                    #                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
-                                                    #                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                    #                                                                 selected = 1)
-                                                    #=======
-                                                    radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
+                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                                                                 inline=TRUE,
                                                                  selected = "points_and_lines")
-                                                    #>>>>>>> lfiondella/master
                                              )
+                                             
                                            ),
                                            
                                            fluidRow(
