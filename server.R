@@ -13,6 +13,7 @@ sys.source("DSS_BM_FT.R")
 source("Wei_NM_FT.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
+source("Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
 source("RA_Test.R")
 source("RunModels.R")
@@ -321,6 +322,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
+  
+  LPTestStatistic <- reactive({
+    if(input$trendPlotChoice=="LP") {
+      testStat <- qnorm(1-input$confidenceLP)
+    } else {
+      testStat <- 0
+    }
+    testStat
+  })
 
   # Draw the plot of input data or selected trend test
   
@@ -345,8 +355,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the selected trend test
         
-        input_data <- data
-        source("Plot_Trend_Tests.R", local=TRUE)
+        DataAndTrendPlot <- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
       }
       
       DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
@@ -562,17 +571,22 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # If one or more of the models didn't complete successfully, display a message
   # notifying the user of that fact.
   
-  output$UnsuccessfulModels <- renderText({
-    outputMessage <- ""
-    if(length(FailedModels) > 0) {
-      outputMessage <- msgUnsuccessfulModels
-      for (FailedModelsIndex in 1:(length(FailedModels)-1)) {
-        paste0(outputMessage, get(paste0(FailedModels[FailedModelsIndex], "_fullname")), ", ")
-      }
-      paste0(outputMessage, get(paste0(FailedModels[FailedModelsIndex], "_fullname")))
-    }
-    outputMessage
-  })
+#  UnsuccessfulModelsMessage <- reactive({
+#    outputMessage <- ""
+#    if((length(input$modelsToRun) > 0) && (input$ModelsToRun[1] != "None") && (length(FailedModels) > 0)) {
+#      outputMessage <- paste0(msgUnsuccessfulModels, get(paste0(FailedModels[1], "_fullname")))
+#      if (length(FailedModels) > 1) {
+#        for (FailedModelsIndex in 2:length(FailedModels)) {
+#          outputMessage <- paste0(outputMessage, paste0(", ", get(paste0(FailedModels[FailedModelsIndex], "_fullname"))))
+#        }
+#      }
+#    }
+#    outputMessage
+#  })
+  
+#  output$UnsuccessfulModels <- renderText({
+#    UnsuccessfulModelsMessage
+#  })
  
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
