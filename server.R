@@ -187,13 +187,20 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
                                        "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
 
-      # Update the default mission time for computing reliability.
-      # We choose the most recent IF time that is greater than 0.
+      # Update the default mission time for computing reliability
+      # on both Tab 2 and Tab 3.  Also update the default time on
+      # Tab 3 for which we want to know how many failures we'll
+      # observe in the future.  We choose the most recent IF time
+      # that is greater than 0.
       
       for (dataIndex in length(data_generated$IF):1) {
         if(data_generated$IF[dataIndex] > 0) {break}
       }
       updateSliderInput(session, "modelRelMissionTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelDetailPredTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelRelMissionTime2",
                         min=0, value=data_generated$IF[length(data_generated$IF)])
 
     } else if(dataType(names(data_generated))=="FC") {
@@ -224,14 +231,25 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     updateSliderInput(session, "modelDataRange",
                       min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                       max = DataModelIntervalEnd)
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)
+    
+    DataModelIntervalStart <- input$modelDataRange[1]
+    DataModelIntervalEnd <- input$modelDataRange[2]
+    InitialParmEstEndpoint <- ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2)
+    #updateSliderInput(session, "parmEstIntvl", min = DataModelIntervalStart, max = (DataModelIntervalEnd-1), value = InitialParmEstEndpoint)
+    #InitialParmEstEndpoint <- input$parmEstIntvl
     
     # Finally, output data set
     
     data_generated
 }) 
+
+  output$ParameterInterval <- renderUI({
+    DataModelIntervalStart <- input$modelDataRange[1]
+    DataModelIntervalEnd <- input$modelDataRange[2]
+    InitialParmEstEndpoint <- ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2)
+    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+                min=DataModelIntervalStart, max=DataModelIntervalEnd, value=InitialParmEstEndpoint, step=1)
+  })
 
   # A reactive data item that is used to control the height of the raw data and trend
   # plot.  The height is computed based on the width - it the plot is not as high
@@ -409,7 +427,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   )
   
-  
 
   # Set up the data and trend test statistics tables for display
   
@@ -537,7 +554,22 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
 
-
+  
+  # If one or more of the models didn't complete successfully, display a message
+  # notifying the user of that fact.
+  
+  output$UnsuccessfulModels <- renderText({
+    outputMessage <- ""
+    if(length(FailedModels) > 0) {
+      outputMessage <- msgUnsuccessfulModels
+      for (FailedModelsIndex in 1:(length(FailedModels)-1)) {
+        paste0(outputMessage, get(paste0(FailedModels[FailedModelsIndex], "_fullname")), ", ")
+      }
+      paste0(outputMessage, get(paste0(FailedModels[FailedModelsIndex], "_fullname")))
+    }
+    outputMessage
+  })
+ 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 # ----------------- Display the input data or selected trend test in tabular form  ---------------------
@@ -576,6 +608,22 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       if (length(MR_Table) <= 1) {
         MR_Table <- data.frame()
+      } else {
+        # Set column names for the model results table
+        
+        MR_Table_Names <- c("Failure")
+        for (modelName in input$AllModelsRun) {
+          for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+            MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
+          }
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
+          names(MR_Table) <- MR_Table_Names
+        }
       }
       MR_Table
     }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))

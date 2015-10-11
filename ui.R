@@ -76,6 +76,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     uiOutput("message")
                                              )
                                            ),
+                                           
                                            fluidRow(
                                              br(),
                                              column(9, h5("Subset the failure data by data range")),
@@ -106,22 +107,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(12,
-                                                    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                                                                min = 1, max = 4, value = 3)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12,
-                                                    numericInput("modelNumPredSteps", 
-                                                                 label = h6("Specify for how many failures into the future the models will predict"),
-                                                                 min = 1, value = 1)
+                                                    uiOutput("ParameterInterval")
                                              ),
-#                                             column(12,
-#                                                    numericInput("modelRelInterval", 
-#                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
-#                                                                 min = 1, value = 1)
-#                                             ),
+                                             
+                                             fluidRow(
+                                               column(12,
+                                                      numericInput("modelNumPredSteps", 
+                                                                   label = h6("Specify for how many failures into the future the models will predict"),
+                                                                   min = 1, value = 1)
+                                               )
+                                             ),
+
                                              column(12, 
                                                     selectInput(
                                                       "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
@@ -217,7 +213,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
+                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), textOutput("UnsuccessfulModels"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Model Result Table",
                                            selectInput(
                                              "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
