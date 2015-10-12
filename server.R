@@ -441,6 +441,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   )
   
 
+  
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
@@ -734,14 +735,27 @@ tab3_table1_construct <- function(model,data,input){
 }
 
 output$downloadData <- downloadHandler(
-    filename <- function() { return("TAB3_DATA.pdf")},
+    filename <- function() {
+      if (input$saveModelDetailsType == "PDF") {
+        paste(paste0(ModeledDataName, "_Model_Queries"), "pdf", sep=".")
+      } else {
+        paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
+      }
+    },
     content <- function(file) {
-      out_put<-capture.output(tab3_table1)
-      pdf(file)
-      plot.new()
-      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
-      dev.off()
-      # write.csv(tab3_table1, file)
+      OutputTable <- tab3_table1
+      names(OutputTable) <- c("Model", paste0("Failures for T = ", as.character(input$modelDetailPredTime)), paste0("Times to Next ", paste0(as.character(input$modelDetailPredFailures), " Failures")))
+      OutputTable <- subset(OutputTable, OutputTable$Model != "<NA>")
+      
+      if (input$saveModelDetailsType == "PDF") {
+        out_put<-capture.output(OutputTable)
+        pdf(file)
+        plot.new()
+        text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+        dev.off()
+      } else {
+        write.csv(OutputTable, file)
+      }
     }
   )
   
@@ -855,6 +869,44 @@ tab4_table1_construct <- function(model,data,input){
     # -----> FC data should be handled here
   }
 }
+
+# Download handler for saving model result evaluation tables.
+
+output$saveModelEvals <- downloadHandler(
+  filename = function() {
+    if(input$saveModelEvalType == "PDF") {
+      paste(paste0(ModeledDataName, "_Model_Evals"), "pdf", sep=".")
+    } else {
+      paste(paste0(ModeledDataName, "_Model_Evals"), "csv", sep=".")
+    }
+  },
+  content = function(filespec) {
+    OutputTable <- tab4_table1
+    
+    # Turn OutputTable to character representations to avoid
+    # difficulties with NA, Inf, and NaN.
+    
+    TableNames <- names(OutputTable)
+    for (nameIndex in TableNames) {
+      OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+    }
+    names(OutputTable) <- c("Model", "AIC", "PSSE")
+    
+    if(length(OutputTable) <= 1) {
+      OutputTable <- data.frame()
+    }
+    
+    if(input$saveModelEvalType == "PDF") {
+      out_put<-capture.output(OutputTable)
+      pdf(filespec)
+      plot.new()
+      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+      dev.off()
+    } else {
+      utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+    }
+  }
+)
 
 
 output$mytable2 <- renderDataTable({
