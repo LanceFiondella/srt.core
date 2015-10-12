@@ -241,13 +241,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     updateSliderInput(session, "modelDataRange",
                       min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                       max = DataModelIntervalEnd)
-    
-    DataModelIntervalStart <- input$modelDataRange[1]
-    DataModelIntervalEnd <- input$modelDataRange[2]
-    InitialParmEstEndpoint <- ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2)
-    #updateSliderInput(session, "parmEstIntvl", min = DataModelIntervalStart, max = (DataModelIntervalEnd-1), value = InitialParmEstEndpoint)
-    #InitialParmEstEndpoint <- input$parmEstIntvl
-    
+
     # Finally, output data set
     
     data_generated
@@ -258,11 +252,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # the start and end points of the current data range.
   
   output$ParameterInterval <- renderUI({
-    DataModelIntervalStart <- input$modelDataRange[1]
-    DataModelIntervalEnd <- input$modelDataRange[2]
-    InitialParmEstEndpoint <- ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2)
+    intervalStart <- input$modelDataRange[1]
+    intervalEnd <- input$modelDataRange[2]
+    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
     sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                min=DataModelIntervalStart, max=DataModelIntervalEnd, value=InitialParmEstEndpoint, step=1)
+                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
   })
 
   # A reactive data item that is used to control the height of the raw data and trend
