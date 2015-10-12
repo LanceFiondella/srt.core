@@ -13,6 +13,7 @@ sys.source("DSS_BM_FT.R")
 source("Wei_NM_FT.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
+source("Plot_Raw_Data.R")
 source("Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
 source("RA_Test.R")
@@ -357,8 +358,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        input_data <- data
-        source("Plot_Raw_Data.R", local=TRUE)
+        DataAndTrendPlot <- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test

@@ -57,22 +57,23 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
       
       PlotFault <- TRUE
     }
-  }
-  
-  names(plot_data) = c("index","trend_test_statistic")
-  
-  if(PlotType == "points_and_lines"){
-    localTrendPlot <- localTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_step(data=plot_data)
-  }
-  if(PlotType=="points"){
-    localTrendPlot <- localTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))
-  }
-  if(PlotType=="lines"){
-    localTrendPlot <- localTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
+    
+    names(plot_data) = c("index","trend_test_statistic")
+    
+    if(PlotType == "points_and_lines"){
+      localTrendPlot <- localTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))+ geom_step(data=plot_data)
+    }
+    if(PlotType=="points"){
+      localTrendPlot <- localTrendPlot + geom_point(data=plot_data,aes(index,trend_test_statistic))
+    }
+    if(PlotType=="lines"){
+      localTrendPlot <- localTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
+    }
+    localTrendPlot <- localTrendPlot + theme(legend.position = "bottom")
+  } else {
+    PlotFault <- TRUE
   }
 
-  localTrendPlot <- localTrendPlot + theme(legend.position = "bottom")
-  
   if(PlotFault) {
     localTrendPlot = NULL
   }
