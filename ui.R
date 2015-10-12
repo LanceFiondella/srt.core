@@ -167,11 +167,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
+                                             #column(12, 
+                                             #       h5("Choose the type of plot for model results."),
+                                             #      selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
+                                             #                   choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
+                                             #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                             #),
                                              column(12, 
                                                     h5("Choose the type of plot for model results."),
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
                                                                 choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
-                                                                               "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                                                               "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
                                              ),
                                              column(12,
                                                     conditionalPanel(

@@ -184,9 +184,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                  choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+      #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
+      
 
       # Update the default mission time for computing reliability
       # on both Tab 2 and Tab 3.  Also update the default time on
@@ -223,9 +227,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+      #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
+      
       
     }
     
@@ -422,6 +430,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         ggsave(filespec)
       } else {
         OutputTable <- ModelResults
+        
+        # For the time being, we're dropping the column that would
+        # reliability compoutations.  We still keep reliability growth.
+        
+        TableNames <- names(OutputTable)
+        ColsToDrop <- c()
+        for (colIndex in 1:length(TableNames)) {
+          if(length(grep("_Rel", TableNames[colIndex])) > 0) {
+            ColsToDrop <- c(ColsToDrop, TableNames[colIndex])
+          }
+        }
+        OutputTable <- OutputTable[,!(names(OutputTable) %in% ColsToDrop)]
         
         # Turn OutputTable to character representations to avoid
         # difficulties with NA, Inf, and NaN.
@@ -639,7 +659,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
-          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          # MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
           names(MR_Table) <- MR_Table_Names
         }
