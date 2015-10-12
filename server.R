@@ -13,6 +13,7 @@ sys.source("DSS_BM_FT.R")
 source("Wei_NM_FT.R")
 source("Data_Format.R")
 source("Laplace_trend_test.R")
+source("Plot_Raw_Data.R")
 source("Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
 source("RA_Test.R")
@@ -184,9 +185,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                  choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+      #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
+      
 
       # Update the default mission time for computing reliability
       # on both Tab 2 and Tab 3.  Also update the default time on
@@ -223,22 +228,20 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+      #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
+      
       
     }
     
     updateSliderInput(session, "modelDataRange",
                       min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                       max = DataModelIntervalEnd)
-    
-    DataModelIntervalStart <- input$modelDataRange[1]
-    DataModelIntervalEnd <- input$modelDataRange[2]
-    InitialParmEstEndpoint <- ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2)
-    #updateSliderInput(session, "parmEstIntvl", min = DataModelIntervalStart, max = (DataModelIntervalEnd-1), value = InitialParmEstEndpoint)
-    #InitialParmEstEndpoint <- input$parmEstIntvl
-    
+
     # Finally, output data set
     
     data_generated
@@ -249,11 +252,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # the start and end points of the current data range.
   
   output$ParameterInterval <- renderUI({
-    DataModelIntervalStart <- input$modelDataRange[1]
-    DataModelIntervalEnd <- input$modelDataRange[2]
-    InitialParmEstEndpoint <- ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2)
+    intervalStart <- input$modelDataRange[1]
+    intervalEnd <- input$modelDataRange[2]
+    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
     sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                min=DataModelIntervalStart, max=DataModelIntervalEnd, value=InitialParmEstEndpoint, step=1)
+                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
   })
 
   # A reactive data item that is used to control the height of the raw data and trend
@@ -349,8 +352,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        input_data <- data
-        source("Plot_Raw_Data.R", local=TRUE)
+        DataAndTrendPlot <- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
@@ -422,6 +424,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         ggsave(filespec)
       } else {
         OutputTable <- ModelResults
+        
+        # For the time being, we're dropping the column that would
+        # reliability compoutations.  We still keep reliability growth.
+        
+        TableNames <- names(OutputTable)
+        ColsToDrop <- c()
+        for (colIndex in 1:length(TableNames)) {
+          if(length(grep("_Rel", TableNames[colIndex])) > 0) {
+            ColsToDrop <- c(ColsToDrop, TableNames[colIndex])
+          }
+        }
+        OutputTable <- OutputTable[,!(names(OutputTable) %in% ColsToDrop)]
         
         # Turn OutputTable to character representations to avoid
         # difficulties with NA, Inf, and NaN.
@@ -639,7 +653,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
-          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          # MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
           names(MR_Table) <- MR_Table_Names
         }
