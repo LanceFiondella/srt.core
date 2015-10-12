@@ -283,7 +283,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12,
                                                     numericInput("modelRelMissionTime2", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                 min = 0, value = 1),
+                                                                 min = 0, value = 1)
+                                             ),
+                                             
+                                             column(12, 
+                                                    radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
+                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
+                                                                 selected = "PDF"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
                                              )
                                            )
@@ -330,9 +336,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0.1, max = 1.0, step = 0.001,
                                                                  value = .90)
                                              ),
-                                             column(12,
+                                             
+                                             column(12, 
+                                                    radioButtons("saveModelEvalType", label = h6("Save model evaluations as PDF or CSV?"),
+                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
+                                                                 selected = "PDF"),
                                                     downloadButton('saveModelEvals', 'Save Model Evaluations')
                                              )
+
                                            )
 
                                   ),
