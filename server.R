@@ -357,7 +357,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the selected trend test
         
-        DataAndTrendPlot <- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
+        DataAndTrendPlot <- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
       }
       
       DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
