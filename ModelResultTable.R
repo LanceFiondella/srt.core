@@ -15,7 +15,7 @@ model_result_table <- function (in_data, NumObservations, ResultsToShow, RelMiss
       local_MR_Table[[paste0(modelID, "_MVF")]] <- as.character(in_data[[paste0(modelID, "_MVF")]])
       local_MR_Table[[paste0(modelID, "_IF")]] <- as.character(in_data[[paste0(modelID, "_IF")]])
       local_MR_Table[[paste0(modelID, "_FI")]] <- as.character(in_data[[paste0(modelID, "_FI")]])
-      local_MR_Table[[paste0(modelID, "_Rel")]] <- as.character(in_data[[paste0(modelID, "_Rel")]])
+      # local_MR_Table[[paste0(modelID, "_Rel")]] <- as.character(in_data[[paste0(modelID, "_Rel")]])
       
       # Reliability growth is an interactive tabular display - if users change
       # the mission time, the table will be updated.
