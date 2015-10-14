@@ -167,14 +167,19 @@ GM_R <- function(param,d){
 }
 
 
-GM_lnL <-  function(n,D,phi,interFail){
+GM_lnL <-  function(x,params){
+
   sum1=0
   sum2=0
+  print(params)
+  n <- length(x)
   for(i in 1:n){
-  sum1=sum1+ ((i-1)*log(phi)) 
-  sum2=sum2+ (phi^(i-1) * interFail[i])
+    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
+    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
   }
-  return(n*log(D) + sum1 - D*sum2)
+  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
+  print(lnL)
+  return(lnL)
 }
 
 
