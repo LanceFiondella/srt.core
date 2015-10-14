@@ -794,7 +794,7 @@ tab4_table1_construct <- function(model,data,input){
 
 
 output$mytable2 <- renderDataTable({
-    source("GOF.R")
+    source("metrics/GOF.R")
     inFile <- input$file
     if(is.null(inFile)){
       return("Please upload a file")
