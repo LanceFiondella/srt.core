@@ -1,6 +1,8 @@
 library(shiny)
+library(DT)
 library(gdata) 
 library(ggplot2)
+
 sys.source("utility/utility.R")
 sys.source("metrics/Model_specifications.R")
 # source("custom_functions.R")
@@ -544,7 +546,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 # ------------------------------------------------------------------------------------------------------
 
   
-  output$dataAndTrendTable <- renderDataTable({
+  output$dataAndTrendTable <- DT::renderDataTable({
     OutputTable <- data.frame(x=FailureDataTable())
     if(length(OutputTable) > 1) {
       DataColNames <- names(OutputTable)
@@ -563,7 +565,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
   
-    output$ModelResultTable <- renderDataTable({
+    output$ModelResultTable <- DT::renderDataTable({
       MR_Table <- NULL
       if(!is.null(ModelResults)) {
         if(length(input$AllModelsRun) > 0) {
@@ -678,7 +680,7 @@ output$downloadData <- downloadHandler(
     }
   )
   
-output$mytable1 <- renderDataTable({
+output$mytable1 <- DT::renderDataTable({
 
     inFile <- input$file
     table_t <- data.frame()
@@ -762,7 +764,7 @@ tab4_table1_construct <- function(model,data,input){
       }
       else {
         AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
-        print(data)
+        # print(data)
         PSSE <- psse(model,data$FT,model_params,input$percentData)
         print("PSSE -----------------------------------------")
         print(PSSE)
@@ -793,7 +795,7 @@ tab4_table1_construct <- function(model,data,input){
 }
 
 
-output$mytable2 <- renderDataTable({
+output$mytable2 <- DT::renderDataTable({
     source("metrics/GOF.R")
     inFile <- input$file
     if(is.null(inFile)){
