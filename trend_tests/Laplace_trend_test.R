@@ -1,5 +1,3 @@
-
-source("Data_Format.R")
 laplace_trend_test <- function(inter_failure)
 {
   #laplace_score <- c()    
@@ -9,7 +7,7 @@ laplace_trend_test <- function(inter_failure)
   #Time <- failute_time[n]         #the final time
   #inte=(sum(failute_time))-failute_time[n]        #sum of failure time for n-1
   #laplace_score <- ((inte/n)-(0.5*Time))/(Time*((1/(12*n))^0.5))      # calculating the laplace score according to (http://kscsma.ksc.nasa.gov/Reliability/Documents/Laplace_Test.pdf)
-  failure_time <- interF_to_failureT(inter_failure)       # convering failure time to inter-failure for laplace test fn
+  failure_time <- IF_to_FT(inter_failure)       # convering failure time to inter-failure for laplace test fn
   
   laplace_trend <- c()
   laplace_trend[1] <- 0
