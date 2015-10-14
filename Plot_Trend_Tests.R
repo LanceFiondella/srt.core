@@ -26,9 +26,10 @@ if((DataIntervalEnd - DataIntervalStart + 1) >= K_minDataModelIntervalWidth) {
         plot_data$Index <- plot_data$Index + input_data$CFC[DataIntervalStart - 1]
       }
     }
+    significance_levels <<-c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001")
     DataAndTrendPlot <- DataAndTrendPlot + xlab("Failure Number")+ylab("Laplace Test Statistic")
     DataAndTrendPlot <- DataAndTrendPlot+ggtitle(paste(c("Laplace trend test of"),data_set))
-    DataAndTrendPlot <- DataAndTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),color=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001"),linetype="dotted"),alpha=0.8)
+   DataAndTrendPlot <- DataAndTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),linetype=significance_levels),alpha=0.8,show_guide=TRUE)
     DataAndTrendPlot <- DataAndTrendPlot+xlab("Failure Number")+ylab("Laplace Test Statistic")
   } else if(input$trendPlotChoice=="RA") {
     plot_data <- running_average_test(IF)
