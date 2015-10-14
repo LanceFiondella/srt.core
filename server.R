@@ -5,15 +5,13 @@ library(ggplot2)
 
 sys.source("utility/utility.R")
 sys.source("metrics/Model_specifications.R")
-# source("custom_functions.R")
-# source("model.R")
-# source("JMmodel.R")
 sys.source("models/JM_BM.R")
 sys.source("models/GO_BM_FT.R")
 sys.source("models/GM_BM.R")
 sys.source("models/DSS_BM_FT.R")
 source("models/Wei_NM_FT.R")
 source("trend_tests/Laplace_trend_test.R")
+source("Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
 source("trend_tests/RA_Test.R")
 source("RunModels.R")
@@ -184,17 +182,28 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                  choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+      #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
+      
 
-      # Update the default mission time for computing reliability.
-      # We choose the most recent IF time that is greater than 0.
+      # Update the default mission time for computing reliability
+      # on both Tab 2 and Tab 3.  Also update the default time on
+      # Tab 3 for which we want to know how many failures we'll
+      # observe in the future.  We choose the most recent IF time
+      # that is greater than 0.
       
       for (dataIndex in length(data_generated$IF):1) {
         if(data_generated$IF[dataIndex] > 0) {break}
       }
       updateSliderInput(session, "modelRelMissionTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelDetailPredTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelRelMissionTime2",
                         min=0, value=data_generated$IF[length(data_generated$IF)])
 
     } else if(dataType(names(data_generated))=="FC") {
@@ -216,23 +225,36 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+      #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
+      
       
     }
     
     updateSliderInput(session, "modelDataRange",
                       min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                       max = DataModelIntervalEnd)
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)
-    
+
     # Finally, output data set
     
     data_generated
 }) 
+
+  # This slider that controls the end of the initial parameter estimation interval
+  # is dynamically created to ensure that its value is always in sync with those of
+  # the start and end points of the current data range.
+  
+  output$ParameterInterval <- renderUI({
+    intervalStart <- input$modelDataRange[1]
+    intervalEnd <- input$modelDataRange[2]
+    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
+    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
+  })
 
   # A reactive data item that is used to control the height of the raw data and trend
   # plot.  The height is computed based on the width - it the plot is not as high
@@ -300,6 +322,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
+  
+  LPTestStatistic <- reactive({
+    if(input$trendPlotChoice=="LP") {
+      testStat <- qnorm(1-input$confidenceLP)
+    } else {
+      testStat <- 0
+    }
+    testStat
+  })
 
   # Draw the plot of input data or selected trend test
   
@@ -318,14 +349,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        input_data <- data
-        source("Plot_Raw_Data.R", local=TRUE)
+        DataAndTrendPlot <- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
         
-        input_data <- data
-        source("Plot_Trend_Tests.R", local=TRUE)
+        DataAndTrendPlot <- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
       }
       
       DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
@@ -393,6 +422,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       } else {
         OutputTable <- ModelResults
         
+        # For the time being, we're dropping the column that would
+        # reliability compoutations.  We still keep reliability growth.
+        
+        TableNames <- names(OutputTable)
+        ColsToDrop <- c()
+        for (colIndex in 1:length(TableNames)) {
+          if(length(grep("_Rel", TableNames[colIndex])) > 0) {
+            ColsToDrop <- c(ColsToDrop, TableNames[colIndex])
+          }
+        }
+        OutputTable <- OutputTable[,!(names(OutputTable) %in% ColsToDrop)]
+        
         # Turn OutputTable to character representations to avoid
         # difficulties with NA, Inf, and NaN.
         
@@ -410,8 +451,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   )
   
-  
 
+  
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
@@ -538,7 +579,27 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
 
-
+  
+  # If one or more of the models didn't complete successfully, display a message
+  # notifying the user of that fact.
+  
+#  UnsuccessfulModelsMessage <- reactive({
+#    outputMessage <- ""
+#    if((length(input$modelsToRun) > 0) && (input$ModelsToRun[1] != "None") && (length(FailedModels) > 0)) {
+#      outputMessage <- paste0(msgUnsuccessfulModels, get(paste0(FailedModels[1], "_fullname")))
+#      if (length(FailedModels) > 1) {
+#        for (FailedModelsIndex in 2:length(FailedModels)) {
+#          outputMessage <- paste0(outputMessage, paste0(", ", get(paste0(FailedModels[FailedModelsIndex], "_fullname"))))
+#        }
+#      }
+#    }
+#    outputMessage
+#  })
+  
+#  output$UnsuccessfulModels <- renderText({
+#    UnsuccessfulModelsMessage
+#  })
+ 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 # ----------------- Display the input data or selected trend test in tabular form  ---------------------
@@ -577,6 +638,22 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       if (length(MR_Table) <= 1) {
         MR_Table <- data.frame()
+      } else {
+        # Set column names for the model results table
+        
+        MR_Table_Names <- c("Failure")
+        for (modelName in input$AllModelsRun) {
+          for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+            MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
+          }
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
+          # MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
+          names(MR_Table) <- MR_Table_Names
+        }
       }
       MR_Table
     }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
@@ -591,8 +668,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
   output$ModelPlot <- renderPlot({
     MRPlot <- NULL
-    if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
-      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$modelRelMissionTime)
+    if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime)
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }
@@ -669,14 +746,27 @@ tab3_table1_construct <- function(model,data,input){
 }
 
 output$downloadData <- downloadHandler(
-    filename <- function() { return("TAB3_DATA.pdf")},
+    filename <- function() {
+      if (input$saveModelDetailsType == "PDF") {
+        paste(paste0(ModeledDataName, "_Model_Queries"), "pdf", sep=".")
+      } else {
+        paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
+      }
+    },
     content <- function(file) {
-      out_put<-capture.output(tab3_table1)
-      pdf(file)
-      plot.new()
-      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
-      dev.off()
-      # write.csv(tab3_table1, file)
+      OutputTable <- tab3_table1
+      names(OutputTable) <- c("Model", paste0("Failures for T = ", as.character(input$modelDetailPredTime)), paste0("Times to Next ", paste0(as.character(input$modelDetailPredFailures), " Failures")))
+      OutputTable <- subset(OutputTable, OutputTable$Model != "<NA>")
+      
+      if (input$saveModelDetailsType == "PDF") {
+        out_put<-capture.output(OutputTable)
+        pdf(file)
+        plot.new()
+        text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+        dev.off()
+      } else {
+        write.csv(OutputTable, file)
+      }
     }
   )
   
@@ -793,6 +883,44 @@ tab4_table1_construct <- function(model,data,input){
     # -----> FC data should be handled here
   }
 }
+
+# Download handler for saving model result evaluation tables.
+
+output$saveModelEvals <- downloadHandler(
+  filename = function() {
+    if(input$saveModelEvalType == "PDF") {
+      paste(paste0(ModeledDataName, "_Model_Evals"), "pdf", sep=".")
+    } else {
+      paste(paste0(ModeledDataName, "_Model_Evals"), "csv", sep=".")
+    }
+  },
+  content = function(filespec) {
+    OutputTable <- tab4_table1
+    
+    # Turn OutputTable to character representations to avoid
+    # difficulties with NA, Inf, and NaN.
+    
+    TableNames <- names(OutputTable)
+    for (nameIndex in TableNames) {
+      OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+    }
+    names(OutputTable) <- c("Model", "AIC", "PSSE")
+    
+    if(length(OutputTable) <= 1) {
+      OutputTable <- data.frame()
+    }
+    
+    if(input$saveModelEvalType == "PDF") {
+      out_put<-capture.output(OutputTable)
+      pdf(filespec)
+      plot.new()
+      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+      dev.off()
+    } else {
+      utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+    }
+  }
+)
 
 
 output$mytable2 <- DT::renderDataTable({

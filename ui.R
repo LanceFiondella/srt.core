@@ -60,6 +60,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     selectInput("trendPlotChoice", label = "", 
                                                                 choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
                                              ),
+                                             column(11,
+                                                    conditionalPanel(
+                                                      condition = "input.trendPlotChoice == 'LP'",
+                                                      numericInput("confidenceLP", 
+                                                                   label = h6("Specify the confidence level for the Laplace Test"),
+                                                                   min = 0, max=1, value = 0.9, step=0.01)
+                                                    )
+                                             ),
                                              column(8, textOutput("trendMessage"))
                                            ),
                                            
@@ -76,6 +84,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     uiOutput("message")
                                              )
                                            ),
+                                           
                                            fluidRow(
                                              br(),
                                              column(9, h5("Subset the failure data by data range")),
@@ -106,22 +115,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            
                                            fluidRow(
                                              column(12,
-                                                    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                                                                min = 1, max = 4, value = 3)
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12,
-                                                    numericInput("modelNumPredSteps", 
-                                                                 label = h6("Specify for how many failures into the future the models will predict"),
-                                                                 min = 1, value = 1)
+                                                    uiOutput("ParameterInterval")
                                              ),
-#                                             column(12,
-#                                                    numericInput("modelRelInterval", 
-#                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
-#                                                                 min = 1, value = 1)
-#                                             ),
+                                             
+                                             fluidRow(
+                                               column(12,
+                                                      numericInput("modelNumPredSteps", 
+                                                                   label = h6("Specify for how many failures into the future the models will predict"),
+                                                                   min = 1, value = 1)
+                                               )
+                                             ),
+
                                              column(12, 
                                                     selectInput(
                                                       "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
@@ -163,11 +167,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            ),
                                            
                                            fluidRow(
+                                             #column(12, 
+                                             #       h5("Choose the type of plot for model results."),
+                                             #      selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
+                                             #                   choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
+                                             #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                             #),
                                              column(12, 
                                                     h5("Choose the type of plot for model results."),
                                                     selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
                                                                 choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
-                                                                               "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+                                                                               "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
                                              ),
                                              column(12,
                                                     conditionalPanel(
@@ -186,22 +196,21 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            fluidRow(
                                              column(12, 
                                                     checkboxInput("checkboxDataOnPlot", label = "Show data on plot", value = TRUE)
+                                             ),
+                                             column(12, 
+                                                    checkboxInput("checkboxDataEndOnPlot", label = "Show end of data on plot", value = TRUE)
                                              )
                                            ),
                                            
                                            # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
                                            fluidRow(
                                              column(12, 
-                                                    #<<<<<<< HEAD
-                                                    #                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points only, lines only, or both?"),
-                                                    #                                                                 choices = list("Both" = 1, "Points" = 2, "Lines" = 3), inline = TRUE,
-                                                    #                                                                 selected = 1)
-                                                    #=======
-                                                    radioButtons("ModelDataPlotType", label = h6("Specify how to draw the plot"),
-                                                                 choices = list("Data points and lines" = "points_and_lines", "Data points only" = "points", "Lines only" = "lines"),
+                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                                                                 inline=TRUE,
                                                                  selected = "points_and_lines")
-                                                    #>>>>>>> lfiondella/master
                                              )
+                                             
                                            ),
                                            
                                            fluidRow(
@@ -217,7 +226,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
+                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), textOutput("UnsuccessfulModels"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Model Result Table",
                                            selectInput(
                                              "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
@@ -280,7 +289,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12,
                                                     numericInput("modelRelMissionTime2", 
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                 min = 0, value = 1),
+                                                                 min = 0, value = 1)
+                                             ),
+                                             
+                                             column(12, 
+                                                    radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
+                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
+                                                                 selected = "PDF"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
                                              )
                                            )
@@ -327,9 +342,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0.1, max = 1.0, step = 0.001,
                                                                  value = .90)
                                              ),
-                                             column(12,
+                                             
+                                             column(12, 
+                                                    radioButtons("saveModelEvalType", label = h6("Save model evaluations as PDF or CSV?"),
+                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
+                                                                 selected = "PDF"),
                                                     downloadButton('saveModelEvals', 'Save Model Evaluations')
                                              )
+
                                            )
 
                                   ),
