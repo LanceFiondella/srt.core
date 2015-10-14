@@ -101,6 +101,16 @@ params
 
 }
 
+Wei_lnL <- function(x,params){
+  n <- length(x)
+  tn <- x[n]
+  sum1 <- 0
+  for(i in 1:n){
+    sum1=sum1+ (log(params$Wei_bMLE*params$Wei_cMLE*exp(-params$Wei_bMLE*(x[i]^params$Wei_cMLE))*params$Wei_aMLE*(x[i]^(params$Wei_cMLE-1))))
+  }
+  return(((-1+exp(-params$Wei_bMLE*(tn^params$Wei_cMLE)))*params$Wei_aMLE) + sum1)
+}
+
 
 Wei_MVF <- function(param,d){
   #param$aMLE <- 100
@@ -137,10 +147,6 @@ Wei_MVF_inv <- function(param,d){
   #a(1-e^(-bt^c))
 }
 
-
-Wei_lnL <- function(){
-
-}
 
 Wei_FI <- function(params,d){
   n <- length(d$FT)
