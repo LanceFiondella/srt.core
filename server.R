@@ -3,11 +3,11 @@ library(gdata)
 library(ggplot2)
 sys.source("utility/utility.R")
 sys.source("metrics/Model_specifications.R")
-#source("custom_functions.R")
-source("model.R")
+# source("custom_functions.R")
+# source("model.R")
 # source("JMmodel.R")
 sys.source("models/JM_BM.R")
-sys.source("GO_BM_FT.R")
+sys.source("models/GO_BM_FT.R")
 sys.source("models/GM_BM.R")
 sys.source("models/DSS_BM_FT.R")
 source("models/Wei_NM_FT.R")
@@ -18,7 +18,7 @@ source("trend_tests/RA_Test.R")
 source("RunModels.R")
 source("PlotModelResults.R")
 source("ModelResultTable.R")
-source("ErrorMessages.R")  # Text for error messages
+source("utility/ErrorMessages.R")  # Text for error messages
 
 # Initialize global variables -------------------------------
 
