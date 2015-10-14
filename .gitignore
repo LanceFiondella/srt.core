@@ -2,6 +2,6 @@
 .Rhistory
 .RData
 SRT.Rproj
-.png
-.pdf
-.out
+*.png
+*.pdf
+*.out
