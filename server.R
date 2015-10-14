@@ -2,10 +2,10 @@ library(shiny)
 library(gdata) 
 library(ggplot2)
 sys.source("utility/utility.R")
-sys.source("Model_specifications.R")
-source("custom_functions.R")
+sys.source("metrics/Model_specifications.R")
+#source("custom_functions.R")
 source("model.R")
-source("JMmodel.R")
+# source("JMmodel.R")
 sys.source("models/JM_BM.R")
 sys.source("GO_BM_FT.R")
 sys.source("models/GM_BM.R")
@@ -794,7 +794,7 @@ tab4_table1_construct <- function(model,data,input){
 
 
 output$mytable2 <- renderDataTable({
-    source("GOF.R")
+    source("metrics/GOF.R")
     inFile <- input$file
     if(is.null(inFile)){
       return("Please upload a file")
