@@ -59,14 +59,14 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 
 
 
-  maxiter <<- 20
+  maxiter <- 20
   soln <- function(maxiter){
     sol <- tryCatch(
-      uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10)$root,
+      stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10)$root,
       warning = function(w){
         if(length(grep("_NOT_ converged",w[1]))>0){
-          maxiter <<- maxiter+10
-          print(paste("recursive", maxiter,sep='_'))
+          maxiter <- maxiter+10
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
@@ -80,9 +80,9 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   if(N0_MLE < n){
     return("nonconvergence")
   }
-	# ----> ! N0_MLE <- unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
-	# ----> ! N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes",maxiter=10000, tol = 1e-24)$root
-	# ----> ! N0_MLE <- unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
+  # ----> ! N0_MLE <- stats::unirootR(MLEeq,interval=mpfr(c(leftEndPoint,rightEndPoint),120),tol=1e-20)$root
+  # ----> ! N0_MLE <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes",maxiter=10000, tol = 1e-24)$root
+  # ----> ! N0_MLE <- stats::unirootR(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
 }
 tmp_phi <- numeric(0)
 for(i in 1:n-1){
@@ -108,46 +108,42 @@ JM_MVF_efficient <- function(param,d){
     }
   }
 
-  g <- data.frame(cumulr[2],cumulr[1])
-  names(g) <- c("Time","Failure")
-  print(g)
+  g <- data.frame(cumulr[2],cumulr[1], rep("JM", n))
+  names(g) <- c("Time","Failure", "Model")
+  #print(g)
   g  
 }
 
-JM_MVF <- function(param,d){
-  n <- length(d$FT)
-  r <-data.frame()
-  cumulr <-data.frame()
-  cumulr[1,1] <- 0
-  cumulr[1,2] <- 0
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
-    cumulr[i,1] <- i
-    cumulr[i,2] <- 0
-    cumulr[i,3] <- "JM"
-    for(j in 1:length(r[[1]])){      
-        cumulr[i,2] <- cumulr[i,2]+r[j,2]      
-      
-    }
-  }
 
-  g <- data.frame("Time"=cumulr[2],"Failure"=cumulr[1],"Model"=cumulr[3]) # ----> naming doesn't work should find why
-  names(g) <- c("Time","Failure","Model") # ----> I have to use this reduntantly because of above comment(reason)
-  print(g)
-  g
+JM_MVF <- function(param,d) {
+  n <- length(d$FT)
+  r <- data.frame()
+  fail_number <- c(1:n)
+  cumFailures <- param$JM_N0*(1-exp(-param$JM_Phi*d$FT))
+  r <- data.frame(cumFailures, d$FT, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
+  r
 }
+
+# This does an "inverse" MVF function, solving for time given
+# a specific value of MVF.
+
+JM_MVF_inv <- function(param,d) {
+  n <- length(d$FN)
+  r <- data.frame()
+  cumFailTimes <- -(log((param$JM_N0-d$FN)/param$JM_N0))/param$JM_Phi
+  r <- data.frame(d$FN,cumFailTimes, rep("JM", n))
+  names(r) <- c("Failure","Time", "Model")
+  r
+}
+
 
 JM_MTTF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- i
-    r[i,2] <- 1/(param$JM_Phi*(param$JM_N0-(i-1)))
-    r[i,3] <- "JM"
-    }
-  r <- data.frame(r[1],r[2],r[3])
+  fail_number <- c(0:(n-1))
+  IFTimes <- 1/(param$JM_Phi*(param$JM_N0 - fail_number))
+  r <- data.frame(c(1:n),IFTimes, rep("JM", n))
   names(r) <- c("Failure_Number","MTTF","Model")
   r  
 }
@@ -155,13 +151,9 @@ JM_MTTF <- function(param,d){
 JM_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
-  cumulr <-data.frame()
-  for(i in 1:n){
-    r[i,1] <- d$FT[i]
-    r[i,2] <- (param$JM_Phi*(param$JM_N0-(i-1)))
-    r[i,3] <- "JM"
-    }
-  r <- data.frame(r[1],r[2],r[3])
+  fail_number <- c(1:n)
+  failIntensity <- param$JM_N0*param$JM_Phi*exp(-param$JM_Phi*d$FT)
+  r <- data.frame(fail_number,failIntensity, rep("JM",n))
   names(r) <- c("Failure_Count","Failure_Rate","Model")
   r  
 }
@@ -173,9 +165,8 @@ JM_R <- function(param,d){
   for(i in 1:n){
     r[i,1] <- d$FT[i]
     r[i,2] <- exp(-param$JM_Phi*(param$JM_N0-(n-1))*d$FT[i])
-    r[i,3] <- "JM"
   }
-  r <- data.frame(r[1],r[2],r[3])
+  r <- data.frame(r[1],r[2], rep("JM", n))
   names(r) <- c("Time","Reliability","Model")
   r
 }
@@ -188,8 +179,8 @@ JM_MVF_r <- function(param,d){
     r[i,1] <- t_index[i]
     r[i,2] <- param$JM_N0*(1-exp(-1*t_index[i]*param$JM_Phi))
   }
-  r <- data.frame(r[1],r[2])
-  names(r) <- c("Time","Failure")
+  r <- data.frame(r[1],r[2], rep("JM", n))
+  names(r) <- c("Time","Failure", "Model")
   r
 }
 
@@ -267,29 +258,54 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
     sol
 }
 
-JM_R_growth <- function(params,cur_time,delta, reliability){  
+
+JM_R_growth <- function(params,d,delta){  
   
   r <-data.frame()
-  tt_index <- seq(0,cur_time,cur_time/1000)
-    for(i in 1:length(tt_index)){   
-      r[i,1] <- tt_index[i]
-      temp <- JM_R_delta(params,tt_index[i],delta)
-      #print(typeof(temp))
-      if(typeof(temp) != typeof("character")){
-        r[i,2] <- temp
-        r[i,3] <- "JM"
-      }
-      else{
-        r[i,2] <- "NA"
-        r[i,3] <- "JM"
-      }     
+  for(i in 1:length(d$FT)){   
+    r[i,1] <- d$FT[i]
+    temp <- JM_R_delta(params,d$FT[i],delta)
+    #print(typeof(temp))
+    if(typeof(temp) != typeof("character")){
+      r[i,2] <- temp
+      r[i,3] <- "JM"
     }
-    g <- data.frame(r[1],r[2],r[3])
-    names(g) <- c("Time","Reliability_Growth","Model")
-    #print(g)
-    g
-      
+    else{
+      r[i,2] <- "NA"
+      r[i,3] <- "JM"
+    }     
+  }
+  g <- data.frame(r[1],r[2],r[3])
+  names(g) <- c("Time","Reliability_Growth","Model")
+  #print(g)
+  g
+  
 }
+
+
+#JM_R_growth <- function(params,cur_time,delta, reliability){  
+#  
+#  r <-data.frame()
+#  tt_index <- seq(0,cur_time,cur_time/1000)
+#    for(i in 1:length(tt_index)){   
+#      r[i,1] <- tt_index[i]
+#      temp <- JM_R_delta(params,tt_index[i],delta)
+#      #print(typeof(temp))
+#      if(typeof(temp) != typeof("character")){
+#        r[i,2] <- temp
+#        r[i,3] <- "JM"
+#      }
+#      else{
+#        r[i,2] <- "NA"
+#        r[i,3] <- "JM"
+#      }     
+#    }
+#    g <- data.frame(r[1],r[2],r[3])
+#    names(g) <- c("Time","Reliability_Growth","Model")
+#    #print(g)
+#    g
+#      
+#}
 
  #MTTF
  

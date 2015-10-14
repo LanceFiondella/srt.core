@@ -1,22 +1,60 @@
 library(shiny)
 library(gdata) 
 library(ggplot2)
-source("utility.R")
-source("Model_specifications.R")
-source("custom_functions.R")
+sys.source("utility/utility.R")
+sys.source("metrics/Model_specifications.R")
+#source("custom_functions.R")
 source("model.R")
-source("JMmodel.R")
-source("JM_BM.R")
-source("GO_BM_FT.R")
-source("GM_BM.R")
-source("DSS_BM_FT.R")
-source("Wei_NM_FT.R")
+# source("JMmodel.R")
+sys.source("models/JM_BM.R")
+sys.source("models/GO_BM_FT.R")
+sys.source("models/GM_BM.R")
+sys.source("models/DSS_BM_FT.R")
+source("models/Wei_NM_FT.R")
 source("Data_Format.R")
-source("Laplace_trend_test.R")
-source("RA_Test.R")
-source("ErrorMessages.R")
+source("trend_tests/Laplace_trend_test.R")
+source("DataAndTrendTables.R")
+source("trend_tests/RA_Test.R")
+source("RunModels.R")
+source("PlotModelResults.R")
+source("ModelResultTable.R")
+source("ErrorMessages.R")  # Text for error messages
 
-# Text for error messages
+# Initialize global variables -------------------------------
+
+openFileDatapath <- ""
+#data_global <- data.frame()
+data_set_global <- ""
+data_set_global_type <- ""
+FC_to_IF_data <- data.frame()
+
+DataModelIntervalStart <- 1
+DataModelIntervalEnd <- 5
+
+# These two data frames hold model results as
+# well as the data to which models were applied.
+
+ModelResults <- data.frame()
+ModeledData <- data.frame()
+ModeledDataName <- ""
+
+# These two vectors identify the models that
+# ran successfully and those that did not.
+
+SuccessfulModels <- c()
+FailedModels <- c()
+
+# These two lists are used to keep track of models
+# that executed successfully and those that did not.
+
+#ModelsExecutedList <- list()
+#ModelsFailedExecutionList <- list()
+
+# This is a list that hold the list of model evaluations.
+# Each set of model evaluations is a data frame - there's a
+# separate data frame for each model evaluation that's done.
+
+ModelEvalsList <- list()
 
 # Initialize "constants" ------------------------------------
 
@@ -26,6 +64,19 @@ K_CategoryFirst <- 1
 
 K_CategoryLast <- 5
 
+# These lists identify the models used for each data type
+
+K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+
+# Colors that will be used in plotting model results
+
+K_ModelResultColors <- list("JM"="red", "GM"="blue", "GO"="green", "DSS"="yellow", "Wei"="orange")
+
+# Tolerance used in determining whether a value is a whole number.
+
+K_tol <- .Machine$double.eps^0.5
+
 # Start main program ------------------------------------
 
 openFileDatapath <- ""
@@ -33,6 +84,8 @@ openFileDatapath <- ""
 data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
+  
+  #source("utility.R")
   
   output$sheetChoice <- renderUI({ # ------ > Should fix empty data_set name for .csv files
     if(input$type==1){
@@ -80,33 +133,178 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       data_original <<- data
     } else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
-        print(inFile)
+        #print(inFile)
         return("Please upload excel sheet")
       }
-      print(inFile)
+      #print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
       data_original <<- data # ----? should think of its usage 'data_original'
       data_set <- inFile$filename
     }
-      #data
-      print(data)
-      if(dataType(names(data))=="FR"){
-        data_generated <- generate_dataFrame(data)
-        print(data_generated)
-        data_generated
-      }
-      else if(dataType(names(data))=="FC"){
-        data_intermediate <<- generate_dataFrame(data)
-        data_generated <- data_intermediate$FRate
-      }
+    data_set_global <<- data_set
+    #data
+    #print(data)
+    if(dataType(names(data))=="FR"){
+      data_generated <- generate_dataFrame(data)
+      #print(data_generated)
       data_generated
+    }
+    else if(dataType(names(data))=="FC"){
+      data_intermediate <<- generate_dataFrame(data)
+      data_generated <- data_intermediate$FRate
+    }
+    
+    # Set up the initial values for modeling data range and the initial parameter
+    # estimation range
+    
+    # Set up the initial values for modeling data range and the initial parameter
+    # estimation range
+    
+    DataModelIntervalStart <<- 1
+    DataModelIntervalEnd <<- length(data_generated[,1])
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      output$InputFileError <- renderText({msgDataFileTooSmall})
+    } else {
+      output$InputFileError <- renderText({""})
+    }
+    
+    # Complete all columns for FT/IF data, including failure number.
+    # This information will be used later for subsetting the data.
+    
+    if(dataType(names(data_generated))=="FR") {
+      data_set_global_type <<- "IFTimes"
+
+      # Update the selection list for the models that can be run.
+      
+      updateSelectInput(session, "modelsToRun", choices = K_IF_ModelsList, selected = K_IF_ModelsList)
+      
+      # Update failure data view choices for IF/FT data and model result views.
+      
+      updateSelectInput(session, "dataPlotChoice",
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI"), selected = "CF")
+      updateSelectInput(session, "modelPlotChoice",
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+                                       "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+
+      # Update the default mission time for computing reliability.
+      # We choose the most recent IF time that is greater than 0.
+      
+      for (dataIndex in length(data_generated$IF):1) {
+        if(data_generated$IF[dataIndex] > 0) {break}
+      }
+      updateSliderInput(session, "modelRelMissionTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+
+    } else if(dataType(names(data_generated))=="FC") {
+      data_set_global_type <<- "FailureCounts"
+
+      # Add a column for test intervals.
+      
+      data$TI <- c(1:length(data$FC))
+      
+      FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+      
+      # Update the selection list for the models that can be run.
+      
+      updateSelectInput(session, "modelsToRun", choices = K_FC_ModelsList, selected = K_FC_ModelsList)
+      
+      # Update failure data view choices for CFC/FC data/model views.
+      # Includes a "failure counts" view which IF/FT data does not.
+      
+      updateSelectInput(session, "dataPlotChoice",
+                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      updateSelectInput(session, "modelPlotChoice",
+                        choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+      
+    }
+    
+    updateSliderInput(session, "modelDataRange",
+                      min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
+                      max = DataModelIntervalEnd)
+    updateSliderInput(session, "parmEstIntvl",
+                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                      max = DataModelIntervalEnd-1)
+    
+    # Finally, output data set
+    
+    data_generated
 }) 
 
+  # A reactive data item that is used to control the height of the raw data and trend
+  # plot.  The height is computed based on the width - it the plot is not as high
+  # as it is wide, and if the width exceeds a minimum, then the height catches up with
+  # the width to make a square plot.
+  
+  DTP_height <- reactive({
+    Width <- session$clientData$output_DataAndTrendPlot_width
+    Height <- session$clientData$output_DataAndTrendPlot_height
+    if((Width > Height) && (Width > 400)) {
+      Height <- Width
+    }
+    Height
+  })
+  
+  # Read the position of the mouse for the data and trend plot
+  
+  DTPranges <- reactiveValues(x = NULL, y = NULL)
+  
+  # Event observer for double-click on data and trend plot.
+  # Double click and brush zooms in and out.
+  
+  observeEvent(input$DTPdblclick, {
+    DTPbrush <- input$DTP_brush
+    if (!is.null(DTPbrush)) {
+      DTPranges$x <- c(DTPbrush$xmin, DTPbrush$xmax)
+      DTPranges$y <- c(DTPbrush$ymin, DTPbrush$ymax)
+      
+    } else {
+      DTPranges$x <- NULL
+      DTPranges$y <- NULL
+    }
+  })
+
+  # A reactive data item that is used to control the height of the model results
+  # plot.  The height is computed based on the width - it the plot is not as high
+  # as it is wide, and if the width exceeds a minimum, then the height catches up with
+  # the width to make a square plot.
+
+  MP_height <- reactive({
+    Width <- session$clientData$output_ModelPlot_width
+    Height <- session$clientData$output_ModelPlot_height
+    if((Width > Height) && (Width > 400)) {
+      Height <- Width
+    }
+    Height
+  })
+
+  # Read the position of the mouse for the model results plot
+  
+  MPranges <- reactiveValues(x = NULL, y = NULL)
+  
+  # Event observer for double-click on model results plot.
+  # Double click and brush zooms in and out.
+  
+  observeEvent(input$MPdblclick, {
+    MPbrush <- input$MP_brush
+    if (!is.null(MPbrush)) {
+      MPranges$x <- c(MPbrush$xmin, MPbrush$xmax)
+      MPranges$y <- c(MPbrush$ymin, MPbrush$ymax)
+      
+    } else {
+      MPranges$x <- NULL
+      MPranges$y <- NULL
+    }
+  })
+  
 
   # Draw the plot of input data or selected trend test
   
-  output$distPlot <- renderPlot({ #reactive function, basically Main()
+  output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
     
+    DataAndTrendPlot <- NULL   # Set the plot object to NULL to prevent error messages.
     data <- data.frame(x=data_global())
     DataColNames <- names(data)
     names(data) <- gsub("x.", "", DataColNames)
@@ -119,301 +317,226 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        q <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
         input_data <- data
         source("Plot_Raw_Data.R", local=TRUE)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
         
-        q <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
         input_data <- data
         source("Plot_Trend_Tests.R", local=TRUE)
       }
       
-      q
+      DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
+      DataAndTrendPlot
       
       #plot(data) Leave this here to use if ggplot() stops working. 
     }
-  })
+  }, height=DTP_height)
   
-  # There is a serious flaw in tracking the models selected
-  # But there is a strong necessity to track the models 
-  # selected.
-
-
-  # track_models <- reactive({
-  #   tracked_models <- c()
-  #   if(!is.null(input$modelResultChoice)) {
-  #     tracked_models <- input$modelResultChoice
-  #   }
-  #   else{
-  #     if(!is.null(input$modelDetailChoice)){
-  #       tracked_models <- input$modelDetailChoice
-  #     }
-      
-  #   }
-  #   print(tracked_models)
-  #   tracked_models
-
-  #   # Returns indeces of the models selected
-  #   # The indices should be same throughout the
-  # })
   
+  # Download handler for saving data and trend plots or tables.
+  
+  output$saveDataOrTrend <- downloadHandler(
+    filename = function() {
+      if(input$DataPlotAndTableTabset == "Plot") {
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+        }
+      } else { # Save data table
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data"), "csv", sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), "csv", sep=".")
+        }
+      }
+    },
+    content = function(filespec) {
+      if(input$DataPlotAndTableTabset == "Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- data.frame(x=FailureDataTable())
+        if(length(OutputTable) > 1) {
+          DataColNames <- names(OutputTable)
+          names(OutputTable) <- gsub("x.", "", DataColNames)
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec)
+      }
+    }
+  )
+
+    
+  # Download handler for saving model result plots or tables.
+  
+  output$saveModelResults <- downloadHandler(
+    filename = function() {
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        
+        # Save model results plot
+        
+        paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      } else {
+        
+        # Save model results table
+        
+        paste(paste0(ModeledDataName, "_Results"), "csv", sep=".")
+      }
+    },
+    content = function(filespec) {
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- ModelResults
+        
+        # Turn OutputTable to character representations to avoid
+        # difficulties with NA, Inf, and NaN.
+        
+        TableNames <- names(OutputTable)
+        for (nameIndex in TableNames) {
+          OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+        }
+        
+        if(length(OutputTable) > 1) {
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+      }
+    }
+  )
+  
+  
+
   # Set up the data and trend test statistics tables for display
   
   FailureDataTable <- reactive ({
-    tempDataMatrix <- matrix()
+    DataTrendTable <- NULL
     if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
-      data <- data.frame(x=data_global())
-      DataColNames <- names(data)
-      names(data) <- gsub("x.", "", DataColNames)
-      NameArray <- names(data)
-      
-      if(input$DataPlotAndTableTabset == "Data and Trend Test Table") {
-        if(length(grep("IF",names(data))) || length(grep("FT",names(data)))) {
-          FN <- data$FN
-          if(input$PlotDataOrTrend == 1) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              FT <- data$FT
-            } else if(length(grep("FT", names(data)))) {
-              FT <- interF_to_failureT(data$IF)
-              IF <- data$IF
-            }
-            NameArray <- c("Failure Number", "Times Between Failures", "Failure Time")
-            tempDataMatrix <- matrix(c(FN, IF, FT), ncol=3)
-          } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("IF", names(data)))){
-              IF <- failureT_to_interF(data$FT)
-            } else if(length(grep("FT", names(data)))) {
-              IF <- data$IF
-            }
-            
-            if (input$trendPlotChoice == "LP") {
-              sol <- laplace_trend_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-            } else if (input$trendPlotChoice == "RA") {
-              sol <- running_average_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-            }
-          }
-        } else if(length(grep("CFC",names(data))) || length(grep("FC",names(data)))) {
-          if(input$PlotDataOrTrend == 1) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              CFC <- data$CFC
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-              CFC <- FailureC_to_CumulativeFailureC(data$FC)
-            }
-            IntervalNum <- c(1:length(data$T))
-            
-            NameArray <- c("Test Interval", "Cumulative Test Time", "Failure Counts", "Cumulative Failure Count")
-            tempDataMatrix <- matrix(c(IntervalNum, data$T, FC, CFC), ncol=4)
-            
-          } else if(input$PlotDataOrTrend == 2) {
-            if(length(grep("CFC", names(data)))){
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-            } else if(length(grep("FC", names(data)))) {
-              FC <- data$FC
-            }
-            
-            FT <- failureC_to_failureT(data$T,FC)
-            IF <- failureT_to_interF(failure_T = FT)
-            FN <- c(1:length(FT))
-            IntervalTime <- data$T
-            
-            if(input$trendPlotChoice == "LP") {
-              sol <- laplace_trend_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Laplace Test Statistic")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Laplace_factor), ncol=3)
-            } else if(input$trendPlotChoice == "RA") {
-              sol <- running_average_test(IF)
-              NameArray <- c("Failure Number", "Times Between Failures", "Running Average IF Time")
-              tempDataMatrix <- matrix(c(FN, IF, sol$Running_Average), ncol=3)
-            }
-          }
-        }
-        colnames(tempDataMatrix) <- NameArray
+      if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
+        data <- data.frame(x=data_global())
+        DataTrendTable <- data_or_trend_table(data, input$modelDataRange, input$PlotDataOrTrend, input$trendPlotChoice)
       }
     }
-    tempDataMatrix
+    DataTrendTable
   })
 
 
+  # Here we monitor the data subset and model configuration controls in the
+  # "Select, Analyze, and Subset Failure Data" and "Set Up and Apply Models"
+  # tabs.  We read the values from the controls, and adjust the controls to make
+  # sure that the modeling intervals and lengths of the modeling data set don't
+  # go below specified minimal values.
+    
+  output$DataSubsetError <- renderText({
+    data_local <- data.frame(x=data_global())
+    DataColNames <- names(data_local)
+    names(data_local) <- gsub("x.", "", DataColNames)
+    
+    outputMessage <- ""
+    
+    # Read the slider for the categories to be retained when filtering the data.
+    
+    # DataCategoryFirst <- input$sliderDataSubsetChoice[1]
+    # DataCategoryLast <- input$sliderDataSubsetChoice[2]
+    
+    # Set the slider for the initial parameter estimation range to be
+    # consistent with the data range over which models are applied
+    
+    dataModelRange <- input$modelDataRange
+    
+    DataModelIntervalStart <<- dataModelRange[1]
+    DataModelIntervalEnd <<- dataModelRange[2]
+    
+    # Keep the data interval used for modeling to 5 observations or more.
+    
+    if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+      outputMessage <- msgDataIntervalTooSmall
+      while((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+        if(DataModelIntervalStart > 1){
+          DataModelIntervalStart <- DataModelIntervalStart - 1
+        }
+        if(DataModelIntervalEnd < length(data_local[,1])){
+          DataModelIntervalEnd <- DataModelIntervalEnd + 1
+        }
+      }
+      
+      updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
+    }  
+    updateSliderInput(session, "parmEstIntvl",
+                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                      max = DataModelIntervalEnd-1)    
+    
+    outputMessage
+  })
 
-
-
-
-
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ----------------------------------------   PLOTS CONSTRUCT    ----------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-
-plot_construct <- function(model,data){
   
-  # ----> ! print(dataType(names(data)))
-  if(dataType(names(data))=="FR"){
-
-    model_params <- get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]])
-    # assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-
-    # MLE_construct <- get(paste(model,get(paste(model,method,sep="_"))[1],c("MLE"),sep="_"))
-    # model_params <- MLE_construct(data[[model_method[1]]]) # ---- > Should be from model specifications 'JM_input'
-    # print(model_params)
-    # model_params <- JM_BM_MLE(data$IF)
-
-
-  if(input$modelPlotChoice=="MVF"){
-     
-    
-     
-    print(model_params)
-    if(typeof(model_params)!="character"){ 
-      MVF_construct <- get(paste(model,input$modelPlotChoice,sep="_")) # ----> should be more general
-      mvf_plot_data <- MVF_construct(model_params,data)
-      if(input$ModelDataPlotType=="points_and_lines"){
-        p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure,color=Model))+ geom_line(data=mvf_plot_data, aes(Time,Failure,color=Model,linetype=Model))
-      }
-      if(input$ModelDataPlotType=="points"){
-        p1 <- p1 + geom_point(data = mvf_plot_data, aes(Time,Failure, color=Model))
-      }
-      if(input$ModelDataPlotType=="lines"){
-        p1 <- p1 + geom_line(data = mvf_plot_data, aes(Time, Failure, color=Model))
-      }
-      if(input$checkboxDataOnPlot){
-        original_data <- data.frame("Time" = data$FT, "Failure" = data$FN)
-        p1 <- p1 + geom_step(data = original_data,aes( Time, Failure),color='gray')
-      }
-      p1 <- p1 + ggtitle(paste(c("Mean Value function plot of"), input$dataSheetChoice))#+ geomline(data=plot_data)
-      #p1 <- p1 + theme(legend.position = c(0.1, 0.9));
-      #p1 <- p1 + scale_color_manual(name = "JM", labels = c("MVF","Original Data"),values = c("blue","red"))
-      #q <- q + p
-    }
-    else if(model_params=="nonconvergence"){
-      original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-      p1 <- p1 + geom_point(data=original_data,aes(Time,Failure))
-      #p1 + annotate("segment", x = 0, xend = length(original_data$Failure)/2, y = 0, yend = length(original_data$Time)/2,  colour = "red")
-      p1 <- p1+ annotate("text", label = "Non-Convergence", x = length(original_data$Failure)/2, y = length(original_data$Time)/2, size = 8, colour = "red")
-    }
-}
-
-  if(input$modelPlotChoice=="MTTF"){
-    #assign(paste(input$modelPlotChoice,"construct",sep="_"), get(paste(i,input$modelPlotChoice,sep="_")))
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-    
-
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Number,MTTF,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Failure_Number,MTTF,color=Model))
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Number,MTTF,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Number,MTTF,color=Model))
-    }
-    if(input$checkboxDataOnPlot){
-      original_data <- data.frame("Failure_Number"=data$FN,"MTTF"=data$IF)
-      print(original_data)
-      p1 <- p1 + geom_step(data=original_data,aes(Failure_Number,MTTF))
-    }
-
-    
-    p1 <- p1 + ggtitle(paste(c("TIme Between Failure function plot of"),input$dataSheetChoice))
-    #q <- q + p
-  }
-
-  if(input$modelPlotChoice=="FI"){
-    #assign(paste(input$modelPlotChoice,"construct",sep="_"), get(paste(i,input$modelPlotChoice,sep="_")))
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-
-    # -----> assign('x',5) Good example to create dynamic variables
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Count,Failure_Rate,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Failure_Count,Failure_Rate,color=Model)) # ----? can we use "Failure Count" without underscore
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Count,Failure_Rate,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Failure_Count, Failure_Rate,color=Model))
-
-    }
-    # if(input$checkboxDataOnPlot){
-    #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-    #   p <- p + geom_line(data=original_data,aes(Time,Failure))
-    # }
-    if(is.null(input$dataSheetChoice)){
-      p1 <- p1+ggtitle("Failure Intensity function plot")
-    }
-    else{
-       p1 <- p1+ggtitle(paste(c("Failure Intensity function plot ["),input$dataSheetChoice,"]"))
-    }
-    p1
-  }
-  if(input$modelPlotChoice=="R"){
-    #R_construct <- get(paste(i,input$modelPlotChoice,sep="_"))
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data))
-
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability))# + ggtitle(paste(c("Laplace trend of "),data_set))
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time, Reliability,color=Model))
-
-    }
-    # if(input$checkboxDataOnPlot){
-    #   original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
-    #   p <- p + geom_line(data=original_data,aes(Time,Failure))
-    # }
-    if(is.null(input$dataSheetChoice)){
-      p1 <- p1+ggtitle("Reliabililty function plot")
-    }
-    else{
-       p1 <- p1+ggtitle(paste(c("Reliabililty function plot ["),input$dataSheetChoice,"]"))
-    }
-  }
-  if(input$modelPlotChoice=="R_growth"){
-    assign(paste(input$modelPlotChoice,"plot_data",sep="_"),get(paste(model,input$modelPlotChoice,sep="_"))(model_params,data$FT[length(data$FT)],input$modelRelMissionTime,input$modelTargetReliability))
-
-    if(input$ModelDataPlotType=="points_and_lines"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))+ geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")), aes(Time,Reliability_Growth,color=Model)) # can we use Reliability_Growth without underscore
-    }
-    if(input$ModelDataPlotType=="points"){
-      p1 <- p1 + geom_point(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
-    }
-    if(input$ModelDataPlotType=="lines"){
-      p1 <- p1 + geom_line(data=get(paste(input$modelPlotChoice,"plot_data",sep="_")),aes(Time,Reliability_Growth,color=Model))
-
-    }
-    if(is.null(input$dataSheetChoice)){
-      p1 <- p1+ggtitle("Reliabililty Growth function plot")
-    }
-    else{
-       p1 <- p1+ggtitle(paste(c("Reliabililty Growth function plot ["),input$dataSheetChoice,"]"))
-    }
-
-
-  }
-  }
-
-  else if(dataType(names(data))=="FC"){
-  # To be programmed
-
-
-  }
-  p1          
- 
-
-}
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------   Run Models    -------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
   
+  
+  # Run the models for the data type of the input file.
+  
+  observeEvent(input$runModels, {
+    if(((input$modelDataRange[2] - input$modelDataRange[1] + 1) >= K_minDataModelIntervalWidth) && (length(as.list(input$modelsToRun)) > 0)) {
+      
+      # Create temporary storage to hold model results and related modeling values.
+      tempResultsList <- list()
+      
+      updateSelectInput(session, "modelResultChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelDetailChoice", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "modelResultsForEval", choices=list("No model results to display"="None"), selected="None")
+      updateSelectInput(session, "AllModelsRun", choices=list("No model results to display"="None"), selected="None")
+      
+      # Subset the data according to the range we've specified.
+      
+      ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
+      ModeledDataName <<- data_set_global
+      
+      if(input$modelDataRange[1] == 1) {
+        TimeOffset <- 0
+      } else {
+        TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
+      }
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+      ModelResults <<- tempResultsList[["Results"]]
+      SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
+      FailedModels <<- tempResultsList[["FailedModels"]]
+      
+      # Update the model results selection pull-downs with the names of the
+      # models that have been successfully run.
+      
+      ModelsToShow <- as.list(SuccessfulModels)
+      ModelsToShowNames <- c()
+      for (ModelsToShowIndex in 1:length(ModelsToShow)) {
+        ModelsToShowNames <- c(ModelsToShowNames, get(paste(SuccessfulModels[ModelsToShowIndex], "fullname", sep="_"))) 
+      }
+      names(ModelsToShow) <- ModelsToShowNames
+      
+      updateSelectInput(session, "modelResultChoice", choices = ModelsToShow, selected=ModelsToShow[1])
+      updateSelectInput(session, "modelDetailChoice", choices = ModelsToShow, selected=ModelsToShow[1])
+      updateSelectInput(session, "modelResultsForEval", choices = ModelsToShow, selected=ModelsToShow[1])
+      
+      AllModelsRunNames <- c()
+      AllModelsRun <- sort(c(SuccessfulModels, FailedModels))
+      for (ModelsToShowIndex in 1:length(AllModelsRun)) {
+        AllModelsRunNames <- c(AllModelsRunNames, get(paste(AllModelsRun[ModelsToShowIndex], "fullname", sep="_"))) 
+      }
+      names(AllModelsRun) <- AllModelsRunNames
+      
+      updateSelectInput(session, "AllModelsRun", choices = AllModelsRun, selected=AllModelsRun[1])
+      
+      # Release temporary storage of model results
+      tempResultsList <- list()
+    }
+  })
+
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
@@ -431,9 +554,32 @@ plot_construct <- function(model,data){
       OutputTable <- data.frame()
     }
     OutputTable
-  })
+  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 
+  
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# --------------------------- Display selected model results in tabular form  --------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+  
+    output$ModelResultTable <- renderDataTable({
+      MR_Table <- NULL
+      if(!is.null(ModelResults)) {
+        if(length(input$AllModelsRun) > 0) {
+          
+          # User has selected at one model to display as a table.
+          
+          MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
+        }
+      }
+      if (length(MR_Table) <= 1) {
+        MR_Table <- data.frame()
+      }
+      MR_Table
+    }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
@@ -442,34 +588,16 @@ plot_construct <- function(model,data){
 # ------------------------------------------------------------------------------------------------------
 
 
-
-
   output$ModelPlot <- renderPlot({
-
-    data <- data_global()
-    data_set <- input$dataSheetChoice  
-    if(is.null(input$modelResultChoice) || (length(input$modelResultChoice)==0)){
-      return
-    }
-  
-  # ----------------------------------- model run starts here -----------------------------
-      
-    if(input$runModels!=0){          
-    # -----> should think of isolate here
-    # -----> should think of not rerunning models
-
-      if(length(input$modelResultChoice)>0){
-
-        p1 <<- ggplot()
-        # Plot initializations above
-        
-          for(i in input$modelResultChoice){
-            p1 <<-  plot_construct(i,data)
-          }
-        p1
+    MRPlot <- NULL
+    if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$modelRelMissionTime)
+      if(!is.null(MRPlot)) {
+        MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }
-     }
-    })
+    }
+    MRPlot
+  }, height=MP_height)
 
 
 # ------------------------------------------------------------------------------------------------------
@@ -503,20 +631,20 @@ tab3_table1_construct <- function(model,data,input){
                                       length(get("data")[[get(paste(model,"input",sep="_"))]]))
       print(time_fails)
       print(number_fails)
-      # LOCK <- FALSE
+      ExpectedNumFailuresExceeded <- FALSE
       for( i in 1:length(time_fails)){
-        # if(!LOCK){
+        if(!ExpectedNumFailuresExceeded){
           count <<- count+1
           tab3_table1[count,1]<<- model
           tab3_table1[count,2]<<- number_fails
           tab3_table1[count,3]<<- time_fails[i]
 
-          # Create Row of NA only once logic
-          # if(time_fails=="NA"){
-          #   LOCK <- TRUE
-          #   break
-          # }
-        # }
+          #  Create Row of NA only once logic
+          if(time_fails[i]=="NA"){
+             ExpectedNumFailuresExceeded <- TRUE
+             break
+           }
+         }
       }
     }
     else if(typeof(model_params)=="character"){
@@ -558,13 +686,15 @@ output$mytable1 <- renderDataTable({
     
 
     if(is.null(inFile)){
-      return("Please upload an a file")
+      return("Please upload a file")
     }
 
     data <- data_global()
-    if(is.null(input$modelDetailChoice)){
-        return
-      }
+    
+    ModelsToQuery <- input$modelDetailChoice
+    if(length(ModelsToQuery)<=0) {
+      return
+    }
     
       ###################################################
       if(!is.numeric(input$modelDetailPredTime)){
@@ -575,13 +705,12 @@ output$mytable1 <- renderDataTable({
       }
       ###################################################
       #input$modelDetailChoice <- track_models()
-      if(length(input$modelDetailChoice)>0){
+      if(length(ModelsToQuery)>0){
         source("Detailed_prediction.R")
-        #model_params <- JM_BM_MLE(data$IF)
-      #if(length(track_models())>0) {
+
         count <<- 0
         tab3_table1<<- data.frame()
-        for(i in input$modelDetailChoice){
+        for(i in ModelsToQuery){
           count <<- count+1
           tab3_table1_construct(i,data,input)
         }
@@ -589,11 +718,20 @@ output$mytable1 <- renderDataTable({
       names(tab3_table1) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
     tab3_table1
   }
-  })
+}, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 tracked_models <- reactive({
   input$modelDetailChoice
 })
+
+
+
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ----------------------------------------   TAB4 Table   ----------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
 
 tab4_table1_construct <- function(model,data,input){
   if(dataType(names(data))=="FR"){
@@ -626,6 +764,8 @@ tab4_table1_construct <- function(model,data,input){
       else {
         AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
         PSSE <- psse(model,data,model_params,input$percentData)
+        print("PSSE -----------------------------------------")
+        print(PSSE)
         count <<- count+1
         tab4_table1[count,1]<<- model
         tab4_table1[count,2]<<- AIC
@@ -652,25 +792,27 @@ tab4_table1_construct <- function(model,data,input){
   }
 }
 
-# --------------------------------------------------------------------
 
 output$mytable2 <- renderDataTable({
-    source("GOF.R")
+    source("metrics/GOF.R")
     inFile <- input$file
     if(is.null(inFile)){
-      return("Please upload an a file")
+      return("Please upload a file")
     }
+    
+    ModelsToEval <- input$modelResultsForEval
 
-    if(length(tracked_models())<=0) {
+    if(length(ModelsToEval)<=0) {
         return
-      }
-    print(tracked_models())
+    }
+    
+    print(ModelsToEval)
     tab4_table1 <<- data.frame()
     data <- data_global()
-      if(length(tracked_models())>0){
+      if(length(ModelsToEval)>0){
         count <<- 0
         
-        for(i in tracked_models()){
+        for(i in ModelsToEval){
           tab4_table1_construct(i,data,input)
         }
 
@@ -679,5 +821,6 @@ output$mytable2 <- renderDataTable({
     }
 
     tab4_table1
-  })
+  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+
 })

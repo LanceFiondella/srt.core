@@ -1,27 +1,6 @@
+#Akaike Information Criterion (p -> number of model parameters and lnL -> log-likelihood value)
 
-model_bias <- function(x,y){
-	t <- 0
-	for(i in 1:length(x)){
-		t <- ((x[i] - y[i]))/length(x) + t
-	}
-	t
-}
-
-mean_square_error <- function(x,y){
-	t <- 0
-	for(i in 1:length(x)){
-		t <- ((x[i]-y[i])^2)/length(x) + t
-	}
-	t
-}
-
-mean_absolute_error <- function(x,y){
-	t <- 0
-	for(i in 1:length(x)){
-		t <- abs((x[i]-y[i]))/length(x) + t
-	}
-	t
-}
+#AIC <- 2*p - 2*lnL
 
 aic <- function(p,mle){
 	return (2*p - 2*mle)
@@ -54,12 +33,15 @@ aic <- function(p,mle){
 #  	}
 # }
 
+
+#PSSE
+
 psse <- function(model, d, model_params,percent){
 	t <- 0
 	n <- length(d)
 	k <- floor(percent*n)
 	k <- max(k,1)
-	for( i in (k+1):n){
+	for( i in (k):n){
 		t <- (i - get(paste(model,"_MVF_cont",sep=""))(model_params,i))^2 +t
 	}
 	t
