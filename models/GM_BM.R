@@ -166,8 +166,20 @@ GM_R <- function(param,d){
   
 }
 
-GM_lnL  <- function(){
-  
+
+GM_lnL <-  function(x,params){
+
+  sum1=0
+  sum2=0
+  print(params)
+  n <- length(x)
+  for(i in 1:n){
+    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
+    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
+  }
+  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
+  print(lnL)
+  return(lnL)
 }
 
 
