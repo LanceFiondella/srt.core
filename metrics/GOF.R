@@ -41,8 +41,8 @@ psse <- function(model, d, model_params,percent){
 	n <- length(d)
 	k <- floor(percent*n)
 	k <- max(k,1)
-	for( i in (k):n){
-		t <- (i - get(paste(model,"_MVF_cont",sep=""))(model_params,i))^2 +t
+	for( i in (k+1):n){
+		t <- (i - get(paste(model,"_MVF_cont",sep=""))(model_params,d[i]))^2 +t
 	}
 	t
 }

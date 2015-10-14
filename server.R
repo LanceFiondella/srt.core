@@ -11,7 +11,6 @@ sys.source("models/GO_BM_FT.R")
 sys.source("models/GM_BM.R")
 sys.source("models/DSS_BM_FT.R")
 source("models/Wei_NM_FT.R")
-source("Data_Format.R")
 source("trend_tests/Laplace_trend_test.R")
 source("DataAndTrendTables.R")
 source("trend_tests/RA_Test.R")
@@ -763,7 +762,8 @@ tab4_table1_construct <- function(model,data,input){
       }
       else {
         AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
-        PSSE <- psse(model,data,model_params,input$percentData)
+        print(data)
+        PSSE <- psse(model,data$FT,model_params,input$percentData)
         print("PSSE -----------------------------------------")
         print(PSSE)
         count <<- count+1
