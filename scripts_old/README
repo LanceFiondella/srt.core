@@ -1,0 +1,31 @@
+Software Reliabilty Testing (http://srt.umassd.edu)
+
+A web oriented software reliabilty testing suite. Made to parse data sets and predict failure models based on common statistical approaches.
+
+Made by Lance Fiondella at the University of Massachusetts Dartmouth
+Team:
+  Daniel Garcia
+  Robert Davis
+  Richard Muri
+  Miles Wilhelms-Tricarico
+  George Haddad
+  Brain Etienne
+  Matthew Furtardo
+  Sameer Bharadwaj Kencham
+  Varun Kumar Reddy Garlapati
+  Vidhyashree Nagaraju
+  
+Dependancies:
+R version >= 3.0
+shiny  R Package
+gdata R Package
+ggplot2 R Package
+These can be resolved using the install.Packages() function from the R command Line
+
+To Run:
+Clone this git
+Resolve the dependancies above
+From the R command line type:
+  >>library(shiny)
+  >>runApp("/Path/To/Dir/SRT/")
+This will launch the app on localhost on some random port and attempt to open your browser.

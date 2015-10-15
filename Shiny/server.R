@@ -1,0 +1,4 @@
+shinyServer(function(input, output) {
+})
+
+
