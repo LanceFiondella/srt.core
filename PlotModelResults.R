@@ -1,6 +1,6 @@
 # Plot model results (and raw data, if specified)
 
-plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, RelMissionTime) {
+plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, PlotDataEnd, RelMissionTime) {
   
   require(ggplot2)
   
@@ -161,6 +161,10 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
         PlotFault <- TRUE
       }
     }
+  }
+  
+  if(PlotDataEnd) {
+    localResultsPlot <- localResultsPlot + geom_vline(xintercept=DataModeled$FT[length(DataModeled$FT)])
   }
     
   

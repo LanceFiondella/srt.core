@@ -79,7 +79,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
 
         # Compute the MVF, IF, FI, Reliability, and Reliability Growth functions for the model.
         
-        pred_input_data <- data.frame("IF" = in_data[["IF"]], "FT" = in_data[["FT"]]-OffsetTime)
+        pred_input_data <- data.frame("IF" = in_data[["IF"]], "FT" = in_data[["FT"]])
         
         # First estimate MVF, then forecast.
         local_estim <- get(paste(modelID,"MVF",sep="_"))(model_params, pred_input_data)[["Failure"]]
@@ -134,14 +134,14 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
 
         if(length(invMVFinput) > 0) {
           pred_input_data <- data.frame("FN" = invMVFinput)
-          local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]], get(paste(modelID,"MVF_inv",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
+          local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]]+OffsetTime, get(paste(modelID,"MVF_inv",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
           local_results[[paste0(modelID, "_MVF")]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
         } else {
-          local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]], ModelPredsInf)
+          local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]]+OffsetTime, ModelPredsInf)
           local_results[[paste0(modelID, "_MVF")]] <- c(local_estim+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), PredAheadSteps))
         }
 
-        pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime"))), select=get(paste0(modelID, "_CumTime"))))
+        pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime"))), select=get(paste0(modelID, "_CumTime")))-OffsetTime)
         names(pred_input_data) <- c("FT")
         local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Failure_Rate"]], ModelPredsZero)
         local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["MTTF"]], ModelPredsInf)
