@@ -18,7 +18,7 @@ source("RunModels.R")
 source("PlotModelResults.R")
 source("ModelResultTable.R")
 source("utility/ErrorMessages.R")  # Text for error messages
-
+source("Plot_Raw_Data.R")
 # Initialize global variables -------------------------------
 
 openFileDatapath <- ""
