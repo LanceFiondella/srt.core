@@ -100,7 +100,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               mainPanel(
                                 tabsetPanel(
                                   tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot",dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
-                                  tabPanel("Data and Trend Test Table", DT::dataTableOutput("dataAndTrendTable")),
+                                  tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
                                   id="DataPlotAndTableTabset"),
                                 width=8
                               )
@@ -111,19 +111,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Configure and Apply Models"),
-                                           h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
+                                           h5("Specify the number of failures for which the models will make predictions"),
                                            
                                            fluidRow(
-                                             column(12,
-                                                    uiOutput("ParameterInterval")
-                                             ),
+                                             # column(12,
+                                             #       uiOutput("ParameterInterval")
+                                             # ),
                                              
-                                             fluidRow(
-                                               column(12,
-                                                      numericInput("modelNumPredSteps", 
-                                                                   label = h6("Specify for how many failures into the future the models will predict"),
-                                                                   min = 1, value = 1)
-                                               )
+                                             column(12,
+                                                    numericInput("modelNumPredSteps", 
+                                                                 label = h6("Specify for how many failures into the future the models will predict"),
+                                                                 min = 1, value = 1)
                                              ),
 
                                              column(12, 
@@ -232,7 +230,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
                                              choices=list("No model results to display"="None"),
                                              multiple=TRUE, selected="None"),
-                                           DT::dataTableOutput("ModelResultTable")),
+                                           dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
                               )
                             )
@@ -302,7 +300,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               ),
                               
                               mainPanel(
-                                DT::dataTableOutput('mytable1')
+                                dataTableOutput('mytable1')
                               )
                             )
                    ),
@@ -438,7 +436,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel('Table',DT::dataTableOutput('mytable2'))
+                                  tabPanel('Table',dataTableOutput('mytable2'))
                                   #tabPanel("Plot",plotOutput("Evalationplot"))
                                 )                              
                               )
