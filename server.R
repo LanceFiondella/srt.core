@@ -249,13 +249,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # is dynamically created to ensure that its value is always in sync with those of
   # the start and end points of the current data range.
   
-  output$ParameterInterval <- renderUI({
-    intervalStart <- input$modelDataRange[1]
-    intervalEnd <- input$modelDataRange[2]
-    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
-    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
-  })
+#  output$ParameterInterval <- renderUI({
+#    intervalStart <- input$modelDataRange[1]
+#    intervalEnd <- input$modelDataRange[2]
+#    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
+#    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+#                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
+#  })
 
   # A reactive data item that is used to control the height of the raw data and trend
   # plot.  The height is computed based on the width - it the plot is not as high
@@ -509,9 +509,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
     }  
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)    
+    # updateSliderInput(session, "parmEstIntvl",
+    #                  min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+    #                  max = DataModelIntervalEnd-1)    
     
     outputMessage
   })
@@ -547,7 +547,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       } else {
         TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
       }
-      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+      # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
