@@ -238,7 +238,7 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
   current_rel <- JM_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
       sol <- tryCatch(
-        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
         #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){

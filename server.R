@@ -618,7 +618,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       OutputTable <- data.frame()
     }
     OutputTable
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 
   
@@ -658,7 +658,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         }
       }
       MR_Table
-    }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+    }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
 
 # ------------------------------------------------------------------------------------------------------
@@ -709,15 +709,30 @@ tab3_table1_construct <- function(model,data,input){
                                       input$modelDetailPredFailures,
                                       data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
                                       length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      rel_time <- get_reliability_t(model,
+                                    model_params, 
+                                    input$modelTargetReliability, input$modelRelMissionTime2, 
+                                    data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                    length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      
       print(time_fails)
       print(number_fails)
+      print(rel_time)
       ExpectedNumFailuresExceeded <- FALSE
       for( i in 1:length(time_fails)){
         if(!ExpectedNumFailuresExceeded){
           count <<- count+1
-          tab3_table1[count,1]<<- model
-          tab3_table1[count,2]<<- number_fails
-          tab3_table1[count,3]<<- time_fails[i]
+          if(i == 1) {
+            tab3_table1[count,1]<<- model
+            tab3_table1[count,2]<<- as.character(rel_time)
+            tab3_table1[count,3]<<- number_fails
+          } else {
+            tab3_table1[count,1]<<- " "
+            tab3_table1[count,2]<<- " "
+            tab3_table1[count,3]<<- " "
+          }
+          tab3_table1[count,4]<<- i
+          tab3_table1[count,5]<<- time_fails[i]
 
           #  Create Row of NA only once logic
           if(time_fails[i]=="NA"){
@@ -733,12 +748,16 @@ tab3_table1_construct <- function(model,data,input){
         tab3_table1[count,1] <<- model
         tab3_table1[count,2] <<- "Given-model not defined"
         tab3_table1[count,3] <<- "Given-model not defined"
+        tab3_table1[count,4] <<- "Given-model not defined"
+        tab3_table1[count,5] <<- "Given-model not defined"
       }
       else{
         count<<-count+1
         tab3_table1[count,1] <<- model
         tab3_table1[count,2] <<- "NON-CONV"
         tab3_table1[count,3] <<- "NON-CONV"
+        tab3_table1[count,4] <<- "NON-CONV"
+        tab3_table1[count,5] <<- "NON-CONV"
       }
     }
   }
@@ -757,7 +776,7 @@ output$downloadData <- downloadHandler(
     },
     content <- function(file) {
       OutputTable <- tab3_table1
-      names(OutputTable) <- c("Model", paste0("Failures for T = ", as.character(input$modelDetailPredTime)), paste0("Times to Next ", paste0(as.character(input$modelDetailPredFailures), " Failures")))
+      names(OutputTable) <- names(tab3_table1)
       OutputTable <- subset(OutputTable, OutputTable$Model != "<NA>")
       
       if (input$saveModelDetailsType == "PDF") {
@@ -807,11 +826,11 @@ output$mytable1 <- DT::renderDataTable({
           count <<- count+1
           tab3_table1_construct(i,data,input)
         }
-      tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3])
-      names(tab3_table1) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
+      tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
+      names(tab3_table1) <- c("Model",paste("Time to achieve R = ", paste(as.character(input$modelTargetReliability, paste(" for mission of length ", as.character(input$modelRelMissionTime2))))) ,paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste0("Nth failure"), paste("Expected times to next", input$modelDetailPredFailures ,"failures"))
     tab3_table1
   }
-}, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+}, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 tracked_models <- reactive({
   input$modelDetailChoice
@@ -953,6 +972,6 @@ output$mytable2 <- DT::renderDataTable({
     }
 
     tab4_table1
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 })

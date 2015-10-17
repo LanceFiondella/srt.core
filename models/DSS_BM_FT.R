@@ -62,8 +62,8 @@ DSS_BM_MLE <- function(x){
     if(bMLE < 0){
       return('nonconvergence')
     }
-    #bMLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
-    #bMLE <- uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
+    #bMLE <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
+    #bMLE <- stats::uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
   }
   
   #print(bMLE)
@@ -209,7 +209,7 @@ DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
   root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
   return(root_equation)
 }
-dlt <<- 100
+dlt <- 100
 maxiter <- 1000
 DSS_Target_T <- function(params,cur_time,delta, reliability){
   

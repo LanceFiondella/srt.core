@@ -100,7 +100,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               mainPanel(
                                 tabsetPanel(
                                   tabPanel("Plot", textOutput("InputFileError"), textOutput("DataSubsetError"), plotOutput("DataAndTrendPlot",dblclick="DTPdblclick", brush=brushOpts(id="DTP_brush", resetOnNew=TRUE))), 
-                                  tabPanel("Data and Trend Test Table", dataTableOutput("dataAndTrendTable")),
+                                  tabPanel("Data and Trend Test Table", DT::dataTableOutput("dataAndTrendTable")),
                                   id="DataPlotAndTableTabset"),
                                 width=8
                               )
@@ -230,7 +230,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
                                              choices=list("No model results to display"="None"),
                                              multiple=TRUE, selected="None"),
-                                           dataTableOutput("ModelResultTable")),
+                                           DT::dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
                               )
                             )
@@ -265,7 +265,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12, 
-                                                    h5("How many failures will be observed over the next N seconds?")
+                                                    h5("How many failures will be observed over the next N time units?")
                                              ),
                                              
                                              column(12,
@@ -300,7 +300,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               ),
                               
                               mainPanel(
-                                dataTableOutput('mytable1')
+                                DT::dataTableOutput('mytable1')
                               )
                             )
                    ),
@@ -436,7 +436,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel('Table',dataTableOutput('mytable2'))
+                                  tabPanel('Table',DT::dataTableOutput('mytable2'))
                                   #tabPanel("Plot",plotOutput("Evalationplot"))
                                 )                              
                               )
