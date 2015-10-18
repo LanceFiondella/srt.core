@@ -217,14 +217,17 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
     return(DSS_R_MLE_root(params,t,delta, reliability))
   }
   
+  interval_right <- cur_time
+  
   current_rel <- DSS_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
     sol <- tryCatch(
-      stats::uniroot(f, c(cur_time,cur_time + dlt), maxiter=maxiter, tol=1e-10)$root,
+      stats::uniroot(f, c(cur_time,cur_time + interval_right), maxiter=maxiter, tol=1e-10)$root,
       warning = function(w){
         #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+10
+          interval_right <- interval_right*1.25
           dlt <<- dlt+100
           #print(paste("recursive", maxiter,sep='_'))
           DSS_Target_T(a,b,cur_time,delta, reliability)
