@@ -722,12 +722,11 @@ tab3_table1_construct <- function(model,data,input){
       for( i in 1:length(time_fails)){
         if(!ExpectedNumFailuresExceeded){
           count <<- count+1
+          tab3_table1[count,1]<<- get(paste0(model, "_fullname"))
           if(i == 1) {
-            tab3_table1[count,1]<<- model
             tab3_table1[count,2]<<- as.character(rel_time)
             tab3_table1[count,3]<<- number_fails
           } else {
-            tab3_table1[count,1]<<- " "
             tab3_table1[count,2]<<- " "
             tab3_table1[count,3]<<- " "
           }
