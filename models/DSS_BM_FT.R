@@ -221,27 +221,43 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
   
   current_rel <- DSS_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
-    sol <- tryCatch(
-      stats::uniroot(f, c(cur_time,cur_time + interval_right), maxiter=maxiter, tol=1e-10)$root,
-      warning = function(w){
-        #print(f.lower)
-        if(length(grep("_NOT_ converged",w[1]))>0){
-          maxiter <<- maxiter+10
-          interval_right <- interval_right*1.25
-          dlt <<- dlt+100
-          #print(paste("recursive", maxiter,sep='_'))
-          DSS_Target_T(a,b,cur_time,delta, reliability)
-        }
-      },
-      error = function(e){
-        print(e)
-        #return(e)
-      })
-  }
-  else {
+    # Bound the estimation interval
+    
+    interval_left <- cur_time
+    interval_right <- 2*cur_time
+    local_rel <- DSS_R_delta(params,interval_left,delta)
+    while (local_rel < reliability) {
+      interval_left <- 2*interval_left
+      interval_right <- 2*interval_right
+      if (is.infinite(interval_right)) {
+        break
+      }
+      local_rel <- DSS_R_delta(params,interval_left,delta)
+    }
+    
+    if (is.finite(interval_right)) {
+      sol <- tryCatch(
+        stats::uniroot(f, c(interval_left, interval_right), extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+          #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- floor(maxiter*1.5)
+            dlt <<- dlt+100
+            #print(paste("recursive", maxiter,sep='_'))
+            DSS_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+    } else {
+      sol <- Inf
+    }
+  } else {
     sol <- "Target reliability already achieved"
   }
-  sol
+  return(sol)
 }
 
 DSS_R_growth <- function(params,d,delta){  

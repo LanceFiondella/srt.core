@@ -862,13 +862,13 @@ tab4_table1_construct <- function(model,data,input){
       print(max_lnL)
       if(length(grep("not found",max_lnL))) {
         count<<-count+1
-        tab4_table1[count,1] <<- model
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
         tab4_table1[count,2] <<- "Given model lnL not defined to compute AIC"
         tab4_table1[count,3] <<- "Given model lnL not defined to compute AIC" 
       }
       else if(typeof(max_lnL)!='double') {
         count<<-count+1
-        tab4_table1[count,1] <<- model
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
         tab4_table1[count,2] <<- "Non numeral value. Something is not right"
         tab4_table1[count,3] <<- "Non numeral value. Something is not right" 
       }
@@ -879,7 +879,7 @@ tab4_table1_construct <- function(model,data,input){
         print("PSSE -----------------------------------------")
         print(PSSE)
         count <<- count+1
-        tab4_table1[count,1]<<- model
+        tab4_table1[count,1]<<- get(paste0(model, "_fullname"))
         tab4_table1[count,2]<<- AIC
         tab4_table1[count,3]<<- PSSE
       }
@@ -893,7 +893,7 @@ tab4_table1_construct <- function(model,data,input){
       }
       else {
         count<<-count + 1
-        tab4_table1[count,1] <<- model
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
         tab4_table1[count,2] <<- "NON-CONV"
         tab4_table1[count,3] <<- "NON-CONV"
       }
