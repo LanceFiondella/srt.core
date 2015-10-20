@@ -289,18 +289,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              ),
-<<<<<<< HEAD
-                                             br(),
-                                             column(12,
-                                                    actionButton("makePredictions", label = "Make Model Predictions")
-=======
-                                             
+
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
                                                                  selected = "PDF"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
->>>>>>> origin/allen-development
                                              )
                                            ),
                                            fluidRow(
@@ -341,15 +335,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
 #                                             ),
                                              
                                              column(12,
-<<<<<<< HEAD
-                                                    numericInput("numericEvalSigValue", 
-                                                                 label = h6("Specify the significance level for the selected test"),
-                                                                 min = 0, max = 1, step = 0.001,
-                                                                 value = .05)
-                                             ),
-                                             br(),
-                                             column(8, downloadButton(outputId = "saveModelEval", label = "Save"))
-=======
 #                                                    numericInput("numericEvalSigValue", 
 #                                                                 label = h6("Specify the significance level for the selected test"),
 #                                                                 min = 0, max = 1, step = 0.001,
@@ -367,7 +352,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     downloadButton('saveModelEvals', 'Save Model Evaluations')
                                              )
 
->>>>>>> origin/allen-development
                                            )
 
                                   ),
