@@ -217,23 +217,33 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
     return(DSS_R_MLE_root(params,t,delta, reliability))
   }
   
-  interval_right <- cur_time
-  
   current_rel <- DSS_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
     # Bound the estimation interval
     
+    sol <- 0
     interval_left <- cur_time
     interval_right <- 2*interval_left
-    while (DSS_R_delta(params,interval_right,delta) < reliability) {
-      interval_left <- interval_right
+    local_rel <- DSS_R_delta(params,interval_right,delta)
+    while (local_rel <= reliability) {
       interval_right <- 2*interval_right
+      if(local_rel == reliability) {
+        interval_right <- 2.25*interval_right
+      }
       if (is.infinite(interval_right)) {
         break
       }
+      local_rel <- DSS_R_delta(params,interval_right,delta)
+    }
+    if(is.finite(interval_right) && is.finite(local_rel) && (local_rel < 1)) {
+      while (DSS_R_delta(params,(interval_left + (interval_right-interval_left)/2),delta) < reliability) {
+        interval_left <- interval_left + (interval_right-interval_left)/2
+      }
+    } else {
+      sol <- Inf
     }
     
-    if (is.finite(interval_right)) {
+    if (is.finite(interval_right) && is.finite(sol)) {
       sol <- tryCatch(
         stats::uniroot(f, c(interval_left, interval_right), extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
