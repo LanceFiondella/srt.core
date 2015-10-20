@@ -1,151 +1,146 @@
-# Detailed prediction
-get_prediction_n <- function(x,time,n){
-	total_time <- 0
-	i <- 0
-	if('JM_N0' %in% names(x)){
-		while( total_time < time){
-			i <- i + 1
-			total_time <- (1/(x$JM_Phi*(x$JM_N0-(time+i-1)))) + total_time
-			if(total_time > time){
-				i <- i - 1 
-			}			
-		}
+# # Detailed prediction
+
+
+get_prediction_k <- function(model,params, t_offset,tn,n){
+	# ! -----> print(">>>>>>>>>")
+	# ! -----> print(params)
+	if("JM_N0" %in% names(params)){
+		est_faults <- JM_MVF_cont(params,tn + t_offset) - JM_MVF_cont(params,tn)
 	}
-	else if('GM_D0' %in% names(x)){
-		while( total_time < time){
-			i <- i +1
-			total_time <- (1/(x$D0*(x$Phi)^(time+i-1))) + total_time
-			if(total_time > time){
-				i <- i - 1 
-			}	
-		}
+	else if("GM_D0" %in% names(params)){
+		est_faults <- GM_MVF_cont(params,tn + t_offset) - GM_MVF_cont(params,tn)
 	}
-	else if('G0' %in% names(x)){
-			while(total_time < time){
-				i <- i +1
-				total_time <- (1/(x$G0*(x$Phi)^(time+i-1))) + total_time
-				if(total_time > time){
-					i <- i - 1 
-				}	
-			}
-		}
-	i	
+	else if("GO_aMLE" %in% names(params)){
+		est_faults <- GO_MVF_cont(params,tn + t_offset) - GO_MVF_cont(params,tn)
+	}
+	else if("DSS_aMLE" %in% names(params)){
+		est_faults <- DSS_MVF_cont(params,tn + t_offset) - DSS_MVF_cont(params,tn)
+	}
+	else if("Wei_aMLE" %in% names(params)){
+		est_faults <- Wei_MVF_cont(params,tn + t_offset) - Wei_MVF_cont(params,tn)
+	}
+	else{
+		est_faults <- "Not Implemented"
+	}
+  # return(floor(est_faults))
+  
+  # est_faults is an expected value, so it may not be a
+  # whole number.  Nevertheless, we return the unaltered
+  # value.
+  
+  return(est_faults)
 }
 
-get_prediction_t <- function(x,steps,n){
-	t <-0
+
+get_prediction_t <- function(model, params, faults, tn, n){
 	time_indexes <- c()
-	if('JM_N0' %in% names(x)){
-		t <- 0
-		if(steps!=0){
-			for(i in 1:steps){
-				if((x$JM_N0 - n)>=i){
-					t <- (1/(x$JM_Phi*(x$JM_N0-(n+i-1)))) + t
+	if(faults!=0){
+		for(i in 1: faults){
+			est_faults <- get(paste(model,"MVF_cont",sep="_"))(params,tn)
+
+			#print("Estimated_faults")
+			#print(est_faults)
+			# if(est_faults - n >= i){
+				tn_n <- try(est_t(model,params,tn,i),silent=TRUE)
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				
+				#print(tn_n)
+
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				#print("_")
+				
+				if((typeof(tn_n)=="double") && (tn_n >= 0)){
+					t <- tn_n - tn
 					time_indexes[i] <- t
 				}
 				else{
 					time_indexes[i] <- "NA"
 				}
-			}
 		}
-	}
-	else if('D0' %in% names(x)){
-		t <- 0
-		if(steps!=0){
-			for(i in 1:steps){
-				if((x$JM_N0 - n)>=i){
-					t <- (1/(x$GO_D0*(x$GO_Phi)^(n+i-1)))+ t
-					time_indexes[i] <- t
-				}
-				else{
-					time_indexes[i] <- "NA"
-				}
-			}
-		}
-	}
-	else if("G0" %in% names(x)){
-		t <- 0
-		if(steps!=0){
-			t_prev <- 0
-			for(i in 1:steps){
-				t_now <- (1/(x$G0*(x$Phi)^(n+i-1)))
-				t <- t_now + t_prev
-				time_indexes[i] <- t
-				t_prev <-t_now
-	 				}
-	 			}
-	 		}
-	else{
-		return("No parameter defined")
 	}
 	time_indexes
-
 }
 
+# Predict the additional testing time that will be required
+# to achieve the target reliability.
 
-mvf_nhpp <- function(){
-	return(a*(1-exp(-b*t)))
-}
-
-reliability_nhpp <- function(a,b,cur_time,delta){
-	return(exp(-(mvf_nhpp(a,b,(cur_time+delta)) - mvf_nhpp(a,b,cur_time))))
-}
-
-	
-reliability_nhpp_mle <- function(a,b,cur_time,delta, reliability){
-	target_mission_time <- reliability - exp(a*(1-exp(-b*cur_time)) -a*(1-exp(-b*(cur_time+delta))))
-	return(target_mission_time)
-}
-
-
-maxiter <- 1000
-reliability_target_time <- function(a,b,cur_time,delta, reliability){
-
-	f <- function(t){
-		return(reliability_nhpp_mle(a,b,t,delta, reliability))
-	}
-
-	current_rel <- reliability_nhpp(a,b,cur_time,delta)
-	if(current_rel < reliability){
-	    sol <- tryCatch(
-	      uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
-	      warning = function(w){
-	      #print(f.lower)
-	        if(length(grep("_NOT_ converged",w[1]))>0){
-	          maxiter <<- maxiter+10
-	          print(paste("recursive", maxiter,sep='_'))
-	          reliability_target_time(a,b,cur_time,delta, reliability)
-	        }
-	      },
-	      error = function(e){
-	        print(e)
-	        #return(e)
-	      })
-	}
-	else {
-		sol <- "Target reliability already achieved"
-	}
-    sol
+get_reliability_t <- function(model, params, targetRel, missionTime, tn, numFails) {
+  if ((targetRel > 0) && (targetRel < 1) && (missionTime > 0)) {
+    relTime <- get(paste(model,"Target_T",sep="_"))(params,tn,missionTime,targetRel)
+    if(!is.null(relTime) && !is.na(relTime)) {
+      if(is.numeric(relTime)) {
+        if (is.finite(relTime)) {
+          if(relTime > tn) {
+            relTime <- relTime-tn
+          } else {
+            relTime <- 0
+          }
+        }
+      } else if (relTime == "Target reliability already achieved") {
+        relTime <- 0
+      } else {
+        relTime <- NA
+      }
+    } else {
+      relTime <- NA
+    }
+  } else {
+    if(targetRel <= 0) {
+      relTime <- NA
+    } else if (targetRel >= 1) {
+      relTime <- Inf
+    } else {
+      if(missionTime < 0) {
+        relTime <- NA
+      } else if(missionTime == 0) {
+        relTime <- 0
+      }
+    }
   }
-
-reliability_target_time_plot <- function(a,b,cur_time,delta, reliability){	
-	
-	r <-data.frame()
-	tt_index <- seq(0,cur_time,cur_time/1000)
-  	for(i in 1:length(tt_index)){	  
-	    r[i,1] <- tt_index[i]
-	    temp <- reliability_nhpp(a,b,tt_index[i],delta)
-	    #print(typeof(temp))
-	    if(typeof(temp) != typeof("character")){
-	    	r[i,2] <- temp
-	    }
-	    else{
-	    	r[i,2] <- "NA"
-	    }	    
-	  }
-	  g <- data.frame(r[1],r[2])
-	  names(g) <- c("Time","Reliability")
-	  #print(g)
-	  g
-	    
+  return(relTime)
 }
+
+
+est_t <- function(model,params,tn,steps){
+	est_faults <- get(paste(model,"MVF_cont",sep="_"))(params,tn) # ? ----> Should use floor or not
+	#print("Estimated Faults:")
+	#print(est_faults)
+	#print("")
+	#print("")
+	est_time_root <- function(tn){
+		return (get(paste(model,"MVF_cont",sep="_"))(params, tn) -(est_faults+steps))
+	}
+	# sol <- uniroot(est_time_root, c(tn,tn+50), extendInt="yes", maxiter=1000, tol=1e-10)$root
+	maxiter <- 10000
+	sol <- tryCatch(
+    			stats::uniroot(est_time_root, c(tn,tn + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+    			warning = function(w){
+    #print(f.lower)
+      				if(length(grep("_NOT_ converged",w[1]))>0){
+        				maxiter <<- maxiter+10
+        				print(paste("recursive", maxiter,sep='_'))
+        				est_t(model,params,tn)
+      				}
+    			},
+    			error = function(e){
+      				return("NA")
+      #return(e)
+  })
+	#print("Estimated time for next failure")
+  #print(sol)
+  sol
+}
+
+
+
+

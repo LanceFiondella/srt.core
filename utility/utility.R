@@ -174,7 +174,7 @@ FT_to_IF <- function(failure_T)
 	  interfailure[n] = failure_T[n] - failure_T[n-1]	   
 	   n = n+1
 	}
-	return(interfailure)#return failure times(failure_T)
+	return(interfailure) #return failure times(failure_T)
 }
 
 
@@ -222,9 +222,11 @@ FC_to_FT <- function(time_vec,num_count) #failure count to failure time
   return(failure_T)
 }
 
+isPlural <- function(){
+	#-----> required to fix the plural forms
+}
 
 generate_dataFrame <- function(raw_data){
-	#source("Data_Format.R")
 	d <- names(raw_data)
 	if(isDataSafe()){
 		if(dataType(d)=="FR"){

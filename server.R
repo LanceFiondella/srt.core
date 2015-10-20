@@ -1,31 +1,25 @@
-library(shiny)#I wonder why this is here?
-library(gdata) #Used for read.xls function
-library(ggplot2)#ggplot function
+library(shiny)
+library(DT)
+library(gdata) 
+library(ggplot2)
 
-#library(DT)
-#<<<<<<< HEAD
-#
-#=======
-sys.source("utility.R")
-sys.source("Model_specifications.R")
-#>>>>>>> 96a7378e8c6ea79df90ed837bcb95531d9c2d251
-sys.source("custom_functions.R")
-source("model.R")#Source for our reliabilty models
-source("JMmodel.R")
-sys.source("JM_BM.R")
-sys.source("GO_BM_FT.R")
-sys.source("GM_BM.R")
-sys.source("DSS_BM_FT.R")
-source("Wei_NM_FT.R")
-source("Data_Format.R")
-source("Laplace_trend_test.R")
+sys.source("utility/utility.R")
+sys.source("metrics/Model_specifications.R")
+sys.source("models/JM_BM.R")
+sys.source("models/GO_BM_FT.R")
+sys.source("models/GM_BM.R")
+sys.source("models/DSS_BM_FT.R")
+source("models/Wei_NM_FT.R")
+source("trend_tests/Laplace_trend_test.R")
+source("Plot_Raw_Data.R")
+source("Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
-source("RA_Test.R")
+source("trend_tests/RA_Test.R")
 source("RunModels.R")
 source("PlotModelResults.R")
 source("ModelResultTable.R")
-source("ErrorMessages.R")  # Text for error messages
-
+source("utility/ErrorMessages.R")  # Text for error messages
+source("Plot_Raw_Data.R")
 # Initialize global variables -------------------------------
 
 openFileDatapath <- ""
@@ -67,12 +61,13 @@ ModelEvalsList <- list()
 K_minDataModelIntervalWidth <- 5
 
 K_CategoryFirst <- 1
+
 K_CategoryLast <- 5
 
 # These lists identify the models used for each data type
 
-K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
-K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric Model"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+K_IF_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
+K_FC_ModelsList <- list("Delayed S-Shaped"="DSS", "Geometric"="GM", "Goel-Okumoto"="GO", "Jelinski-Moranda"="JM", "Weibull"="Wei")
 
 # Colors that will be used in plotting model results
 
@@ -85,7 +80,7 @@ K_tol <- .Machine$double.eps^0.5
 # Start main program ------------------------------------
 
 openFileDatapath <- ""
-#data_global <- data.frame()
+# data_global <- data.frame()
 data_original <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
@@ -108,11 +103,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
     })
 
-  #output$message <- renderUI({
+  # output$message <- renderUI({
   #    sliderInput('test', 'test_label', 0, 5, 3, step = 1, round = FALSE,  ticks = TRUE, animate = TRUE, width = NULL)
   #    animationOptions(interval = 1000, loop = FALSE, playButton = NULL, pauseButton = NULL)
   #    p("HEllO")
-  #  })
+  # })
 
   # Select and read in a data file.  This is a reactive data item.
   
@@ -176,7 +171,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # Complete all columns for FT/IF data, including failure number.
     # This information will be used later for subsetting the data.
     
-    if(dataType(names(data))=="FR") {
+    if(dataType(names(data_generated))=="FR") {
       data_set_global_type <<- "IFTimes"
 
       # Update the selection list for the models that can be run.
@@ -188,11 +183,31 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                  choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+      #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Reliability" = "REL"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
       
-    } else if(dataType(names(data))=="FC") {
+
+      # Update the default mission time for computing reliability
+      # on both Tab 2 and Tab 3.  Also update the default time on
+      # Tab 3 for which we want to know how many failures we'll
+      # observe in the future.  We choose the most recent IF time
+      # that is greater than 0.
+      
+      for (dataIndex in length(data_generated$IF):1) {
+        if(data_generated$IF[dataIndex] > 0) {break}
+      }
+      updateSliderInput(session, "modelRelMissionTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelDetailPredTime",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+      updateSliderInput(session, "modelRelMissionTime2",
+                        min=0, value=data_generated$IF[length(data_generated$IF)])
+
+    } else if(dataType(names(data_generated))=="FC") {
       data_set_global_type <<- "FailureCounts"
 
       # Add a column for test intervals.
@@ -211,24 +226,36 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       updateSelectInput(session, "dataPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+      # updateSelectInput(session, "modelPlotChoice",
+      #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+      #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
       updateSelectInput(session, "modelPlotChoice",
                         choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "REL"), selected = "MVF")
+                                       "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
+      
       
     }
     
     updateSliderInput(session, "modelDataRange",
                       min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
                       max = DataModelIntervalEnd)
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)
-    
-    
+
     # Finally, output data set
     
     data_generated
 }) 
+
+  # This slider that controls the end of the initial parameter estimation interval
+  # is dynamically created to ensure that its value is always in sync with those of
+  # the start and end points of the current data range.
+  
+#  output$ParameterInterval <- renderUI({
+#    intervalStart <- input$modelDataRange[1]
+#    intervalEnd <- input$modelDataRange[2]
+#    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
+#    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+#                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
+#  })
 
   # A reactive data item that is used to control the height of the raw data and trend
   # plot.  The height is computed based on the width - it the plot is not as high
@@ -296,6 +323,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     }
   })
   
+  
+  LPTestStatistic <- reactive({
+    if(input$trendPlotChoice=="LP") {
+      testStat <- qnorm(1-input$confidenceLP)
+    } else {
+      testStat <- 0
+    }
+    testStat
+  })
 
   # Draw the plot of input data or selected trend test
   
@@ -314,14 +350,12 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        input_data <- data
-        source("Plot_Raw_Data.R", local=TRUE)
+        DataAndTrendPlot <- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
         
-        input_data <- data
-        source("Plot_Trend_Tests.R", local=TRUE)
+        DataAndTrendPlot <- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
       }
       
       DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
@@ -336,14 +370,33 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveDataOrTrend <- downloadHandler(
     filename = function() {
-      if(input$PlotDataOrTrend == 1) {
-        paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
-      } else if(input$PlotDataOrTrend == 2) {
-        paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+      if(input$DataPlotAndTableTabset == "Plot") {
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data_", input$dataPlotChoice), input$saveDataFileType, sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), input$saveDataFileType, sep=".")
+        }
+      } else { # Save data table
+        if(input$PlotDataOrTrend == 1) {
+          paste(paste0(data_set_global, "_Data"), "csv", sep=".")
+        } else if(input$PlotDataOrTrend == 2) {
+          paste(paste0(data_set_global, "_Trend_", input$trendPlotChoice), "csv", sep=".")
+        }
       }
     },
     content = function(filespec) {
-      ggsave(filespec)
+      if(input$DataPlotAndTableTabset == "Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- data.frame(x=FailureDataTable())
+        if(length(OutputTable) > 1) {
+          DataColNames <- names(OutputTable)
+          names(OutputTable) <- gsub("x.", "", DataColNames)
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec)
+      }
     }
   )
 
@@ -352,36 +405,54 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$saveModelResults <- downloadHandler(
     filename = function() {
-      paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        
+        # Save model results plot
+        
+        paste(paste0(ModeledDataName, "_Results_", input$modelPlotChoice), input$saveModelResultsType, sep=".")
+      } else {
+        
+        # Save model results table
+        
+        paste(paste0(ModeledDataName, "_Results"), "csv", sep=".")
+      }
     },
     content = function(filespec) {
-      ggsave(filespec)
+      if(input$ModelPlotAndTableTabset == "Model Result Plot") {
+        ggsave(filespec)
+      } else {
+        OutputTable <- ModelResults
+        
+        # For the time being, we're dropping the column that would
+        # reliability compoutations.  We still keep reliability growth.
+        
+        TableNames <- names(OutputTable)
+        ColsToDrop <- c()
+        for (colIndex in 1:length(TableNames)) {
+          if(length(grep("_Rel", TableNames[colIndex])) > 0) {
+            ColsToDrop <- c(ColsToDrop, TableNames[colIndex])
+          }
+        }
+        OutputTable <- OutputTable[,!(names(OutputTable) %in% ColsToDrop)]
+        
+        # Turn OutputTable to character representations to avoid
+        # difficulties with NA, Inf, and NaN.
+        
+        TableNames <- names(OutputTable)
+        for (nameIndex in TableNames) {
+          OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+        }
+        
+        if(length(OutputTable) > 1) {
+        } else {
+          OutputTable <- data.frame()
+        }
+        utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+      }
     }
   )
   
-  
-  # There is a serious flaw in tracking the models selected
-  # But there is a strong necessity to track the models 
-  # selected.
 
-
-  # track_models <- reactive({
-  #   tracked_models <- c()
-  #   if(!is.null(input$modelResultChoice)) {
-  #     tracked_models <- input$modelResultChoice
-  #   }
-  #   else{
-  #     if(!is.null(input$modelDetailChoice)){
-  #       tracked_models <- input$modelDetailChoice
-  #     }
-      
-  #   }
-  #   print(tracked_models)
-  #   tracked_models
-
-  #   # Returns indeces of the models selected
-  #   # The indices should be same throughout the
-  # })
   
   # Set up the data and trend test statistics tables for display
   
@@ -438,9 +509,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
     }  
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)    
+    # updateSliderInput(session, "parmEstIntvl",
+    #                  min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+    #                  max = DataModelIntervalEnd-1)    
     
     outputMessage
   })
@@ -476,7 +547,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       } else {
         TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
       }
-      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, K_tol)
+      # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
@@ -508,10 +580,28 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       tempResultsList <- list()
     }
   })
-  
-  
 
-
+  
+  # If one or more of the models didn't complete successfully, display a message
+  # notifying the user of that fact.
+  
+#  UnsuccessfulModelsMessage <- reactive({
+#    outputMessage <- ""
+#    if((length(input$modelsToRun) > 0) && (input$ModelsToRun[1] != "None") && (length(FailedModels) > 0)) {
+#      outputMessage <- paste0(msgUnsuccessfulModels, get(paste0(FailedModels[1], "_fullname")))
+#      if (length(FailedModels) > 1) {
+#        for (FailedModelsIndex in 2:length(FailedModels)) {
+#          outputMessage <- paste0(outputMessage, paste0(", ", get(paste0(FailedModels[FailedModelsIndex], "_fullname"))))
+#        }
+#      }
+#    }
+#    outputMessage
+#  })
+  
+#  output$UnsuccessfulModels <- renderText({
+#    UnsuccessfulModelsMessage
+#  })
+ 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 # ----------------- Display the input data or selected trend test in tabular form  ---------------------
@@ -519,7 +609,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 # ------------------------------------------------------------------------------------------------------
 
   
-  output$dataAndTrendTable <- renderDataTable({
+  output$dataAndTrendTable <- DT::renderDataTable({
     OutputTable <- data.frame(x=FailureDataTable())
     if(length(OutputTable) > 1) {
       DataColNames <- names(OutputTable)
@@ -528,7 +618,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       OutputTable <- data.frame()
     }
     OutputTable
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 
   
@@ -538,22 +628,37 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
   
-    output$ModelResultTable <- renderDataTable({
+    output$ModelResultTable <- DT::renderDataTable({
       MR_Table <- NULL
       if(!is.null(ModelResults)) {
         if(length(input$AllModelsRun) > 0) {
           
           # User has selected at one model to display as a table.
           
-          MR_Table <- model_result_table(ModelResults, input$AllModelsRun)
+          MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
         }
       }
       if (length(MR_Table) <= 1) {
         MR_Table <- data.frame()
+      } else {
+        # Set column names for the model results table
+        
+        MR_Table_Names <- c("Failure")
+        for (modelName in input$AllModelsRun) {
+          for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+            MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
+          }
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
+          # MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
+          names(MR_Table) <- MR_Table_Names
+        }
       }
       MR_Table
-      #MR_Table[,1:(length(names(MR_Table)))]
-    }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+    }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
 
 # ------------------------------------------------------------------------------------------------------
@@ -565,36 +670,142 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
   output$ModelPlot <- renderPlot({
     MRPlot <- NULL
-    if((length(SuccessfulModels) > 0) && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
-      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot)
+    if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+      MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime)
       if(!is.null(MRPlot)) {
         MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
       }
     }
     MRPlot
-  }, height=MP_height) 
+  }, height=MP_height)
+
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
-# ----------------------------------------   TAB2 Table  ----------------------------------------------
+# ----------------------------------------   TAB3 Table   ----------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 
+
+tab3_table1_construct <- function(model,data,input){
+  if(dataType(names(data))=="FR"){
+    model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+    # ----> ! print("Table1 construct: ")
+    # ----> ! print(model_params)
+    # ----> ! print(data)
+    # ----> ! print(count)
+    print("==============")
+    print(model_params)
+    #print()
+    if(typeof(model_params)!="character"){
+      number_fails <- get_prediction_k( model,
+                                        model_params, 
+                                        input$modelDetailPredTime, 
+                                        data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                        length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      
+      time_fails <- get_prediction_t( model,
+                                      model_params, 
+                                      input$modelDetailPredFailures,
+                                      data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                      length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      rel_time <- get_reliability_t(model,
+                                    model_params, 
+                                    input$modelTargetReliability, input$modelRelMissionTime2, 
+                                    data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                    length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      
+      print(time_fails)
+      print(number_fails)
+      print(rel_time)
+      ExpectedNumFailuresExceeded <- FALSE
+      for( i in 1:length(time_fails)){
+        if(!ExpectedNumFailuresExceeded){
+          count <<- count+1
+          tab3_table1[count,1]<<- get(paste0(model, "_fullname"))
+          if(i == 1) {
+            tab3_table1[count,2]<<- as.character(rel_time)
+            tab3_table1[count,3]<<- number_fails
+          } else {
+            tab3_table1[count,2]<<- " "
+            tab3_table1[count,3]<<- " "
+          }
+          tab3_table1[count,4]<<- i
+          tab3_table1[count,5]<<- time_fails[i]
+
+          #  Create Row of NA only once logic
+          if(time_fails[i]=="NA"){
+             ExpectedNumFailuresExceeded <- TRUE
+             break
+           }
+         }
+      }
+    }
+    else if(typeof(model_params)=="character"){
+      if(length(grep("not found",model_params))){
+        count<<-count+1
+        tab3_table1[count,1] <<- model
+        tab3_table1[count,2] <<- "Given-model not defined"
+        tab3_table1[count,3] <<- "Given-model not defined"
+        tab3_table1[count,4] <<- "Given-model not defined"
+        tab3_table1[count,5] <<- "Given-model not defined"
+      }
+      else{
+        count<<-count+1
+        tab3_table1[count,1] <<- model
+        tab3_table1[count,2] <<- "NON-CONV"
+        tab3_table1[count,3] <<- "NON-CONV"
+        tab3_table1[count,4] <<- "NON-CONV"
+        tab3_table1[count,5] <<- "NON-CONV"
+      }
+    }
+  }
+  else{
+    # ----> FC data should be handled here
+  }
+}
+
+output$downloadData <- downloadHandler(
+    filename <- function() {
+      if (input$saveModelDetailsType == "PDF") {
+        paste(paste0(ModeledDataName, "_Model_Queries"), "pdf", sep=".")
+      } else {
+        paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
+      }
+    },
+    content <- function(file) {
+      OutputTable <- tab3_table1
+      names(OutputTable) <- names(tab3_table1)
+      OutputTable <- subset(OutputTable, OutputTable$Model != "<NA>")
+      
+      if (input$saveModelDetailsType == "PDF") {
+        out_put<-capture.output(OutputTable)
+        pdf(file)
+        plot.new()
+        text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+        dev.off()
+      } else {
+        write.csv(OutputTable, file)
+      }
+    }
+  )
   
-  output$mytable1 <- renderDataTable({
+output$mytable1 <- DT::renderDataTable({
 
     inFile <- input$file
     table_t <- data.frame()
     
 
     if(is.null(inFile)){
-      return("Please upload an a file")
+      return("Please upload a file")
     }
 
     data <- data_global()
-    if(is.null(input$modelDetailChoice)){
-        return
-      }
+    
+    ModelsToQuery <- input$modelDetailChoice
+    if(length(ModelsToQuery)<=0) {
+      return
+    }
     
       ###################################################
       if(!is.numeric(input$modelDetailPredTime)){
@@ -605,363 +816,161 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       }
       ###################################################
       #input$modelDetailChoice <- track_models()
-      if(length(input$modelDetailChoice)>0){
+      if(length(ModelsToQuery)>0){
         source("Detailed_prediction.R")
-        model_params <- JM_BM_MLE(data$IF)
-      #if(length(track_models())>0) {
-        count <- 0
-        for(i in input$modelDetailChoice){
-          if(i=="JM"){
-            if(dataType(names(data))=="FR"){
-              count <- count + 1              
-              
-              print(model_params)
-              if(typeof(model_params)!="character"){
-                print("Entered the double")
-                number_fails  <- get_prediction_t(model_params,input$modelDetailPredTime,length(data$IF))
-                time_fails  <- get_prediction_n(model_params,input$modelDetailPredFailures,length(data$IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-              }
-              else if(model_params=="nonconvergence"){
-                print("Entered the Non-conv")
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                
-              }
-              else{
-                # -------> to be programmed
-              }
-            }
-          }
-          else if(i=="Geometric"){
-            if(length(grep("IF",names(data)))){
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(data$IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-               number_fails  <- get_prediction_t(frame_params,input$modelDetailPredTime,length(data$IF))
-                time_fails  <- get_prediction_n(frame_params,input$modelDetailPredFailures,length(data$IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-            }
-            else if(length(grep("FT",names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredTime,length(IF))
-                time_fails  <- get_prediction_n(frame_params,input$modelDetailPredFailures,length(IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-              
-            }
-            else if(length(grep("CFC",names(data)))){
 
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- failureC_to_failureT(data$T,FC)
-              IF <- failureT_to_interF(failure_T = FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredTime,length(IF))
-                time_fails  <- get_prediction_n(frame_params,input$modelDetailPredFailures,length(IF))
-                table_t[count,1] <- i
-                table_t[count,2] <- number_fails
-                table_t[count,3] <- time_fails
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }  
-            }
-          }
-          else{
-            count <- count + 1
-            table_t[count,1] <- i
-            table_t[count,2] <- "Given Model not defined"
-            table_t[count,3] <- "Given Model not defined"
-
-          }
-
-      }
-      table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-      names(table_t) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
-    #}
-    #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-    #names(table_t) <- c("Model","N0","Time-remaining")
-    table_t
+        count <<- 0
+        tab3_table1<<- data.frame()
+        for(i in ModelsToQuery){
+          count <<- count+1
+          tab3_table1_construct(i,data,input)
+        }
+      tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
+      names(tab3_table1) <- c("Model",paste("Time to achieve R = ", paste(as.character(input$modelTargetReliability, paste(" for mission of length ", as.character(input$modelRelMissionTime2))))) ,paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste0("Nth failure"), paste("Expected times to next", input$modelDetailPredFailures ,"failures"))
+    tab3_table1
   }
-  #data_global
-  })
+}, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 tracked_models <- reactive({
   input$modelDetailChoice
 })
-  
-output$mytable2 <- renderDataTable({
-    source("GOF.R")
-    inFile <- input$file
-    table_t <- data.frame("Model"=NULL, "N0"=NULL, "Time-remaining"=NULL)
+
+
+
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ----------------------------------------   TAB4 Table   ----------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
+tab4_table1_construct <- function(model,data,input){
+  if(dataType(names(data))=="FR"){
+    model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+
+    # ----> ! print("Table1 construct: ")
+    print(model_params)
+    # ----> ! print(data)
+    # ----> ! print(count)
+    if(typeof(model_params)!="character"){
+      # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      max_lnL <- try(get(paste(model,"lnL",sep="_"))(get("data")[[get(paste(model,"input",sep="_"))]],model_params),silent=TRUE)
+      # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      #----> !  print(time_fails)
+      #----> !  print(number_fails)
+      print("Log LIkehood -----------------------------------------")
+      print(max_lnL)
+      if(length(grep("not found",max_lnL))) {
+        count<<-count+1
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
+        tab4_table1[count,2] <<- "Given model lnL not defined to compute AIC"
+        tab4_table1[count,3] <<- "Given model lnL not defined to compute AIC" 
+      }
+      else if(typeof(max_lnL)!='double') {
+        count<<-count+1
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
+        tab4_table1[count,2] <<- "Non numeral value. Something is not right"
+        tab4_table1[count,3] <<- "Non numeral value. Something is not right" 
+      }
+      else {
+        AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
+        # print(data)
+        PSSE <- psse(model,data$FT,model_params,input$percentData)
+        print("PSSE -----------------------------------------")
+        print(PSSE)
+        count <<- count+1
+        tab4_table1[count,1]<<- get(paste0(model, "_fullname"))
+        tab4_table1[count,2]<<- AIC
+        tab4_table1[count,3]<<- PSSE
+      }
+    }
+    else if(typeof(model_params)=="character"){
+      if(length(grep("not found",model_params))) {
+        count<<-count+1
+        tab4_table1[count,1] <<- model
+        tab4_table1[count,2] <<- "Given-model not defined"
+        tab4_table1[count,3] <<- "Given-model not defined" 
+      }
+      else {
+        count<<-count + 1
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
+        tab4_table1[count,2] <<- "NON-CONV"
+        tab4_table1[count,3] <<- "NON-CONV"
+      }
+    }
+  }
+  else{
+    # -----> FC data should be handled here
+  }
+}
+
+# Download handler for saving model result evaluation tables.
+
+output$saveModelEvals <- downloadHandler(
+  filename = function() {
+    if(input$saveModelEvalType == "PDF") {
+      paste(paste0(ModeledDataName, "_Model_Evals"), "pdf", sep=".")
+    } else {
+      paste(paste0(ModeledDataName, "_Model_Evals"), "csv", sep=".")
+    }
+  },
+  content = function(filespec) {
+    OutputTable <- tab4_table1
     
+    # Turn OutputTable to character representations to avoid
+    # difficulties with NA, Inf, and NaN.
+    
+    TableNames <- names(OutputTable)
+    for (nameIndex in TableNames) {
+      OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+    }
+    names(OutputTable) <- c("Model", "AIC", "PSSE")
+    
+    if(length(OutputTable) <= 1) {
+      OutputTable <- data.frame()
+    }
+    
+    if(input$saveModelEvalType == "PDF") {
+      out_put<-capture.output(OutputTable)
+      pdf(filespec)
+      plot.new()
+      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
+      dev.off()
+    } else {
+      utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+    }
+  }
+)
 
+
+output$mytable2 <- DT::renderDataTable({
+    source("metrics/GOF.R")
+    inFile <- input$file
     if(is.null(inFile)){
-      return("Please upload an a file")
+      return("Please upload a file")
     }
+    
+    ModelsToEval <- input$modelResultsForEval
 
-    if(is.null(tracked_models())){
+    if(length(ModelsToEval)<=0) {
         return
-      }
-      print(tracked_models())
-    data <- data_global()
-     # if(!is.numeric(input$modelDetailPredTime)){
-     #    return(data)
-     #  }
-      # if(!is.numeric(input$modelDetailPredFailures)){
-      #   return(data)
-      # }
-    # frame_params <- "EMPTY"
-    #  frame_params <- data.frame("N0"=c(0.001),"Phi"=c(9.8832))
-    frame_params <- data.frame()
-    #if(input$runModels!=0){          ###################should think of isolate here
-      plus <- 0
-      if(length(tracked_models)>0){
-        count <- 0
-        for(i in tracked_models()){
-          if(i=="Jelinski-Moranda"){
-            if(length(grep("IF",names(data)))){
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- JM_BM_MLE(data$IF)
-              print(new_params)
-              if(typeof(new_params)=="double"){
-                print("Entered the double")
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params  <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-                PSSE          <- psse_times(data, frame_params)
-                print(Max_lnl)
-                AIC           <- aic(2,Max_lnl)
-                #print(AIC)
-                #PSSE          <- psse()
-                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- AIC
-                table_t[count,3] <- PSSE          
-              }
-              else if(new_params=="nonconvergence"){
-                print("Entered the Non-conv")
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"             
-              }
-              else{
-                # to be programmed
-              }
-            }
-            else if(length(grep("FT",names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- JM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-                AIC           <- aic(2,Max_lnl)
-                #PSSE          <- psse()
-                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- AIC
-                table_t[count,3] <- "PSSE" 
-                
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"              
-              }
-              else{
-                # to be programmed
-              }
-
-              
-            }
-            else if(length(grep("CFC",names(data)))){
-
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- failureC_to_failureT(data$T,FC)
-              IF <- failureT_to_interF(failure_T = FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- JM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-                frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <-length(IF)
-                table_t[count,3] <- number_fails
-              
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                
-              }
-              else{
-                # to be programmed
-              }  
-            }
-
-          }
-
-          else if(i=="Geometric"){
-            if(length(grep("IF",names(data)))){
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(data$IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=data$IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                Max_lnl           <- JM_BM_lnl(data$IF,frame_params$N0,frame_params$Phi)
-                PSSE          <- psse_times(data, frame_params)
-                print(Max_lnl)
-                AIC           <- aic(2,Max_lnl)
-                #print(AIC)
-                #PSSE          <- psse()
-                #number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(data$IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- AIC
-                table_t[count,3] <- PSSE
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-            }
-            else if(length(grep("FT",names(data)))){
-              IF <- failureT_to_interF(data$FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=data$FT,"IF"=IF,"FN"=1:length(data$FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails_t  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- length(IF)
-                table_t[count,3] <- number_fails_t
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }
-              
-            }
-            else if(length(grep("CFC",names(data)))){
-
-              FC <- CumulativeFailureC_to_failureC(data$CFC)
-              FT <- failureC_to_failureT(data$T,FC)
-              IF <- failureT_to_interF(failure_T = FT)
-              count <- count + 1
-              source("Detailed_prediction.R")
-              new_params <- GM_BM_MLE(IF)
-              if(typeof(new_params)=="double"){
-                data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
-                frame_params <- data.frame("D0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                number_fails  <- get_prediction_t(frame_params,input$modelDetailPredFailures,length(IF))
-
-                table_t[count,1] <- i
-                table_t[count,2] <- length(IF)
-                table_t[count,3] <- number_fails
-                #t
-              }
-              else if(new_params=="nonconvergence"){
-                table_t[count,1] <- i
-                table_t[count,2] <- "NON-CONV"
-                table_t[count,3] <- "NON-CONV"
-                #t
-              }
-              else{
-                # to be programmed
-              }  
-            }
-          }
-          else{
-            count <- count + 1
-            table_t[count,1] <- i
-            table_t[count,2] <- "Given Model not defined"
-            table_t[count,3] <- "Given Model not defined"
-
-          }
-
-      }
-      table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-      print(table_t)
-      names(table_t) <- c("Model","AIC","PSSE")
     }
-    #table_t <- data.frame(table_t[1],table_t[2],table_t[3])
-    #names(table_t) <- c("Model","N0","Time-remaining")
-    table_t
-  #data_global
-  })
+    
+    print(ModelsToEval)
+    tab4_table1 <<- data.frame()
+    data <- data_global()
+      if(length(ModelsToEval)>0){
+        count <<- 0
+        
+        for(i in ModelsToEval){
+          tab4_table1_construct(i,data,input)
+        }
+
+      tab4_table1 <- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
+      names(tab4_table1) <- c("Model","AIC","PSSE")
+    }
+
+    tab4_table1
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 })
-
