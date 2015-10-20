@@ -826,7 +826,7 @@ output$mytable1 <- DT::renderDataTable({
           tab3_table1_construct(i,data,input)
         }
       tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
-      names(tab3_table1) <- c("Model",paste("Time to achieve R = ", paste(as.character(input$modelTargetReliability, paste(" for mission of length ", as.character(input$modelRelMissionTime2))))) ,paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste0("Nth failure"), paste("Expected times to next", input$modelDetailPredFailures ,"failures"))
+      names(tab3_table1) <- c("Model",paste("Time to achieve R = ", paste(as.character(input$modelTargetReliability, paste(" for mission of length ", as.character(input$modelRelMissionTime2))))) ,paste("Expected # of failures for next", input$modelDetailPredTime ,"time units"), paste0("Nth failure"), paste("Expected times to next", input$modelDetailPredFailures ,"failures"))
     tab3_table1
   }
 }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))

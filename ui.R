@@ -293,7 +293,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "PDF"),
+                                                                 selected = "CSV"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
                                              )
                                            ),
@@ -348,7 +348,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     radioButtons("saveModelEvalType", label = h6("Save model evaluations as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "PDF"),
+                                                                 selected = "CSV"),
                                                     downloadButton('saveModelEvals', 'Save Model Evaluations')
                                              )
 
