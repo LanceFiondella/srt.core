@@ -210,15 +210,13 @@ Wei_Target_T <- function(params,cur_time,delta, reliability){
     # Bound the estimation interval
     
     interval_left <- cur_time
-    interval_right <- 2*cur_time
-    local_rel <- Wei_R_delta(params,interval_left,delta)
-    while (local_rel < reliability) {
-      interval_left <- 2*interval_left
+    interval_right <- 2*interval_left
+    while (Wei_R_delta(params,interval_right,delta) < reliability) {
+      interval_left <- interval_right
       interval_right <- 2*interval_right
       if (is.infinite(interval_right)) {
         break
       }
-      local_rel <- Wei_R_delta(params,interval_left,delta)
     }
     
     if (is.finite(interval_right)) {
