@@ -79,13 +79,15 @@ get_reliability_t <- function(model, params, targetRel, missionTime, tn, numFail
     relTime <- get(paste(model,"Target_T",sep="_"))(params,tn,missionTime,targetRel)
     if(!is.null(relTime) && !is.na(relTime)) {
       if(is.numeric(relTime)) {
-        if(relTime > tn) {
-          relTime <- relTime-tn
-        } else {
-          relTime <- 0
+        if (is.finite(relTime)) {
+          if(relTime > tn) {
+            relTime <- relTime-tn
+          } else {
+            relTime <- paste0("Reliability target of ", paste0(as.character(targetRel), " achieved"))
+          }
         }
       } else if (relTime == "Target reliability already achieved") {
-        relTime <- 0
+        relTime <- paste0("Reliability target of ", paste0(as.character(targetRel), " achieved"))
       } else {
         relTime <- NA
       }
@@ -93,16 +95,14 @@ get_reliability_t <- function(model, params, targetRel, missionTime, tn, numFail
       relTime <- NA
     }
   } else {
-    if(targetRel <= 0) {
+    if(targetRel < 0) {
       relTime <- NA
+    } else if(targetRel == 0) {
+      relTime <- "Reliability target of 0 achieved"
     } else if (targetRel >= 1) {
       relTime <- Inf
-    } else {
-      if(missionTime < 0) {
-        relTime <- NA
-      } else if(missionTime == 0) {
-        relTime <- 0
-      }
+    } else if(missionTime <= 0) {
+        relTime <- "Choose a mission length > 0"
     }
   }
   return(relTime)
@@ -133,10 +133,10 @@ est_t <- function(model,params,tn,steps){
     			error = function(e){
       				return("NA")
       #return(e)
-    			})
+  })
 	#print("Estimated time for next failure")
-  	#print(sol)
-    sol
+  #print(sol)
+  sol
 }
 
 
