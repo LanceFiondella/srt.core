@@ -1,6 +1,6 @@
 ---
 title: "Model Results Table"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, echo=FALSE}
