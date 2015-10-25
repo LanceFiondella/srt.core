@@ -1,8 +1,0 @@
----
-title: "Model Results Table"
-output: pdf_document
----
-
-```{r, echo=FALSE}
-DT::renderDataTable({tab3_table1})
-```
