@@ -2,6 +2,7 @@ library(shiny)
 library(DT)
 library(gdata) 
 library(ggplot2)
+library(knitr)
 
 sys.source("utility/utility.R")
 sys.source("metrics/Model_specifications.R")
@@ -773,22 +774,18 @@ output$downloadData <- downloadHandler(
         paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
       }
     },
-    content <- function(file) {
-      OutputTable <- tab3_table1
-      names(OutputTable) <- names(tab3_table1)
-      OutputTable <- subset(OutputTable, OutputTable$Model != "<NA>")
-      
+    content <- function(filename) {
+      tab3_table1_2_save <<- subset(tab3_table1, tab3_table1$Model != "<NA>")
+
       if (input$saveModelDetailsType == "PDF") {
-        out_put<-capture.output(OutputTable)
-        pdf(file)
-        plot.new()
-        text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
-        dev.off()
+        names(tab3_table1_2_save) <- c("Model", paste0("Time to R=", as.character(input$modelTargetReliability)), paste("Num failures in", as.character(input$modelDetailPredTime)), paste0("Failure"), paste0("Times to failures"))
+        out_put = knit2pdf('Tab3ReportTemplate.Rnw', clean = TRUE)
+        file.rename(out_put, filename) # move pdf to file for downloading
       } else {
-        write.csv(OutputTable, file)
+        write.csv(tab3_table1_2_save, filename)
       }
     }
-  )
+)
   
 output$mytable1 <- DT::renderDataTable({
 
@@ -825,8 +822,8 @@ output$mytable1 <- DT::renderDataTable({
           count <<- count+1
           tab3_table1_construct(i,data,input)
         }
-      tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
-      names(tab3_table1) <- c("Model",paste("Time to achieve R = ", paste(as.character(input$modelTargetReliability, paste(" for mission of length ", as.character(input$modelRelMissionTime2))))) ,paste("Expected # of failures for next", input$modelDetailPredTime ,"time units"), paste0("Nth failure"), paste("Expected times to next", input$modelDetailPredFailures ,"failures"))
+      tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
+      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
     tab3_table1
   }
 }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
@@ -915,29 +912,26 @@ output$saveModelEvals <- downloadHandler(
     }
   },
   content = function(filespec) {
-    OutputTable <- tab4_table1
+    tab4_table1_2_save <- tab4_table1
     
     # Turn OutputTable to character representations to avoid
     # difficulties with NA, Inf, and NaN.
     
-    TableNames <- names(OutputTable)
+    TableNames <- names(tab4_table1_2_save)
     for (nameIndex in TableNames) {
-      OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+      tab4_table1_2_save[[nameIndex]] <- as.character(tab4_table1_2_save[[nameIndex]])
     }
-    names(OutputTable) <- c("Model", "AIC", "PSSE")
+    names(tab4_table1_2_save) <- c("Model", "AIC", "PSSE")
     
-    if(length(OutputTable) <= 1) {
-      OutputTable <- data.frame()
+    if(length(tab4_table1_2_save) <= 1) {
+      tab4_table1_2_save <- data.frame()
     }
     
     if(input$saveModelEvalType == "PDF") {
-      out_put<-capture.output(OutputTable)
-      pdf(filespec)
-      plot.new()
-      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
-      dev.off()
+      out_put = knit2pdf('Tab4ReportTemplate.Rnw', clean = TRUE)
+      file.rename(out_put, filespec) # move pdf to file for downloading
     } else {
-      utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+      utils::write.csv(tab4_table1_2_save, file=filespec, quote=TRUE, na="NA")
     }
   }
 )
