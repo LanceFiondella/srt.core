@@ -83,11 +83,11 @@ get_reliability_t <- function(model, params, targetRel, missionTime, tn, numFail
           if(relTime > tn) {
             relTime <- relTime-tn
           } else {
-            relTime <- paste0("Reliability target of ", paste0(as.character(targetRel), " achieved"))
+            relTime <- paste("R =", as.character(targetRel), "achieved")
           }
         }
       } else if (relTime == "Target reliability already achieved") {
-        relTime <- paste0("Reliability target of ", paste0(as.character(targetRel), " achieved"))
+        relTime <- paste("R =", as.character(targetRel), "achieved")
       } else {
         relTime <- NA
       }
