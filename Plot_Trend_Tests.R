@@ -1,4 +1,4 @@
-plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, TrendTest, Confidence, LaplaceStat, PlotType, MinIntervalWidth) {
+plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, TrendTest, Confidence, LaplaceStat, PlotType, MinIntervalWidth){
   
   require(ggplot2)
   
@@ -25,7 +25,7 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
       FT <- c(unlist(subset(subset(convertedFCData, convertedFCData$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_FT)), use.names=FALSE)
       IF <- c(unlist(subset(subset(convertedFCData, convertedFCData$FC_TI >= DataIntervalStart, select = c(FC_FN, FC_TI, FC_IF, FC_FT)), FC_TI <= DataIntervalEnd, select = FC_IF)), use.names=FALSE)
     }
-    
+
     if(TrendTest == "LP") {
       plot_data <- laplace_trend_test(IF)
       if((length(grep("FT",names(in_data)))>0) || (length(grep("IF",names(in_data))) > 0)) {
@@ -36,22 +36,8 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
         }
       }
       localTrendPlot <- localTrendPlot + xlab("Failure Number")+ylab("Laplace Test Statistic")
-      if(plot_data$Laplace_factor[length(plot_data$Laplace_factor)] < LaplaceStat) {
-        
-        # Reliability growth
-        
-        localTrendPlot <- localTrendPlot+ggtitle(paste(paste(c("Laplace trend test of"),DataName), paste("\nReliability growth with confidence greater than", as.character(Confidence))))
-      } else if(plot_data$Laplace_factor[length(plot_data$Laplace_factor)] > -1*LaplaceStat) {
-        
-        # Reliability decrease
-        
-        localTrendPlot <- localTrendPlot+ggtitle(paste(paste(c("Laplace trend test of"),DataName), paste("\nReliability decrease with confidence greater than", as.character(Confidence))))
-      } else {
-        
-        # Neither reliability growth or decrease
-        
-        localTrendPlot <- localTrendPlot+ggtitle(paste(c("Laplace trend test of"),DataName))
-      }
+      localTrendPlot <- localTrendPlot+ggtitle(paste(paste(c("Laplace trend test of"),DataName), paste("\nReliability growth with confidence greater than", as.character(Confidence))))
+      localTrendPlot <- localTrendPlot+ggtitle(paste(c("Laplace trend test of"),DataName))
       localTrendPlot <- localTrendPlot + geom_hline(yintercept = LaplaceStat, color="red", alpha=0.8)
       # localTrendPlot <- localTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),color=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001"),linetype="dotted"),alpha=0.8)
       localTrendPlot <- localTrendPlot+xlab("Failure Number")+ylab("Laplace Test Statistic")

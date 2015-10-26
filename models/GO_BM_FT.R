@@ -1,5 +1,4 @@
 library(rootSolve)
-
 #Vector of failure times data
 # x <- c(3, 33, 146, 227, 342, 351, 353, 444, 556, 571, 709, 759, 836, 860, 968, 1056, 1726, 1846, 1872, 1986, 2311, 2366, 2608, 2676, 3098, 3278, 3288, 4434, 5034, 5049, 5085, 5089, 5089, 5097, 5324, 5389, 5565, 5623, 6080, 6380, 6477, 6740, 7192, 7447, 7644, 7837, 7843, 7922, 8738, 10089, 10237, 10258, 10491, 10625, 10982, 11175, 11411, 11442, 11811, 12559, 12559, 12791, 13121, 13486, 14708, 15251, 15261, 15277, 15806, 16185, 16229, 16358, 17168, 17458, 17758, 18287, 18568, 18728, 19556, 20567, 21012, 21308, 23063, 24127, 25910, 26770, 27753, 28460, 28493, 29361, 30085, 32408, 35338, 36799, 37642, 37654, 37915, 39715, 40580, 42015, 42045, 42188, 42296, 42296, 45406, 46653, 47596, 48296, 49171, 49416, 50145, 52042, 52489, 52875, 53321, 53443, 54433, 55381, 56463, 56485, 56560, 57042, 62551, 62651, 62661, 63732, 64103, 64893, 71043, 74364, 75409,76057, 81542, 82702, 84566, 88682)
 
@@ -257,12 +256,37 @@ GO_Target_T <- function(params,cur_time,delta, reliability){
 
   current_rel <- GO_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
+    # Bound the estimation interval
+    
+    sol <- 0
+    interval_left <- cur_time
+    interval_right <- 2*interval_left
+    local_rel <- GO_R_delta(params,interval_right,delta)
+    while (local_rel <= reliability) {
+      interval_right <- 2*interval_right
+      if(local_rel == reliability) {
+        interval_right <- 2.25*interval_right
+      }
+      if (is.infinite(interval_right)) {
+        break
+      }
+      local_rel <- GO_R_delta(params,interval_right,delta)
+    }
+    if(is.finite(interval_right) && is.finite(local_rel) && (local_rel < 1)) {
+      while (GO_R_delta(params,(interval_left + (interval_right-interval_left)/2),delta) < reliability) {
+        interval_left <- interval_left + (interval_right-interval_left)/2
+      }
+    } else {
+      sol <- Inf
+    }
+    
+    if (is.finite(interval_right) && is.finite(sol)) {
       sol <- tryCatch(
-        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        stats::uniroot(f, c(interval_left, interval_right),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
-        #print(f.lower)
+          #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
-            maxiter <<- maxiter+10
+            maxiter <<- floor(maxiter*1.5)
             print(paste("recursive", maxiter,sep='_'))
             GO_Target_T(a,b,cur_time,delta, reliability)
           }
@@ -271,11 +295,13 @@ GO_Target_T <- function(params,cur_time,delta, reliability){
           print(e)
           #return(e)
         })
-  }
-  else {
+    } else {
+      sol <- Inf
+    }
+  } else {
     sol <- "Target reliability already achieved"
   }
-    sol
+    return(sol)
   }
 
 GO_R_growth <- function(params,d,delta){  

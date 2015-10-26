@@ -166,8 +166,20 @@ GM_R <- function(param,d){
   
 }
 
-GM_lnL  <- function(){
-  
+
+GM_lnL <-  function(x,params){
+
+  sum1=0
+  sum2=0
+  print(params)
+  n <- length(x)
+  for(i in 1:n){
+    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
+    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
+  }
+  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
+  print(lnL)
+  return(lnL)
 }
 
 
@@ -191,29 +203,57 @@ GM_Target_T <- function(params,cur_time,delta, reliability){
   f <- function(t){
     return(GM_R_MLE_root(params,t,delta, reliability))
   }
-
+  
   current_rel <- GM_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
-      sol <- tryCatch(
-        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
-        warning = function(w){
-        #print(f.lower)
-          if(length(grep("_NOT_ converged",w[1]))>0){
-            maxiter <<- maxiter+10
-            print(paste("recursive", maxiter,sep='_'))
-            GM_Target_T(a,b,cur_time,delta, reliability)
-          }
-        },
-        error = function(e){
-          print(e)
-          #return(e)
-        })
-  }
-  else {
+      # Bound the estimation interval
+      
+      sol <- 0
+      interval_left <- cur_time
+      interval_right <- 2*interval_left
+      local_rel <- GM_R_delta(params,interval_right,delta)
+      while (local_rel <= reliability) {
+        interval_right <- 2*interval_right
+        if(local_rel == reliability) {
+          interval_right <- 2.25*interval_right
+        }
+        if (is.infinite(interval_right)) {
+          break
+        }
+        local_rel <- GM_R_delta(params,interval_right,delta)
+      }
+      if(is.finite(interval_right) && is.finite(local_rel) && (local_rel < 1)) {
+        while (GM_R_delta(params,(interval_left + (interval_right-interval_left)/2),delta) < reliability) {
+          interval_left <- interval_left + (interval_right-interval_left)/2
+        }
+      } else {
+        sol <- Inf
+      }
+
+      if(is.finite(interval_right) && is.finite(sol)) {
+        sol <- tryCatch(
+          stats::uniroot(f, c(interval_left,interval_right),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+          warning = function(w){
+            #print(f.lower)
+            if(length(grep("_NOT_ converged",w[1]))>0){
+              maxiter <<- floor(maxiter*1.5)
+              print(paste("recursive", maxiter,sep='_'))
+              GM_Target_T(a,b,cur_time,delta, reliability)
+            }
+          },
+          error = function(e){
+            print(e)
+            #return(e)
+          })
+      } else {
+        # Infinite amount of time required to achieve reliability
+        sol <- Inf
+      }
+  } else {
     sol <- "Target reliability already achieved"
   }
-    sol
-  }
+    return(sol)
+}
 
 GM_R_growth <- function(params,d,delta){  
   
