@@ -797,7 +797,12 @@ output$mytable1 <- DT::renderDataTable({
       return("Please upload a file")
     }
 
-    data <- data_global()
+    # Use the subset of data to which models were applied
+    # to do the model evaluation.
+    
+    in_data_tab3 <- ModeledData
+    timeOffset <- ModeledData$FT[1] - ModeledData$IF[1]
+    in_data_tab3$FT <- in_data_tab3$FT - timeOffset
     
     ModelsToQuery <- input$modelDetailChoice
     if(length(ModelsToQuery)<=0) {
@@ -820,7 +825,7 @@ output$mytable1 <- DT::renderDataTable({
         tab3_table1<<- data.frame()
         for(i in ModelsToQuery){
           count <<- count+1
-          tab3_table1_construct(i,data,input)
+          tab3_table1_construct(i,in_data_tab3,input)
         }
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
       names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
@@ -952,16 +957,23 @@ output$mytable2 <- DT::renderDataTable({
     
     print(ModelsToEval)
     tab4_table1 <<- data.frame()
-    data <- data_global()
+    
+    # Use the subset of data to which models were applied
+    # to do the model evaluation.
+    
+    in_data_tab4 <- ModeledData
+    timeOffset <- ModeledData$FT[1] - ModeledData$IF[1]
+    in_data_tab4$FT <- in_data_tab4$FT - timeOffset
+    
       if(length(ModelsToEval)>0){
         count <<- 0
         
         for(i in ModelsToEval){
-          tab4_table1_construct(i,data,input)
+          tab4_table1_construct(i,in_data_tab4,input)
         }
 
-      tab4_table1 <- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
-      names(tab4_table1) <- c("Model","AIC","PSSE")
+      tab4_table1 <<- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
+      names(tab4_table1) <<- c("Model","AIC","PSSE")
     }
 
     tab4_table1
