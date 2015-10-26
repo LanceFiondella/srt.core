@@ -164,7 +164,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
   }
   
   if(PlotDataEnd) {
-    localResultsPlot <- localResultsPlot + geom_vline(xintercept=DataModeled$FT[length(DataModeled$FT)])
+    localResultsPlot <- localResultsPlot + geom_vline(xintercept=DataModeled$FT[length(DataModeled$FT)], linetype='longdash', alpha = 0.8)
   }
     
   
