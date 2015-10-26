@@ -39,7 +39,7 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
       localTrendPlot <- localTrendPlot+ggtitle(paste(paste(c("Laplace trend test of"),DataName), paste("\nReliability growth with confidence greater than", as.character(Confidence))))
       localTrendPlot <- localTrendPlot+ggtitle(paste(c("Laplace trend test of"),DataName))
       localTrendPlot <- localTrendPlot + geom_hline(yintercept = LaplaceStat, color="red", alpha=0.8)
-      # localTrendPlot <- localTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001)),color=c("0.1","0.05","0.01","0.001","0.0000001","0.0000000001"),linetype="dotted"),alpha=0.8)
+      localTrendPlot <- localTrendPlot + geom_hline(aes(yintercept=c(qnorm(0.1),qnorm(0.05),qnorm(0.01),qnorm(0.001),qnorm(0.0000001),qnorm(0.0000000001))),linetype="dotted",color='black',alpha=0.8)
       localTrendPlot <- localTrendPlot+xlab("Failure Number")+ylab("Laplace Test Statistic")
     } else if(TrendTest == "RA") {
       plot_data <- running_average_test(IF)
