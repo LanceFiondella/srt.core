@@ -209,8 +209,11 @@ DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
   root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
   return(root_equation)
 }
+
+
 dlt <- 100
 maxiter <- 1000
+
 DSS_Target_T <- function(params,cur_time,delta, reliability){
   
   f <- function(t){
