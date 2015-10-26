@@ -206,7 +206,8 @@ DSS_R_delta <- function(params,cur_time,delta){
 }
 
 DSS_R_MLE_root <- function(params,cur_time,delta, reliability){
-  root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
+  root_equation <- exp(params$DSS_aMLE * ((exp(-params$DSS_bMLE*(cur_time+delta))*(1+(params$DSS_bMLE*(cur_time+delta)))) - (exp(-params$DSS_bMLE*cur_time)*(1+(params$DSS_bMLE*cur_time))))) - reliability
+  # root_equation <- reliability - exp(params$DSS_aMLE*(1-exp(-params$DSS_bMLE*cur_time)) -params$DSS_aMLE*(1-exp(-params$DSS_bMLE*(cur_time+delta))))
   return(root_equation)
 }
 
