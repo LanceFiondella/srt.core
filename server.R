@@ -2,6 +2,7 @@ library(shiny)
 library(DT)
 library(gdata) 
 library(ggplot2)
+library(knitr)
 
 sys.source("utility/utility.R")
 sys.source("metrics/Model_specifications.R")
@@ -11,6 +12,7 @@ sys.source("models/GM_BM.R")
 sys.source("models/DSS_BM_FT.R")
 source("models/Wei_NM_FT.R")
 source("trend_tests/Laplace_trend_test.R")
+source("Plot_Raw_Data.R")
 source("Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
 source("trend_tests/RA_Test.R")
@@ -248,13 +250,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # is dynamically created to ensure that its value is always in sync with those of
   # the start and end points of the current data range.
   
-  output$ParameterInterval <- renderUI({
-    intervalStart <- input$modelDataRange[1]
-    intervalEnd <- input$modelDataRange[2]
-    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
-    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
-  })
+#  output$ParameterInterval <- renderUI({
+#    intervalStart <- input$modelDataRange[1]
+#    intervalEnd <- input$modelDataRange[2]
+#    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
+#    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+#                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
+#  })
 
   # A reactive data item that is used to control the height of the raw data and trend
   # plot.  The height is computed based on the width - it the plot is not as high
@@ -508,9 +510,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
     }  
-    updateSliderInput(session, "parmEstIntvl",
-                      min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-                      max = DataModelIntervalEnd-1)    
+    # updateSliderInput(session, "parmEstIntvl",
+    #                  min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+    #                  max = DataModelIntervalEnd-1)    
     
     outputMessage
   })
@@ -546,7 +548,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       } else {
         TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
       }
-      tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+      # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+      tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
@@ -616,7 +619,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       OutputTable <- data.frame()
     }
     OutputTable
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 
   
@@ -656,7 +659,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         }
       }
       MR_Table
-    }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+    }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
   
 
 # ------------------------------------------------------------------------------------------------------
@@ -707,15 +710,29 @@ tab3_table1_construct <- function(model,data,input){
                                       input$modelDetailPredFailures,
                                       data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
                                       length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      rel_time <- get_reliability_t(model,
+                                    model_params, 
+                                    input$modelTargetReliability, input$modelRelMissionTime2, 
+                                    data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                    length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      
       print(time_fails)
       print(number_fails)
+      print(rel_time)
       ExpectedNumFailuresExceeded <- FALSE
       for( i in 1:length(time_fails)){
         if(!ExpectedNumFailuresExceeded){
           count <<- count+1
-          tab3_table1[count,1]<<- model
-          tab3_table1[count,2]<<- number_fails
-          tab3_table1[count,3]<<- time_fails[i]
+          tab3_table1[count,1]<<- get(paste0(model, "_fullname"))
+          if(i == 1) {
+            tab3_table1[count,2]<<- as.character(rel_time)
+            tab3_table1[count,3]<<- number_fails
+          } else {
+            tab3_table1[count,2]<<- " "
+            tab3_table1[count,3]<<- " "
+          }
+          tab3_table1[count,4]<<- i
+          tab3_table1[count,5]<<- time_fails[i]
 
           #  Create Row of NA only once logic
           if(time_fails[i]=="NA"){
@@ -731,12 +748,16 @@ tab3_table1_construct <- function(model,data,input){
         tab3_table1[count,1] <<- model
         tab3_table1[count,2] <<- "Given-model not defined"
         tab3_table1[count,3] <<- "Given-model not defined"
+        tab3_table1[count,4] <<- "Given-model not defined"
+        tab3_table1[count,5] <<- "Given-model not defined"
       }
       else{
         count<<-count+1
         tab3_table1[count,1] <<- model
         tab3_table1[count,2] <<- "NON-CONV"
         tab3_table1[count,3] <<- "NON-CONV"
+        tab3_table1[count,4] <<- "NON-CONV"
+        tab3_table1[count,5] <<- "NON-CONV"
       }
     }
   }
@@ -753,22 +774,18 @@ output$downloadData <- downloadHandler(
         paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
       }
     },
-    content <- function(file) {
-      OutputTable <- tab3_table1
-      names(OutputTable) <- c("Model", paste0("Failures for T = ", as.character(input$modelDetailPredTime)), paste0("Times to Next ", paste0(as.character(input$modelDetailPredFailures), " Failures")))
-      OutputTable <- subset(OutputTable, OutputTable$Model != "<NA>")
-      
+    content <- function(filename) {
+      tab3_table1_2_save <<- subset(tab3_table1, tab3_table1$Model != "<NA>")
+
       if (input$saveModelDetailsType == "PDF") {
-        out_put<-capture.output(OutputTable)
-        pdf(file)
-        plot.new()
-        text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
-        dev.off()
+        names(tab3_table1_2_save) <- c("Model", paste0("Time to R=", as.character(input$modelTargetReliability)), paste("Num failures in", as.character(input$modelDetailPredTime)), paste0("Failure"), paste0("Times to failures"))
+        out_put = knit2pdf('Tab3ReportTemplate.Rnw', clean = TRUE)
+        file.rename(out_put, filename) # move pdf to file for downloading
       } else {
-        write.csv(OutputTable, file)
+        write.csv(tab3_table1_2_save, filename)
       }
     }
-  )
+)
   
 output$mytable1 <- DT::renderDataTable({
 
@@ -780,7 +797,12 @@ output$mytable1 <- DT::renderDataTable({
       return("Please upload a file")
     }
 
-    data <- data_global()
+    # Use the subset of data to which models were applied
+    # to do the model evaluation.
+    
+    in_data_tab3 <- ModeledData
+    timeOffset <- ModeledData$FT[1] - ModeledData$IF[1]
+    in_data_tab3$FT <- in_data_tab3$FT - timeOffset
     
     ModelsToQuery <- input$modelDetailChoice
     if(length(ModelsToQuery)<=0) {
@@ -803,13 +825,13 @@ output$mytable1 <- DT::renderDataTable({
         tab3_table1<<- data.frame()
         for(i in ModelsToQuery){
           count <<- count+1
-          tab3_table1_construct(i,data,input)
+          tab3_table1_construct(i,in_data_tab3,input)
         }
-      tab3_table1 <- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3])
-      names(tab3_table1) <- c("Model",paste("Expected # of failure for next", input$modelDetailPredTime ,"time units"), paste("Expected time for next", input$modelDetailPredFailures ,"failures"))
+      tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
+      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
     tab3_table1
   }
-}, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+}, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 tracked_models <- reactive({
   input$modelDetailChoice
@@ -842,13 +864,13 @@ tab4_table1_construct <- function(model,data,input){
       print(max_lnL)
       if(length(grep("not found",max_lnL))) {
         count<<-count+1
-        tab4_table1[count,1] <<- model
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
         tab4_table1[count,2] <<- "Given model lnL not defined to compute AIC"
         tab4_table1[count,3] <<- "Given model lnL not defined to compute AIC" 
       }
       else if(typeof(max_lnL)!='double') {
         count<<-count+1
-        tab4_table1[count,1] <<- model
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
         tab4_table1[count,2] <<- "Non numeral value. Something is not right"
         tab4_table1[count,3] <<- "Non numeral value. Something is not right" 
       }
@@ -859,7 +881,7 @@ tab4_table1_construct <- function(model,data,input){
         print("PSSE -----------------------------------------")
         print(PSSE)
         count <<- count+1
-        tab4_table1[count,1]<<- model
+        tab4_table1[count,1]<<- get(paste0(model, "_fullname"))
         tab4_table1[count,2]<<- AIC
         tab4_table1[count,3]<<- PSSE
       }
@@ -873,7 +895,7 @@ tab4_table1_construct <- function(model,data,input){
       }
       else {
         count<<-count + 1
-        tab4_table1[count,1] <<- model
+        tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
         tab4_table1[count,2] <<- "NON-CONV"
         tab4_table1[count,3] <<- "NON-CONV"
       }
@@ -895,29 +917,26 @@ output$saveModelEvals <- downloadHandler(
     }
   },
   content = function(filespec) {
-    OutputTable <- tab4_table1
+    tab4_table1_2_save <- tab4_table1
     
     # Turn OutputTable to character representations to avoid
     # difficulties with NA, Inf, and NaN.
     
-    TableNames <- names(OutputTable)
+    TableNames <- names(tab4_table1_2_save)
     for (nameIndex in TableNames) {
-      OutputTable[[nameIndex]] <- as.character(OutputTable[[nameIndex]])
+      tab4_table1_2_save[[nameIndex]] <- as.character(tab4_table1_2_save[[nameIndex]])
     }
-    names(OutputTable) <- c("Model", "AIC", "PSSE")
+    names(tab4_table1_2_save) <- c("Model", "AIC", "PSSE")
     
-    if(length(OutputTable) <= 1) {
-      OutputTable <- data.frame()
+    if(length(tab4_table1_2_save) <= 1) {
+      tab4_table1_2_save <- data.frame()
     }
     
     if(input$saveModelEvalType == "PDF") {
-      out_put<-capture.output(OutputTable)
-      pdf(filespec)
-      plot.new()
-      text(0,0.5,paste(out_put,collapse="\n"),family='mono',cex=0.6,adj=c(0,0))
-      dev.off()
+      out_put = knit2pdf('Tab4ReportTemplate.Rnw', clean = TRUE)
+      file.rename(out_put, filespec) # move pdf to file for downloading
     } else {
-      utils::write.csv(OutputTable, file=filespec, quote=TRUE, na="NA")
+      utils::write.csv(tab4_table1_2_save, file=filespec, quote=TRUE, na="NA")
     }
   }
 )
@@ -938,19 +957,26 @@ output$mytable2 <- DT::renderDataTable({
     
     print(ModelsToEval)
     tab4_table1 <<- data.frame()
-    data <- data_global()
+    
+    # Use the subset of data to which models were applied
+    # to do the model evaluation.
+    
+    in_data_tab4 <- ModeledData
+    timeOffset <- ModeledData$FT[1] - ModeledData$IF[1]
+    in_data_tab4$FT <- in_data_tab4$FT - timeOffset
+    
       if(length(ModelsToEval)>0){
         count <<- 0
         
         for(i in ModelsToEval){
-          tab4_table1_construct(i,data,input)
+          tab4_table1_construct(i,in_data_tab4,input)
         }
 
-      tab4_table1 <- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
-      names(tab4_table1) <- c("Model","AIC","PSSE")
+      tab4_table1 <<- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
+      names(tab4_table1) <<- c("Model","AIC","PSSE")
     }
 
     tab4_table1
-  }, options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
 
 })

@@ -111,19 +111,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Configure and Apply Models"),
-                                           h5("Set up the the initial parameter estimation interval and the number of failures for which the models will make predictions"),
+                                           h5("Specify the number of failures for which the models will make predictions"),
                                            
                                            fluidRow(
-                                             column(12,
-                                                    uiOutput("ParameterInterval")
-                                             ),
+                                             # column(12,
+                                             #       uiOutput("ParameterInterval")
+                                             # ),
                                              
-                                             fluidRow(
-                                               column(12,
-                                                      numericInput("modelNumPredSteps", 
-                                                                   label = h6("Specify for how many failures into the future the models will predict"),
-                                                                   min = 1, value = 1)
-                                               )
+                                             column(12,
+                                                    numericInput("modelNumPredSteps", 
+                                                                 label = h6("Specify for how many failures into the future the models will predict"),
+                                                                 min = 1, value = 1)
                                              ),
 
                                              column(12, 
@@ -267,7 +265,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12, 
-                                                    h5("How many failures will be observed over the next N seconds?")
+                                                    h5("How many failures will be observed over the next N time units?")
                                              ),
                                              
                                              column(12,
@@ -291,7 +289,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              ),
-                                             
+
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,

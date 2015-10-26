@@ -41,8 +41,11 @@ psse <- function(model, d, model_params,percent){
 	n <- length(d)
 	k <- floor(percent*n)
 	k <- max(k,1)
-	for( i in (k+1):n){
-		t <- (i - get(paste(model,"_MVF_cont",sep=""))(model_params,d[i]))^2 +t
-	}
+	failNums <- c((k+1):n)
+	failTimes <- tail(d,length(failNums))
+	t <- sum((failNums - get(paste(model,"_MVF_cont",sep=""))(model_params,failTimes))^2)
+	# for( i in (k+1):n){
+	#	 t <- (i - get(paste(model,"_MVF_cont",sep=""))(model_params,d[i]))^2 +t
+	# }
 	t
 }

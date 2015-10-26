@@ -49,7 +49,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   maxiter <<- 20
   soln <- function(maxiter){
     sol <- tryCatch(
-      uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
+      stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
       warning = function(w){
       #print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
@@ -68,7 +68,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   b_initial <- soln(maxiter)
 
 
-  #b_initial <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
+  #b_initial <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
 }
 #print(b_initial)
 
@@ -207,12 +207,37 @@ Wei_Target_T <- function(params,cur_time,delta, reliability){
 
   current_rel <- Wei_R_delta(params,cur_time,delta)
   if(current_rel < reliability){
+    # Bound the estimation interval
+    
+    sol <- 0
+    interval_left <- cur_time
+    interval_right <- 2*interval_left
+    local_rel <- Wei_R_delta(params,interval_right,delta)
+    while (local_rel <= reliability) {
+      interval_right <- 2*interval_right
+      if(local_rel == reliability) {
+        interval_right <- 2.25*interval_right
+      }
+      if (is.infinite(interval_right)) {
+        break
+      }
+      local_rel <- Wei_R_delta(params,interval_right,delta)
+    }
+    if(is.finite(interval_right) && is.finite(local_rel) && (local_rel < 1)) {
+      while (Wei_R_delta(params,(interval_left + (interval_right-interval_left)/2),delta) < reliability) {
+        interval_left <- interval_left + (interval_right-interval_left)/2
+      }
+    } else {
+      sol <- Inf
+    }
+    
+    if (is.finite(interval_right) && is.finite(sol)) {
       sol <- tryCatch(
-        uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
-        #print(f.lower)
+          #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
-            maxiter <<- maxiter+10
+            maxiter <<- floor(maxiter*1.5)
             #print(paste("recursive", maxiter,sep='_'))
             Wei_Target_T(a,b,cur_time,delta, reliability)
           }
@@ -221,11 +246,13 @@ Wei_Target_T <- function(params,cur_time,delta, reliability){
           print(e)
           #return(e)
         })
-  }
-  else {
+    } else {
+      sol <- Inf
+    }
+  } else {
     sol <- "Target reliability already achieved"
   }
-    sol
+    return(sol)
   }
 
 Wei_R_growth <- function(params,d,delta){  
