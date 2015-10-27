@@ -184,7 +184,8 @@ GM_lnL <-  function(x,params){
 
 
 GM_MVF_cont <- function(params,t){
-  return( (-1/log(params$GM_Phi))*log(1+params$GM_D0*(-log(params$GM_Phi)*exp(-log(params$GM_Phi)))*t))
+  return((-1/log(params$GM_Phi))*log(1+(params$GM_D0*(-log(params$GM_Phi)/params$GM_Phi)*t)))
+  # return( (-1/log(params$GM_Phi))*log(1+params$GM_D0*(-log(params$GM_Phi)*exp(-log(params$GM_Phi)))*t))
   #return(log(params$GM_D0*(1-exp(-params$JM_Phi*t)))
 }
 
