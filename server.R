@@ -338,7 +338,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
   output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
     
-    DataAndTrendPlot <- NULL   # Set the plot object to NULL to prevent error messages.
+    DataAndTrendPlot <<- NULL   # Set the plot object to NULL to prevent error messages.
     data <- data.frame(x=data_global())
     DataColNames <- names(data)
     names(data) <- gsub("x.", "", DataColNames)
@@ -351,15 +351,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Plot the raw failure data
         
-        DataAndTrendPlot <- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
+        DataAndTrendPlot <<- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
       } else if (input$PlotDataOrTrend == 2) {
         
         # Plot the selected trend test
         
-        DataAndTrendPlot <- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
+        DataAndTrendPlot <<- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
       }
       
-      DataAndTrendPlot <- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
+      DataAndTrendPlot <<- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
       DataAndTrendPlot
       
       #plot(data) Leave this here to use if ggplot() stops working. 
