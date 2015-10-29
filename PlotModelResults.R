@@ -59,7 +59,8 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     # We've zoomed in to a subset of the plot.  We don't need to specify the
     # x values for each model.
     
-    timeAxisLinePlotVals <- seq(from=(plotWidthRange[1]-timeOffset), to=(plotWidthRange[2]-timeOffset), by=(plotWidthRange[2]-plotWidthRange[1])/(plotPixels-1))
+    startPoint <- max(plotWidthRange[1], DataModeled$FT[1])
+    timeAxisLinePlotVals <- seq(from=startPoint, to=plotWidthRange[2], by=(plotWidthRange[2]-startPoint)/(plotPixels-1))
   }
   
   for (modelIndex in DisplayModels) {
@@ -81,12 +82,13 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     if(is.null(plotWidthRange) && is.null(plotHeightRange)) {
       # We're looking at the entire plot.
       
-      xAxisVals <- unlist(subset(ModResults, !is.infinite(get(paste0(modelIndex, "_CumTime"))), select=get(paste0(modelIndex, "_CumTime"))), use.names=FALSE)-timeOffset
+      xAxisVals <- unlist(subset(ModResults, !is.infinite(get(paste0(modelIndex, "_CumTime"))), select=get(paste0(modelIndex, "_CumTime"))), use.names=FALSE)
       IFVals <- unlist(DataModeled$IF, use.names=FALSE)
       timeAxisLinePlotVals <- seq(from=xAxisVals[1], to=xAxisVals[length(xAxisVals)]+AdditionalCurveLength, by=(xAxisVals[length(xAxisVals)]+AdditionalCurveLength-(xAxisVals[1]-IFVals[1]))/(plotPixels-1))
     }
     
-    model_input_data <- data.frame("FT" = timeAxisLinePlotVals)
+    model_input_data <- data.frame("FT" = timeAxisLinePlotVals-timeOffset)
+    
     if(DataView == "IF") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "IF", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
       local_estimate <- get(paste(modelIndex,"MTTF",sep="_"))(model_params, model_input_data)[["MTTF"]]
@@ -95,7 +97,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     } else if(DataView == "MVF") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "MVF", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
       local_estimate <- get(paste(modelIndex,"MVF",sep="_"))(model_params, model_input_data)[["Failure"]] + failureOffset
-      model_line_data <- data.frame("Time"= unlist(model_input_data+timeOffset, use.names=FALSE), "Failure"=local_estimate, "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(local_estimate)))
+      model_line_data <- data.frame("Time"= timeAxisLinePlotVals, "Failure"=local_estimate, "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(local_estimate)))
       
       # Now we see if this is a case in which the model assumes a finite number of failures, and if we've
       # asked the model to predict ahead for more failures than the model thinks are left.
@@ -106,7 +108,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     } else if(DataView == "FI") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FI", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
       local_estimate <- get(paste(modelIndex,"FI",sep="_"))(model_params, model_input_data)[["Failure_Rate"]]
-      model_line_data <- data.frame("Time"= unlist(model_input_data+timeOffset, use.names=FALSE), "Failure"=local_estimate, "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(local_estimate)))
+      model_line_data <- data.frame("Time"= timeAxisLinePlotVals, "Failure"=local_estimate, "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(local_estimate)))
     } else if(DataView == "R") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "Rel", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
     } else if(DataView == "R_growth") {
@@ -114,12 +116,12 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
       # This is an interactive plot - users can change the mission time for
       # which reliability will be computed.  The plot will then be redrawn.
       
-      rg_input_data <- data.frame("FT" = subset(ModResults, !is.infinite(get(paste0(modelIndex, "_CumTime"))), select=get(paste0(modelIndex, "_CumTime"))))
+      rg_input_data <- data.frame("FT" = subset(ModResults, !is.infinite(get(paste0(modelIndex, "_CumTime"))), select=get(paste0(modelIndex, "_CumTime")))-timeOffset)
       names(rg_input_data) <- c("FT")
       temp_R_growth <- data.frame("Reliability_Growth"=c(get(paste(modelIndex,"R_growth",sep="_"))(model_params, rg_input_data, RelMissionTime)[["Reliability_Growth"]], rep(1, length(ModResults[[paste(modelIndex, "CumTime", sep="_")]])-length(rg_input_data[[1]]))))
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = temp_R_growth[["Reliability_Growth"]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
       local_estimate <- get(paste(modelIndex,"R_growth",sep="_"))(model_params, model_input_data, RelMissionTime)[["Reliability_Growth"]]
-      model_line_data <- data.frame("Time"= unlist(model_input_data+timeOffset, use.names=FALSE), "Failure"=local_estimate, "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(local_estimate)))
+      model_line_data <- data.frame("Time"= timeAxisLinePlotVals, "Failure"=local_estimate, "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(local_estimate)))
       
     } else if (DataView == "FC") {
       model_plot_data <- data.frame("Time" = ModResults[[paste(modelIndex, "CumTime", sep="_")]], "Failure" = ModResults[[paste(modelIndex, "FC", sep="_")]], "Model" = rep(get(paste(modelIndex, "fullname", sep="_")), length(ModResults[["Failure"]])))
