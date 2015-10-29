@@ -95,7 +95,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       F3 = (-x[2]*x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))*log(tn)) + sumi[2])
     }
   abc <- multiroot(f=model1,start=c(a0,b0,c0), ctol = 1e-24)$root
-  
+
   # --------------------------------------------------------------------------------
   # Instructions to be followed
   # --------------------------------------------------------------------------------
@@ -106,10 +106,11 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   # 'params <- data.frame("Wei_aMLE"=abc[1],"Wei_bMLE"=abc[2],"Wei_cMLE"=abc[3])'
   # --------------------------------------------------------------------------------
 
-  params <- data.frame(paste("Wei",Wei_params[1],sep="_")=abc[1],paste("Wei",Wei_params[1],sep="_")=abc[2],paste("Wei",Wei_params[1],sep="_")=abc[3])
+  #params <- data.frame(paste("Wei",Wei_params[1],sep="_")=abc[1],paste("Wei",Wei_params[1],sep="_")=abc[2],paste("Wei",Wei_params[1],sep="_")=abc[3])
+  params <- data.frame(abc[1],abc[2],abc[3])
+  names(params) <- c(paste("Wei",Wei_params[1],sep="_"),paste("Wei",Wei_params[2],sep="_"),paste("Wei",Wei_params[3],sep="_"))
+
   params
-
-
 }
 
 Wei_lnL <- function(x,params){
