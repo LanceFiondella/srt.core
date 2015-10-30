@@ -1,9 +1,0 @@
-\documentclass{article}
-
-\begin{document}
-
-<<ModelQueryTable, echo=FALSE>>=
-knitr::kable(tab4_table1_2_save, digits=4, caption=paste("Model Evaluations for", ModeledDataName))
-@
-  
-  \end{document}

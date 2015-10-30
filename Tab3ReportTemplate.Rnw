@@ -1,9 +1,0 @@
-\documentclass{article}
-
-\begin{document}
-
-<<ModelQueryTable, echo=FALSE>>=
-knitr::kable(tab3_table1_2_save, digits=4, caption=paste("Detailed Model Query for", ModeledDataName))
-@
-  
-  \end{document}
