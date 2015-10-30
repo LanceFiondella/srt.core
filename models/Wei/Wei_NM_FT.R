@@ -94,7 +94,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
       F2 = (-x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))) + sumi[1],
       F3 = (-x[2]*x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))*log(tn)) + sumi[2])
     }
-  abc <- multiroot(f=model1,start=c(a0,b0,c0), ctol = 1e-24)$root
+  abc <- rootSolve::multiroot(f=model1,start=c(a0,b0,c0), ctol = 1e-24)$root
 
   # --------------------------------------------------------------------------------
   # Instructions to be followed
