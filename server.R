@@ -16,7 +16,7 @@ source("utility/plots/Plot_Raw_Data.R")
 source("utility/plots/Plot_Trend_Tests.R")
 source("utility/tables/DataAndTrendTables.R")
 source("trend_tests/RA_Test.R")
-source("RunModels.R")
+source("utility/RunModels.R")
 source("utility/plots/PlotModelResults.R")
 source("utility/tables/ModelResultTable.R")
 source("utility/ErrorMessages.R")  # Text for error messages
