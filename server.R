@@ -12,15 +12,15 @@ sys.source("models/GM_BM.R")
 sys.source("models/DSS_BM_FT.R")
 source("models/Wei_NM_FT.R")
 source("trend_tests/Laplace_trend_test.R")
-source("Plot_Raw_Data.R")
-source("Plot_Trend_Tests.R")
+source("utility/plots/Plot_Raw_Data.R")
+source("utility/plots/Plot_Trend_Tests.R")
 source("DataAndTrendTables.R")
 source("trend_tests/RA_Test.R")
 source("RunModels.R")
 source("PlotModelResults.R")
 source("ModelResultTable.R")
 source("utility/ErrorMessages.R")  # Text for error messages
-source("Plot_Raw_Data.R")
+#source("Plot_Raw_Data.R")
 # Initialize global variables -------------------------------
 
 openFileDatapath <- ""
@@ -631,7 +631,17 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
     output$ModelResultTable <- DT::renderDataTable({
       MR_Table <- NULL
-      if(!is.null(ModelResults)) {
+      print("Model results --------------------------------------------------------------")
+      print(input$modelResultChoice)
+      if((length(input$modelResultChoice) == 0) || (input$modelResultChoice == "None")) {
+        return
+      }
+      print(ModelResults)
+      if(is.null(ModelResults)){
+        print("NO results to display.")
+        return
+      }
+      else if(!is.null(ModelResults)) {
         if(length(input$AllModelsRun) > 0) {
           
           # User has selected at one model to display as a table.
@@ -819,7 +829,7 @@ output$mytable1 <- DT::renderDataTable({
       ###################################################
       #input$modelDetailChoice <- track_models()
       if(length(ModelsToQuery)>0){
-        source("Detailed_prediction.R")
+        source("utility/prediction/Detailed_prediction.R")
 
         count <<- 0
         tab3_table1<<- data.frame()
