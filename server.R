@@ -966,7 +966,7 @@ output$saveModelEvals <- downloadHandler(
 
 
 output$mytable2 <- DT::renderDataTable({
-    source("metrics/GOF.R")
+    source("utility/metrics/GOF.R")
     inFile <- input$file
     if(is.null(inFile)){
       return("Please upload a file")
