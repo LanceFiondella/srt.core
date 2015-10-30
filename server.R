@@ -18,7 +18,7 @@ source("DataAndTrendTables.R")
 source("trend_tests/RA_Test.R")
 source("RunModels.R")
 source("PlotModelResults.R")
-source("ModelResultTable.R")
+source("utility/tables/ModelResultTable.R")
 source("utility/ErrorMessages.R")  # Text for error messages
 #source("Plot_Raw_Data.R")
 # Initialize global variables -------------------------------
@@ -631,10 +631,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   
     output$ModelResultTable <- DT::renderDataTable({
       MR_Table <- NULL
-      print("Model results --------------------------------------------------------------")
-      print(input$modelResultChoice)
-      if((length(input$modelResultChoice) == 0) || (input$modelResultChoice == "None")) {
-        return
+
+      # Check if modelResultChoice is None and return NULL if true
+      if(length(input$modelResultChoice)==0){
+        return(MR_Table)
+      }
+      if(input$modelResultChoice=="None"){
+        return(MR_Table)
       }
       print(ModelResults)
       if(is.null(ModelResults)){
