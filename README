@@ -28,6 +28,7 @@ shiny  R Package
 gdata R Package
 ggplot2 R Package
 rootSolve R Package
+knitr R Package
 These can be resolved using the install.Packages() function from the R command Line
 perl 5 version 16 or later
 
