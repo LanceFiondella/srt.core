@@ -102,7 +102,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   # Params are from model_specifications.R file 
   # Please follow the convention  as follows
   # Instead of hard code Wei_aMLE as in equation below equation in commented section
-  # use paste("Wei",Wei_params[1],sep="_") as shown in 
+  # use paste("Wei",Wei_params[1],sep="_") as shown for names of dataframes
   # 'params <- data.frame("Wei_aMLE"=abc[1],"Wei_bMLE"=abc[2],"Wei_cMLE"=abc[3])'
   # --------------------------------------------------------------------------------
 
