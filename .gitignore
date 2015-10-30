@@ -5,3 +5,5 @@ SRT.Rproj
 *.png
 *.pdf
 *.out
+*.Rnw
+*.tex
