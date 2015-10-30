@@ -30,7 +30,6 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
   
   if(dataType(names(in_data))=="FR"){
     for(modelID in Models2Run) {
-      
       # First set up the columns in the results data frame that will hold parameters estimates and predictions.
       
       for (paramNum in 1:length(get(paste(modelID,"params",sep="_")))) {
