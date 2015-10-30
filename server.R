@@ -4,24 +4,34 @@ library(gdata)
 library(ggplot2)
 library(knitr)
 
-sys.source("utility/Data_Tools.R")
+# Contributors guide step - 1
+# source models here. Put models in the models/'model_name' folder
 sys.source("models/Model_specifications.R")
 sys.source("models/JM/JM_BM.R")
 sys.source("models/GO/GO_BM_FT.R")
 sys.source("models/GM/GM_BM.R")
 sys.source("models/DSS/DSS_BM_FT.R")
-source("models/Wei/Wei_NM_FT.R")
+sys.source("models/Wei/Wei_NM_FT.R")
+
+# Trend tests utility functions
+source("trend_tests/RA_Test.R")
 source("trend_tests/Laplace_trend_test.R")
+
+# Plots utility function
 source("utility/plots/Plot_Raw_Data.R")
 source("utility/plots/Plot_Trend_Tests.R")
-source("utility/tables/DataAndTrendTables.R")
-source("trend_tests/RA_Test.R")
-source("utility/RunModels.R")
 source("utility/plots/PlotModelResults.R")
+
+# Data utility functions
+sys.source("utility/data/Data_Tools.R")
+
+# Tables utility functions
+source("utility/tables/DataAndTrendTables.R")
 source("utility/tables/ModelResultTable.R")
+
+# Other utilities
+source("utility/RunModels.R")      # Models run flow
 source("utility/ErrorMessages.R")  # Text for error messages
-#source("Plot_Raw_Data.R")
-# Initialize global variables -------------------------------
 
 openFileDatapath <- ""
 #data_global <- data.frame()
