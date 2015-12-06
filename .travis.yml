@@ -9,7 +9,7 @@ sudo: required
 apt_packages:
  - r-base
 
-r_binary_packages:
+r_packages:
  - testthat
 
 
