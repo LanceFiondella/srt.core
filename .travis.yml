@@ -16,7 +16,7 @@ r_binary_packages:
 
 # Should be changed to install_script.R
 
-before
+
 install: true
 
 script: Rscript run_tests.R
