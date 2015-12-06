@@ -5,6 +5,8 @@ warnings_are_errors: true
 
 # Run as super user
 sudo: required
+
+dist: trusty
 # System dependencies for HTTP calling
 apt_packages:
  - r-base
