@@ -15,7 +15,10 @@ apt_packages:
 # Should be changed to install_script.R
 
 
-install: true
+install: Rscript ./install_script.R
+
+# r_github_packages:
+# 	- hadley/testthat
 
 script: Rscript run_tests.R
 
@@ -27,6 +30,5 @@ notifications:
     - karthik.katipalli@gmail.com
     - lfiondella@umassd.edu
 
-r_github_packages:
-	- hadley/testthat
+
 
