@@ -1,0 +1,25 @@
+language: r
+
+# Be strict when checking our package
+warnings_are_errors: true
+
+# System dependencies for HTTP calling
+apt_packages:
+ - r-base
+
+r_binary_packages:
+ -RUnit
+ -testthat
+
+# Should be changed to install_script.R
+install: true
+
+script: Rscript run_tests.R
+
+notifications:
+  slack:
+    on_success: always
+
+  email:
+    - karthik.katipalli@gmail.com
+    - lfiondella@umassd.edu
