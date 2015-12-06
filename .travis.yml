@@ -8,7 +8,6 @@ sudo: required
 # System dependencies for HTTP calling
 apt_packages:
  - r-base
- - r-cran-testthat
 
 
 
@@ -27,4 +26,7 @@ notifications:
   email:
     - karthik.katipalli@gmail.com
     - lfiondella@umassd.edu
+
+r_github_packages:
+	- hadley/testthat
 
