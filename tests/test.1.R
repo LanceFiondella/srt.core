@@ -12,4 +12,4 @@ expect_that(log('a'), throws_error())
  
 expect_that(factorial(16), takes_less_than(1))	
 
-expect_that(factorial(145534), takes_less_than(1))
+expect_that(factorial(145), takes_less_than(1))
