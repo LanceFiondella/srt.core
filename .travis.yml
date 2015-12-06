@@ -9,21 +9,24 @@ sudo: required
 dist: trusty
 # System dependencies for HTTP calling
 apt_packages:
+ - libcurl4-openssl-dev
+ - libxml2-dev
  - r-base
  - r-cran-testthat
 
 
-
+r_binary_packages:
+  - RUnit
+  - testthat
 
 # Should be changed to install_script.R
 
 
-install: true
 
 # r_github_packages:
 # 	- hadley/testthat
 
-script: Rscript run_tests.R
+script: sudo Rscript run_tests.R
 
 notifications:
   slack: softrel:bQUwvCK4Yo7utj3cXkmP7mYR
