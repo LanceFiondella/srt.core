@@ -10,10 +10,13 @@ apt_packages:
  - r-base
 
 r_binary_packages:
- -RUnit
- -testthat
+ - testthat
+
+
 
 # Should be changed to install_script.R
+
+before
 install: true
 
 script: Rscript run_tests.R
