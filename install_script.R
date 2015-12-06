@@ -14,4 +14,4 @@ if (version$major < 3 || (version$major == 3 && version$minor < 2.2)){ #checks i
   
 }
 
-if(!require(testthat)) {install.packages("testthat")} #DT
+if(!require(testthat)) {install.packages("testthat"),repos="http://cran.rstudio.com/"} #DT
