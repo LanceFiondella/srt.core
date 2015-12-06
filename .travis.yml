@@ -17,9 +17,10 @@ install: true
 script: Rscript run_tests.R
 
 notifications:
-  slack:
-    on_success: always
+  slack: softrel:bQUwvCK4Yo7utj3cXkmP7mYR
 
+notifications:
   email:
     - karthik.katipalli@gmail.com
     - lfiondella@umassd.edu
+
