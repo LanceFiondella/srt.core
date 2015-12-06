@@ -8,9 +8,8 @@ sudo: required
 # System dependencies for HTTP calling
 apt_packages:
  - r-base
+ - r-cran-testthat
 
-r_packages:
- - testthat
 
 
 
