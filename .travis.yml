@@ -15,9 +15,9 @@ apt_packages:
  - r-cran-testthat
 
 
-r_binary_packages:
-  - RUnit
-  - testthat
+# r_binary_packages:
+#   - RUnit
+#   - testthat
 
 # Should be changed to install_script.R
 
@@ -26,7 +26,7 @@ r_binary_packages:
 # r_github_packages:
 # 	- hadley/testthat
 
-script: sudo Rscript run_tests.R
+script: Rscript run_tests.R
 
 notifications:
   slack: softrel:bQUwvCK4Yo7utj3cXkmP7mYR
