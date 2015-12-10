@@ -18,7 +18,6 @@ PSSE <- function(n,data,data1){
 	
 }
 
-##Karthik
 
 
 model_bias <- function(x,y){

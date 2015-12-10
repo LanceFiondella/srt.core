@@ -1,9 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2015.12.3)  6 DEC 2015 22:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2015.12.3)  6 DEC 2015 22:52
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
-**report.tex
-(/home/arhik/SRT/documentation/contributors guide/report.tex
+**"Contributors guide short version.tex"
+
+(/home/arhik/SRT/documentation/contributors guide/Contributors guide short vers
+ion.tex
 LaTeX2e <2014/05/01>
 Babel <3.9l> and hyphenation patterns for 79 languages loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/IEEEtran/IEEEtran.cls
@@ -213,11 +215,65 @@ Package etexcmds Info: Could not find \expanded.
 (etexcmds)             that some package has redefined \expanded.
 (etexcmds)             In the latter case, load this package earlier.
 ))
-runsystem(uname -s > "report.w18")...executed.
+runsystem(uname -s > ""Contributors guide short version".w18")...executed.
 
 
-(/home/arhik/SRT/documentation/contributors guide/report.w18)
-runsystem(rm -- "report.w18")...executed.
+
+! Package catchfile Error: File `"Contributors guide short version".w18' not fo
+und.
+
+See the catchfile package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.93     \CatchFileDef\@tempa{\ip@file}{}
+                                         
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+runsystem(rm -- ""Contributors guide short version".w18")...executed.
+
+! Argument of \zap@space has an extra }.
+<inserted text> 
+                \par 
+l.95 ...empa{\expandafter\zap@space\@tempa\@empty}
+                                                  
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+\@empty 
+! Paragraph ended before \zap@space was complete.
+<to be read again> 
+                   \par 
+l.95 ...empa{\expandafter\zap@space\@tempa\@empty}
+                                                  
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+Runaway argument?
+! Paragraph ended before \ip@only@six was complete.
+<to be read again> 
+                   \par 
+l.105 ...ef\@tempc{\expandafter\ip@only@six\@tempa
+                                                  ------\@nil}
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+! Undefined control sequence.
+l.105 ...expandafter\ip@only@six\@tempa------\@nil
+                                                  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
 )
 \minted@bgbox=\box31
@@ -225,12 +281,12 @@ runsystem(rm -- "report.w18")...executed.
 \@float@every@listing=\toks18
 \c@listing=\count102
 )
-runsystem(which pygmentize && touch report.aex)...executed.
+runsystem(which pygmentize && touch "Contributors guide short version".aex)...e
+xecuted.
 
-runsystem(rm report.aex)...executed.
+runsystem(rm "Contributors guide short version".aex)...executed.
 
-
-(/usr/share/texlive/texmf-dist/tex/generic/dirtree/dirtree.sty
+ (/usr/share/texlive/texmf-dist/tex/generic/dirtree/dirtree.sty
 Package: dirtree 2012/12/11 v0.32 package wrapper for dirtree
 
 (/usr/share/texlive/texmf-dist/tex/generic/dirtree/dirtree.tex
@@ -751,25 +807,22 @@ File: pst-fp.tex 2014/08/27 v2.57 `PST-fp' (hv)
 Package: underscore 2006/09/13
 LaTeX Info: Redefining \_ on input line 42.
 )
-runsystem(pygmentize -S tango -f latex > report.pyg)...executed.
+(/home/arhik/SRT/documentation/contributors guide/Contributors guide short vers
+ion.aux)
+\openout1 = `"Contributors guide short version.aux"'.
 
-
-(/home/arhik/SRT/documentation/contributors guide/report.pyg)
-(/home/arhik/SRT/documentation/contributors guide/report.aux)
-\openout1 = `report.aux'.
-
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
 
 -- Lines per column: 58 (exact).
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
@@ -786,6 +839,12 @@ LaTeX Font Info:    ... okay on input line 19.
 \makeMPintoPDFobject=\count174
 \everyMPtoPDFconversion=\toks45
 )
+runsystem(pygmentize -S default -f latex > "Contributors guide short version".p
+yg)...executed.
+
+
+(/home/arhik/SRT/documentation/contributors guide/Contributors guide short vers
+ion.pyg)
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
@@ -814,8 +873,7 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 131.
-
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 36.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
@@ -823,7 +881,7 @@ File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 <document.png, id=4, 535.601pt x 621.522pt>
 File: document.png Graphic file (type png)
  <use document.png>
-Package pdftex.def Info: document.png used on input line 137.
+Package pdftex.def Info: document.png used on input line 42.
 (pdftex.def)             Requested size: 187.46315pt x 217.53596pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -833,20 +891,8 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 File: ModelSpecifications.png Graphic file (type png)
 
 <use ModelSpecifications.png>
-Package pdftex.def Info: ModelSpecifications.png used on input line 149.
+Package pdftex.def Info: ModelSpecifications.png used on input line 54.
 (pdftex.def)             Requested size: 198.42427pt x 248.17085pt.
-\openout3 = `report.pyg'.
-
-runsystem(pygmentize -l R -f latex -F tokenmerge  -F gobble:n=0           -P "v
-erboptions= ,numbersep=1pt,frame=lines,framesep=2mm,fontfamily=courier" -o repo
-rt.out.pyg report.pyg)...executed.
-
-
-(/home/arhik/SRT/documentation/contributors guide/report.out.pyg
-LaTeX Font Info:    Font shape `OT1/pcr/m/it' in size <10> not available
-(Font)              Font shape `OT1/pcr/m/sl' tried instead on input line 2.
-LaTeX Font Info:    Font shape `OT1/pcr/bx/n' in size <10> not available
-(Font)              Font shape `OT1/pcr/b/n' tried instead on input line 3.
  [1
 Non-PDF special ignored!
 Non-PDF special ignored!
@@ -859,32 +905,27 @@ Non-PDF special ignored!
 Non-PDF special ignored!
 
  </home/arhik/SRT/documentation/contributors guide/document.png> </home/arhik/S
-RT/documentation/contributors guide/ModelSpecifications.png>])
-runsystem(rm report.out.pyg)...executed.
+RT/documentation/contributors guide/ModelSpecifications.png>] [2
 
-runsystem(rm report.pyg)...executed.
-
- [2
-
-] (/home/arhik/SRT/documentation/contributors guide/report.aux) ) 
+]
+(/home/arhik/SRT/documentation/contributors guide/Contributors guide short vers
+ion.aux) ) 
 Here is how much of TeX's memory you used:
- 16424 strings out of 493105
- 312447 string characters out of 6137072
- 377308 words of memory out of 5000000
- 19558 multiletter control sequences out of 15000+600000
- 32393 words of font info for 66 fonts, out of 8000000 for 9000
+ 16397 strings out of 493105
+ 312204 string characters out of 6137072
+ 378978 words of memory out of 5000000
+ 19540 multiletter control sequences out of 15000+600000
+ 31261 words of font info for 62 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,6n,54p,2490b,373s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/te
-xlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fon
-ts/type1/urw/courier/ucrb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/
-courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrro
-8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on "/home/arhik/SRT/documentation/contributors guide/report.pdf"
- (2 pages, 98991 bytes).
+ 55i,6n,54p,2485b,169s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/shar
+e/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/urw/times/utmr8a.pfb>
+Output written on "/home/arhik/SRT/documentation/contributors guide/Contributor
+s guide short version.pdf" (2 pages, 80290 bytes).
 PDF statistics:
- 36 PDF objects out of 1000 (max. 8388607)
- 20 compressed objects within 1 object stream
+ 28 PDF objects out of 1000 (max. 8388607)
+ 14 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,5 +1,3 @@
-
-
 running_average_test <- function(inter_failure)
 {
   n <- length(inter_failure)
