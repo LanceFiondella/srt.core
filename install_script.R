@@ -1,10 +1,10 @@
-<<<<<<< HEAD
+
 #!/usr/bin/env Rscript
 if(!require(testthat)) {
 	install.packages("testthat", repos="http://cran.rstudio.com/")
 	library("testthat")
 } #DT
-=======
+
 #This file should be run the first time using this program to ensure R is up to date and all dependencies are intalled and loaded
 #will aotomatically update R if on windows, and install all packages for any platform.
 #run via source with echo in the top right drop down menu, or with Ctrl+Shift+Enter
@@ -32,4 +32,4 @@ if(!require(knitr)) {install.packages("knitr");library(knitr)} #DT
 if(!require(gdata)) {install.packages("gdata");library(gdata)} #gdata is used for manipulating the data out of an excel sheet
 if(!require(ggplot2)) {install.packages("ggplot2");library(ggplot2)} #ggplot2 is used for crerating various plots
 if(!require(rootSolve)) {install.packages("rootSolve");library(rootSolve)} #rootSolve is used for finding a root of an equation
->>>>>>> a13945595a31ec6c493697ffe9d30e59c556b8d6
+
