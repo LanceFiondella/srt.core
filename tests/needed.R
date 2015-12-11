@@ -9,6 +9,7 @@ needed_Finite <- function(obj){
 				quit("no",status = -1)
 			}
 			)
+	if(!ret) quit("no",status = -1)
 	return(ret)
 }
 
@@ -22,6 +23,7 @@ needed_input <- function(obj){
 				print(e)
 				quit("no",status = -1)
 			})
+	if(!ret) quit("no",status = -1)
 	return(ret)
 }
 
@@ -33,6 +35,7 @@ needed_fullname <- function(obj){
 			error = function(e){
 				print(e)
 			})
+	if(!ret) quit("no",status = -1)
 	return(ret)
 }
 needed_plotcolor <- function(obj){
@@ -43,6 +46,7 @@ needed_plotcolor <- function(obj){
 			error = function(e){
 				print(e)
 			})
+	if(!ret) quit("no",status = -1)
 	return(ret)
 }
 needed_methods <- function(obj){
@@ -55,5 +59,6 @@ needed_methods <- function(obj){
 			error = function(e){
 				print(e)
 			})
+	if(!ret) quit("no",status = -1)
 	return(ret)
 }
