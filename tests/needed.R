@@ -16,9 +16,11 @@ needed_input <- function(){
 	ret <- tryCatch(is_valid_input(obj),
 			warning = function(w){
 				print(w)
+				quit("no",status = -1)
 			},
 			error = function(e){
 				print(e)
+				quit("no",status = -1)
 			})
 	return(ret)
 }
