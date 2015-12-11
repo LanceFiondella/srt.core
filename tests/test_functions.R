@@ -27,8 +27,8 @@ is_finite <- function(d){
   }else return(FALSE)
 }
 
-is_valid_r <- function(d){
-  if(is.true(d)){
+is_valid_string <- function(d){
+  if(is.character(d)){
     return(TRUE)
   }else return(FALSE)
 }
