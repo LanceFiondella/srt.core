@@ -1,3 +1,4 @@
+context("test script")
 test_that("test stuff",{
 expect_that(is_valid_input(JM_input),is_true()) 
 expect_that(is_valid_input(GM_input),is_true())
@@ -6,6 +7,13 @@ expect_that(is_valid_input(DSS_input),is_true())
 expect_that(is_valid_input(Wei_input),is_true())
 
 expect_that(is_valid_string(JM_methods),is_true())
+
+if(!is_valid_input(JM_input)) quit("no",status = -1)
+if(!is_valid_input(GM_input)) quit("no",status = -1)
+if(!is_valid_input(GO_input)) quit("no",status = -1)
+if(!is_valid_input(DSS_input)) quit("no",status = -1)
+if(!is_valid_input(Wei_input)) quit("no",status = -1)
+if(!is_valid_result(JM_Results)) quit("no",status = -1)
 
 
 
