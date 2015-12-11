@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6d6ed8e8bb8187ed78b4023481afb51209d0f94f
 expect_that(is_valid_input(JM_input),is_true())
 expect_that(is_valid_input(GM_input),is_true())
 expect_that(is_valid_input(GO_input),is_true())
