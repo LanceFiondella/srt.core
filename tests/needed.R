@@ -35,3 +35,25 @@ needed_fullname <- function(obj){
 			})
 	return(ret)
 }
+needed_plotcolor <- function(obj){
+	ret <- tryCatch(is_valid_string(obj),
+			warning = function(w){
+				print(w)
+			},
+			error = function(e){
+				print(e)
+			})
+	return(ret)
+}
+needed_methods <- function(obj){
+	#TODO:
+	#   User can mention many methods with prority order
+	ret <- tryCatch(is_valid_string(obj),
+			warning = function(w){
+				print(w)
+			},
+			error = function(e){
+				print(e)
+			})
+	return(ret)
+}
