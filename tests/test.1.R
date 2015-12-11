@@ -12,7 +12,7 @@ expect_that(is_valid_input(Wei_input),is_true())
 
 expect_that(1 ^ 1, equals(1))
 expect_that(2 ^ 2, equals(2))
-if(2^2 == 4){
+if(1 == 1){
 ?stop
 }
 
