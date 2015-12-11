@@ -1,3 +1,4 @@
+source('tests/test_functions.R')
 needed_Finite <- function(obj){
 	ret <- tryCatch(is.logical(obj),
 			warning = function(w){
