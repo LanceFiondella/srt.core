@@ -1,5 +1,5 @@
 library('testthat')
-
+#comment
 source('sample.R')
 source('tests/test_functions.R')
 
