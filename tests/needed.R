@@ -12,7 +12,7 @@ needed_Finite <- function(obj){
 	return(ret)
 }
 
-needed_input <- function(){
+needed_input <- function(obj){
 	ret <- tryCatch(is_valid_input(obj),
 			warning = function(w){
 				print(w)
@@ -21,6 +21,17 @@ needed_input <- function(){
 			error = function(e){
 				print(e)
 				quit("no",status = -1)
+			})
+	return(ret)
+}
+
+needed_fullname <- function(obj){
+	ret <- tryCatch(is_valid_string(obj),
+			warning = function(w){
+				print(w)
+			},
+			error = function(e){
+				print(e)
 			})
 	return(ret)
 }
