@@ -22,9 +22,6 @@ if(!is_valid_result(JM_Results)) quit("no",status = -1)
 
 expect_that(1 ^ 1, equals(1))
 #expect_that(2 ^ 2, equals(2))
-if(1 == 1){
-quit("no",status = -1)
-}
  
 expect_that(2 + 2 == 4, is_true())
 expect_that(2 == 1, is_false())
