@@ -1,4 +1,4 @@
-
+test_function_travis <-function(){
 expect_that(is_valid_input(JM_input),is_true())
 expect_that(is_valid_input(GM_input),is_true())
 expect_that(is_valid_input(GO_input),is_true())
@@ -30,3 +30,4 @@ expect_that(log('a'), throws_error())
 expect_that(factorial(16), takes_less_than(1))	
 
 expect_that(factorial(145), takes_less_than(1))
+}
