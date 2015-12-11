@@ -1,0 +1,11 @@
+# Geometric Model
+GM_input <- c("IF")
+GM_methods <- c("BM")
+GM_params <- c("D0","Phi")
+GM_type <- c("Exp")
+GM_numfailsparm <- c(0)
+GM_fullname <- c("Geometric")
+GM_plotcolor <- c("blue")
+GM_Finite <- FALSE
+GM_Results <- data.frame("format"="xlsx","fileName"="model_data")
+#GM_prefer_method <- c("BM")
