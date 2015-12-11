@@ -1,5 +1,5 @@
 test_that("test stuff",{
-:expect_that(is_valid_input(JM_input),is_true()) 
+expect_that(is_valid_input(JM_input),is_true()) 
 expect_that(is_valid_input(GM_input),is_true())
 expect_that(is_valid_input(GO_input),is_true())
 expect_that(is_valid_input(DSS_input),is_true())
