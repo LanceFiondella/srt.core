@@ -26,3 +26,9 @@ is_finite <- function(d){
    return(TRUE) 
   }else return(FALSE)
 }
+
+is_valid_r <- function(d){
+  if(is.true(d)){
+    return(TRUE)
+  }else return(FALSE)
+}
