@@ -1,6 +1,0 @@
-msgDataFileTooSmall <- "There must at least five observations in a data file."
-msgDataIntervalTooSmall <- "Modeling data intervals must contain at least five observations."
-msgInputDataTypeUnknown <- "plot_model_results: could not determine whether the data is IF times or failure counts."
-msgModelDataViewUnknown <- "plot_model_results: could not determine the type of plot to display."
-msgPlotTypeUnknown <- "could not determine the type of plot to draw"
-msgUnsuccessfulModels <- "The following models did not run to completion, and cannot be plotted: "
