@@ -13,10 +13,10 @@ for(directory in model_directories){
 		current_file <<- paste(current_directory,file,sep="/")
 		print(current_file)
 		source(current_file)
-		if(length(grep("Model_specifications.R",file))){
-  		current_model_input <<- paste(directory,"_input",sep="")
-  		print(get(current_model_input))
-	}
+		if(length(try(grep("Model_specifications.R",file)))){
+  			current_model_input <<- paste(directory,"_input",sep="")
+  			print(get(current_model_input))
+		}
 	}
 	
 }
