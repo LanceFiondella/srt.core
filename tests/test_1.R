@@ -13,5 +13,5 @@ curr_model_test <- function(directory,model_file){
   
   curr_model_Finite <- get(paste(directory,"_Finite",sep=""))
   needed_Finite(curr_model_Finite)
-  
+  print("Complete!")  
 }
