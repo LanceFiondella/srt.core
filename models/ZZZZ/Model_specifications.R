@@ -1,5 +1,5 @@
 # ZZZZel_okumoto model
-ZZZZ_input <- c("Fart")
+ZZZZ_input <- c("FT")
 ZZZZ_methods <- c("QQ")
 ZZZZ_params <- c("aMLEQ","bMLEQ")
 ZZZZ_type <- c("NHPPQ","ExpQ")
