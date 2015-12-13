@@ -1,6 +1,4 @@
 library('testthat')
-GM_input <<- NULL
-source('sample.R')
 source('tests/needed.R')
 source('tests/test_1.R')
 model_directories <<- dir("./models", no..=TRUE)
