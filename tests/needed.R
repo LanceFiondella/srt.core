@@ -63,3 +63,106 @@ needed_methods <- function(obj){
 	if(!ret) quit("no",status = -1)
 	return(ret)
 }
+
+needed_MLE <- function(model,obj){
+	found_MLE <- tryCatch(as.logical(
+						length(findFunction(
+							paste(model,get(
+								paste(model,"method",sep="_")),"MLE",sep="_")))),
+
+			warning = function(w){
+				print(w)
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			},
+			error = function(e){
+				print(typeof(e))
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			}
+		)
+
+	if(!found_MLE){
+		quit("no",status = -1)
+	}
+	else{
+		
+	}
+	return(found_MLE)
+}
+
+needed_MVF <- function(model, obj){
+	found_MVF <- tryCatch(as.logical(
+						length(findFunction(
+							paste(model,"MVF",sep="_")))),
+
+			warning = function(w){
+				print(w)
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			},
+			error = function(e){
+				print(typeof(e))
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			}
+		)
+
+	if(!found_MVF){
+		quit("no",status = -1)
+	}
+	else{
+
+	}
+	return(found_MVF)
+}
+
+needed_MTTF <- function(model, obj){
+	found_MTTF <- tryCatch(as.logical(
+						length(findFunction(
+							paste(model,"MTTF",sep="_")))),
+
+			warning = function(w){
+				print(w)
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			},
+			error = function(e){
+				print(typeof(e))
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			}
+		)
+
+	if(!found_MTTF){
+		quit("no",status = -1)
+	}
+	else{
+
+	}
+
+	return(found_MTTF)
+}
+
+needed_FI <- function(model, obj){
+	found_FI <- tryCatch(as.logical(
+						length(findFunction(
+							paste(model,"FI",sep="_")))),
+
+			warning = function(w){
+				print(w)
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			},
+			error = function(e){
+				print(typeof(e))
+				#stop("Something went wrong!",model)
+				return(FALSE)
+			}
+		)
+
+	if(!found_FI)quit("no",status = -1)
+	return(found_FI)
+}
+
+

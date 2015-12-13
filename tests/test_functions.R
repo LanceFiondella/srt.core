@@ -32,3 +32,7 @@ is_valid_string <- function(d){
     return(TRUE)
   }else return(FALSE)
 }
+
+is_valid_MVF <- function(d){
+  
+}

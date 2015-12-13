@@ -1,6 +1,6 @@
 library('testthat')
 source('tests/needed.R')
-source('tests/test_1.R')
+source('tests/generic_tests.R')
 model_directories <<- dir("./models", no..=TRUE)
 print(model_directories)
 for(directory in model_directories){
@@ -15,7 +15,7 @@ for(directory in model_directories){
 			if(length(try(grep("Model_specifications.R",file)))){
   				current_model_input <<- paste(directory,"_input",sep="")
   				print(get(current_model_input))
-				curr_model_test(directory,file)
+				modelspecifications_test(directory,file)
 			}
 		}
 	}
