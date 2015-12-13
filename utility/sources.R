@@ -1,16 +1,21 @@
 # This sources the Model Specifications of models folder
 
 model_directories <<- dir("./models")
-print(model_directories)
+cat("\nModels Detected: ")
+cat(model_directories)
+cat("\n\n")
 for(directory in model_directories){
 	current_directory <<- paste(".","models",directory,sep="/")
-	print(current_directory)
+	cat(paste("--------------------------------------------------","\n"))
+	cat("|\tDIRECTORY:",paste(current_directory,"\n"))
+	cat(paste("--------------------------------------------------","\n"))
 	model_files <<- list.files(current_directory)
 	for(file in model_files){
 		current_file <<- paste(current_directory,file,sep="/")
-		print(current_file)
+		cat(paste("|sourcing -->",current_file,"\n"))
 		source(current_file)
 	}
+	cat("\n\n")
 	
 }
 

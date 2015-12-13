@@ -1,5 +1,5 @@
 modelspecifications_test <- function(directory,model_file){
-  print(paste("------------------",directory,"------------------"))
+  
   curr_model_input <- get(paste(directory,"_input",sep=""))
   needed_input(curr_model_input)
   
@@ -14,5 +14,6 @@ modelspecifications_test <- function(directory,model_file){
   
   curr_model_Finite <- get(paste(directory,"_Finite",sep=""))
   needed_Finite(curr_model_Finite)
+  cat("|TEST     --> |PASSED \n")
    
 }
