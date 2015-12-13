@@ -23,7 +23,6 @@ for(directory in model_directories){
 		cat(paste("|sourcing -->",current_file,"\n"))
 		source(current_file)
 	}
-	cat("\n\n")
-	
+	cat("\n\n")	
 }
 
