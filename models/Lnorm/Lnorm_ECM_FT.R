@@ -152,9 +152,6 @@ Lnorm_MVF <- function(param,d) {
 
    
   cumFailures <- (1/2)*param$a*((pracma::erfc((param$mu-log(d$FT))/(sqrt(2)*param$sigma))))
-    
-  }
-
   r <- data.frame(cumFailures, d$FT, rep("Lnorm", n))
   names(r) <- c("Failure","Time", "Model")
   r
