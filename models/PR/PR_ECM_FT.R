@@ -125,6 +125,27 @@ PR_MVF <- function(param,d) {
   r
 }
 
+PR_MVF_inv <- function(param,d) {
+  #------------------------------------------------------------------------
+  # This does an "inverse" MVF function, solving for time given
+  # a specific value of MVF.
+  #------------------------------------------------------------------------
+  
+  # @params     (data.frame)    Data.frame of parameters
+  # @d          (data.frame)    Data.frame of data FT,FC,FN,CFC,IF
+  
+  # @returns    (data.frame)    data.frame of Failure, Time, Model columns
+  #------------------------------------------------------------------------
+  # TODO :  
+  #========================================================================
+  n <- length(d$FN)
+  r <- data.frame()
+  cumFailTimes <- -(1 - 1/(1 - (d$FN/param$PR_aMLE)^(1/param$PR_bMLE)))
+  r <- data.frame(d$FN,cumFailTimes, rep("PR", n))
+  names(r) <- c("Failure","Time", "Model")
+  r
+}
+
 PR_MTTF <- function(param,d){
   #------------------------------------------------------------------------
   # This function MTTF of given d with parameters
