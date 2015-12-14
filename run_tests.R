@@ -17,6 +17,9 @@ for(directory in model_directories){
 		current_model_input <<- paste(directory,"_input",sep="")
 		modelspecifications_test(directory,file)
 	}
+	else{
+		
+	}
 	model_files <- model_files[model_files!="Model_specifications.R"]
 	for(file in model_files){
 		current_file <<- paste(current_directory,file,sep="/")

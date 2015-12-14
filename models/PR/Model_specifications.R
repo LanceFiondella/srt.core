@@ -1,0 +1,9 @@
+# Weibul model
+PR_input <- c("FT")
+PR_methods <- c("ECM")
+PR_params <- c("aMLE","bMLE","cMLE")
+PR_type <- c("Exp")
+PR_numfailsparm <- c(1)
+PR_fullname <- c("PARETO")
+PR_plotcolor <- c("orange")
+PR_Finite <- TRUE
