@@ -259,7 +259,7 @@ PR_MVF_cont <- function(params,t){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
-  return(param$PR_aMLE*(1-(param$PR_cMLE/(t+param$PR_cMLE))^param$PR_bMLE))
+  return(params$PR_aMLE*(1-(params$PR_cMLE/(t+params$PR_cMLE))^params$PR_bMLE))
 }
 
 PR_R_delta <- function(params,cur_time,delta){
