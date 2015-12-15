@@ -6,5 +6,5 @@ ZZZZ_type <- c("NHPPQ","ExpQ")
 ZZZZ_numfailsparm <- c(1)
 ZZZZ_fullname <- c("ZZZZel-Okumoto")
 ZZZZ_plotcolor <- c("purple")
-ZZZZ_Finite <- TRUE
+ZZZZ_Finite <- FALSE
 # GO_prefer_method <- c("BM")

@@ -6,4 +6,4 @@ Wei_type <- c("Exp")
 Wei_numfailsparm <- c(1)
 Wei_fullname <- c("Weibull")
 Wei_plotcolor <- c("orange")
-Wei_Finite <- TRUE
+Wei_Finite <- FALSE

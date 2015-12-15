@@ -17,12 +17,19 @@ for(directory in model_directories){
 		current_model_input <<- paste(directory,"_input",sep="")
 		modelspecifications_test(directory,file)
 	}
+	else{
+		cat("Model Specification must be specified in 'Model_specifications.R' file\n")
+		cat("Please Refer the models Folder for its layout.\n")
+		quit("no",status = -1)
+	}
 	model_files <- model_files[model_files!="Model_specifications.R"]
 	for(file in model_files){
 		current_file <<- paste(current_directory,file,sep="/")
 		cat(paste("|sourcing -->",current_file,"\n"))
 		source(current_file)
 	}
+	cat(paste("|Testing Functions of ",directory,"\n",sep=""))
+	model_functions_test(directory)
 	cat("\n\n")	
 }
 
