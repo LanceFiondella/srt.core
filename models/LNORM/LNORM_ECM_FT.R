@@ -42,7 +42,7 @@ Da<- function(a){
   da=(n/a)-(1/2)*pracma::erfc((b-log(tVec[n]))/sqrt(2)*c)
   return(da)
 }
-ao<- stats::uniroot(Da, c(0,200), maxiter=1e15, tol=1e-10, extendInt="yes")$root
+ao<- stats::uniroot(Da, c(0,200), maxiter=1e8, tol=1e-10, extendInt="yes")$root
 
 
 Db <- function(brule){
