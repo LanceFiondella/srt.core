@@ -161,6 +161,7 @@ TMAX_MVF <- function(param,d) {
   cumFailures <- (exp(-exp(((-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE)))*param$TMAX_aMLE)/(1 - exp(-exp((param$TMAX_bMLE/param$TMAX_cMLE))))
   r <- data.frame(cumFailures, d$FT, rep("TMAX", n))
   names(r) <- c("Failure","Time", "Model")
+  # print(r)
   r
 }
 

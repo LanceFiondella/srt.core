@@ -6,4 +6,4 @@ DSS_type <- c("")
 DSS_numfailsparm <- c(1)
 DSS_fullname <- c("Delayed S-Shape")
 DSS_plotcolor <- c("yellow")
-DSS_Finite <- TRUE
+DSS_Finite <- FALSE
