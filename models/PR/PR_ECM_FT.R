@@ -347,7 +347,7 @@ PR_Target_T <- function(params,cur_time,delta, reliability){
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- floor(maxiter*1.5)
             print(paste("recursive", maxiter,sep='_'))
-            PR_Target_T(a,b,cur_time,delta, reliability)
+            PR_Target_T(params,cur_time,delta, reliability)
           }
         },
         error = function(e){
