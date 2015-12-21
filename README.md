@@ -1,4 +1,4 @@
-Software Reliabilty Testing (http://srt.umassd.edu)
+Software Reliabilty Tool (http://srt.umassd.edu)
 
 A web oriented software reliabilty testing suite. Made to parse data sets and predict failure models based on common statistical approaches.
 
