@@ -201,7 +201,7 @@ TMAX_MTTF <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   fail_number <- c(0:(n-1))
-  IFTimes <- 1/(exp(-exp(((-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE)) + (-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE)*param$TMAX_aMLE)/(param$TMAX_cMLE - exp(-exp((param$TMAX_bMLE/param$TMAX_cMLE)))*param$TMAX_cMLE)
+  IFTimes <- 1/((exp(-exp((-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE) + ((-d$FT+param$TMAX_bMLE)/param$TMAX_cMLE))*param$TMAX_aMLE)/(param$TMAX_cMLE*(1-exp(-exp(param$TMAX_bMLE/param$TMAX_cMLE)))))
   r <- data.frame(c(1:n),IFTimes, rep("TMAX", n))
   names(r) <- c("Failure_Number","MTTF","Model")
   r  
@@ -222,7 +222,7 @@ TMAX_FI <- function(param,d){
   n <- length(d$FT)
   r <-data.frame()
   fail_number <- c(1:n)
-  failIntensity <- (exp(-exp(((-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE)) + (-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE)*param$TMAX_aMLE)/(param$TMAX_cMLE - exp(-exp((param$TMAX_bMLE/param$TMAX_cMLE)))*param$TMAX_cMLE)
+  failIntensity <- (exp(-exp((-d$FT + param$TMAX_bMLE)/param$TMAX_cMLE) + ((-d$FT+param$TMAX_bMLE)/param$TMAX_cMLE))*param$TMAX_aMLE)/(param$TMAX_cMLE*(1-exp(-exp(param$TMAX_bMLE/param$TMAX_cMLE))))
   r <- data.frame(fail_number,failIntensity, rep("TMAX",n))
   names(r) <- c("Failure_Count","Failure_Rate","Model")
   r  

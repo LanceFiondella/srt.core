@@ -1,7 +1,7 @@
 # Truncated-Max Model
 TMAX_input <- c("FT")
 TMAX_methods <- c("IECM")
-TMAX_params <- c("TMAX_aMLE","TMAX_bMLE","TMAX_cMLE")
+TMAX_params <- c("aMLE","bMLE","cMLE")
 TMAX_numfailsparm <- c(1)
 TMAX_fullname <- c("Truncated-Max")
 TMAX_plotcolor <- c("red")
