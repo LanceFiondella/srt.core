@@ -1,6 +1,7 @@
 library(shiny)
 #models <- list("Geometric"="GM", "Jelinski-Moranda"="JM", "Goel-okumoto"="GO","Delayed-S"="DSS", "Weibull"="Wei","Example New Model"='ZZZZ')
 #source("custom_functions.R")
+tags$head(includeScript("analytics/google-analytics.js"))
 shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Select, Analyze, and Filter Data",
                             
@@ -446,5 +447,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 )                              
                               )
                             )
-                   )
+                   ),
+tags$footer(includeHTML("analytics/clustrmaps.html")),
+tags$footer(includeHTML("analytics/statcounter.html"))
 ))
