@@ -13,17 +13,17 @@ Dependancies
 Using `source("install_script.R")` located in this repository will resolve the dependancies for SRT
  
 
- To Run
- ----
+To Run
+-------
 
- ```R
- library(shiny)  
- runApp("/Path/To/Dir/SRT/")
- ```
- This will launch the app on localhost on a random port and attempt to open a browser.
+```R
+library(shiny)  
+runApp("/Path/To/Dir/SRT/")
+```
+This will launch the app on localhost on a random port and attempt to open a browser.
 
- Team
- --
+Team
+----
  * Daniel Garcia 
  * Robert Davis 
  * Richard Muri 
