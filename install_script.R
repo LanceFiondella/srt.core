@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
-if(!require(testthat)) {
-	install.packages("testthat", repos="http://cran.rstudio.com/")
-	library("testthat")
-} #DT
+#if(!require(testthat)) {
+#	install.packages("testthat", repos="http://cran.rstudio.com/")
+#	library("testthat")
+#} #DT
 
 #This file should be run the first time using this program to ensure R is up to date and all dependencies are intalled and loaded
 #will aotomatically update R if on windows, and install all packages for any platform.
