@@ -359,3 +359,22 @@ GO_R_growth <- function(params,d,delta){
 #Mean Value function
 
 #MVF <- aMLE*(1-exp(-bMLE*x))
+
+GO_OR_CC<-function(params,c1,c2,c3){
+  if (params$GO_aMLE*params$GO_bMLE<=(c3/(c2-c1))){
+    t_opt=0
+  }
+  else{
+    t_opt=(1/params$GO_bMLE)*log((params$GO_aMLE*params$GO_bMLE*(c2-c1))/c3)
+  }
+  return(t_opt)
+}
+
+GO_OR_RC<-function(params,x,R){
+  s=(1/params$GO_bMLE)*((log(params$GO_aMLE*(1-exp(-params$GO_bMLE*x))))-log(log(1/R)))
+  return (s)
+}
+
+GO_cost <- function(params, C1,C2,C3,t, t_opt){
+  return(C1*GO_MVF_cont(params,t) + C2*(GO_MVF_cont(params,t_opt) - GO_MVF_cont(params,t)) + C3*t)
+}
