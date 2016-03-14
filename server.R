@@ -536,6 +536,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
+      print("----------------------------------")
+      print("model results")
+      print(ModelResults)
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
       
@@ -678,6 +681,18 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     MRPlot
   }, height=MP_height)
 
+   output$ModelPredictionPlot <- renderPlot({
+    MRPlot <- NULL
+    if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+
+      MRPlot <- plot_model_prediction_results(input$modelResultChoice, data_global(), input$C0, input$C1, input$C2)
+    #   if(!is.null(MRPlot)) {
+    #     MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
+    #   }
+    }
+    MRPlot
+  }, height=MP_height)
+
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------
@@ -713,10 +728,13 @@ tab3_table1_construct <- function(model,data,input){
                                     input$modelTargetReliability, input$modelRelMissionTime2, 
                                     data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
                                     length(get("data")[[get(paste(model,"input",sep="_"))]]))
-      
+
+      opt_release_time <- get_optimal_release_time_CC(model, model_params, input$C0, input$C1, input$C2)
+      # opt_release_time <- input$C0 + input$C1 + input$C2
       print(time_fails)
       print(number_fails)
       print(rel_time)
+      print(opt_release_time)
       ExpectedNumFailuresExceeded <- FALSE
       for( i in 1:length(time_fails)){
         if(!ExpectedNumFailuresExceeded){
@@ -731,6 +749,7 @@ tab3_table1_construct <- function(model,data,input){
           }
           tab3_table1[count,4]<<- i
           tab3_table1[count,5]<<- time_fails[i]
+          tab3_table1[count,6]<<- opt_release_time
 
           #  Create Row of NA only once logic
           if(time_fails[i]=="NA"){
@@ -748,14 +767,16 @@ tab3_table1_construct <- function(model,data,input){
         tab3_table1[count,3] <<- "Given-model not defined"
         tab3_table1[count,4] <<- "Given-model not defined"
         tab3_table1[count,5] <<- "Given-model not defined"
+        tab3_table1[count,6] <<- "Given-model not defined"
       }
       else{
         count<<-count+1
         tab3_table1[count,1] <<- model
-        tab3_table1[count,2] <<- "NON-CONV"
-        tab3_table1[count,3] <<- "NON-CONV"
-        tab3_table1[count,4] <<- "NON-CONV"
-        tab3_table1[count,5] <<- "NON-CONV"
+        tab3_table1[count,2] <<- "NON-CONVERGENCE"
+        tab3_table1[count,3] <<- "NON-CONVERGENCE"
+        tab3_table1[count,4] <<- "NON-CONVERGENCE"
+        tab3_table1[count,5] <<- "NON-CONVERGENCE"
+        tab3_table1[count,6] <<- "NON-CONVERGENCE"
       }
     }
   }
@@ -825,8 +846,8 @@ output$mytable1 <- DT::renderDataTable({
           count <<- count+1
           tab3_table1_construct(i,in_data_tab3,input)
         }
-      tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
-      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
+      tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6])
+      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time")
     tab3_table1
   }
 }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
