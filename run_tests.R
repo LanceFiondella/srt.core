@@ -1,4 +1,4 @@
-library('testthat')
+# library('testthat')
 source('tests/needed.R')
 source('tests/generic_tests.R')
 model_directories <<- dir("./models", no..=TRUE)
