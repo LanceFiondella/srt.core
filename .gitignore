@@ -4,3 +4,4 @@
 SRT.Rproj
 *.out
 shiny-server.conf
+*.swp
