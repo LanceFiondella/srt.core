@@ -5,7 +5,6 @@ source('tests/generic_tests.R')
 model_directories <<- dir("./models", no..=TRUE)
 cat("\nModels Detected: ")
 cat(model_directories)
-ls()
 cat("\n\n")
 for(directory in model_directories){
 	current_directory <<- paste(".","models",directory,sep="/")
