@@ -102,8 +102,8 @@ needed_params <- function(model){
 	# 		ex: 'as.logical' way using 'findFunction' to log it.
 	cat("needed_params :")
 	found_params_function <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,get(paste(model,"methods",sep="_")),"MLE",sep="_")))),
+						findFunction(
+							paste(model,get(paste(model,"methods",sep="_")),"MLE",sep="_"))),
 			# ------Future Version to include approach--------------
 			# get(paste(model,get(paste(model,"method",sep="_"),get(paste(model,"approach",sep="_")))))
 			#-------------------------------------------------------
@@ -130,8 +130,8 @@ needed_params <- function(model){
 needed_MVF <- function(model, obj){
 	cat("needed_MVF: ")
 	found_MVF <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"MVF",sep="_")))),
+						findFunction(
+							paste(model,"MVF",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -159,8 +159,8 @@ needed_MVF <- function(model, obj){
 needed_MVF_inv <- function(model, obj){
 	cat("needed_MVF_inv :")
 	found_MVF <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"MVF_inv",sep="_")))),
+						lengthfindFunction(
+							paste(model,"MVF_inv",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -189,8 +189,8 @@ needed_MVF_inv <- function(model, obj){
 needed_MVF_cont <- function(model, obj){
 	cat("needed_MTTF_cont :")
 	found_MVF_cont <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"MVF_cont",sep="_")))),
+						findFunction(
+							paste(model,"MVF_cont",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -218,8 +218,8 @@ needed_MVF_cont <- function(model, obj){
 needed_MTTF <- function(model, obj){
 	cat("needed_MTTF :")
 	found_MTTF <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"MTTF",sep="_")))),
+						findFunction(
+							paste(model,"MTTF",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -246,8 +246,8 @@ needed_MTTF <- function(model, obj){
 needed_FI <- function(model, obj){
 	cat("needed_FI :")
 	found_FI <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"FI",sep="_")))),
+						findFunction(
+							paste(model,"FI",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -269,8 +269,8 @@ needed_FI <- function(model, obj){
 needed_R <- function(model, obj){
 	cat("needed_R :")
 	found_R <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"R",sep="_")))),
+						findFunction(
+							paste(model,"R",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -292,8 +292,8 @@ needed_R <- function(model, obj){
 needed_lnL <- function(model, obj){
 	cat("needed_lnL :")
 	found_lnL <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"lnL",sep="_")))),
+						findFunction(
+							paste(model,"lnL",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -315,8 +315,8 @@ needed_lnL <- function(model, obj){
 needed_R_growth <- function(model, obj){
 	cat("needed_R_growth :")
 	found_R_growth <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"R_growth",sep="_")))),
+						findFunction(
+							paste(model,"R_growth",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -338,8 +338,8 @@ needed_R_growth <- function(model, obj){
 needed_FaultsRemaining <- function(model, obj){
 	cat("needed_FaultsRemaining:")
 	found_FaultsRemaining <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"FaultsRemaining",sep="_")))),
+						findFunction(
+							paste(model,"FaultsRemaining",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -361,8 +361,8 @@ needed_FaultsRemaining <- function(model, obj){
 needed_R_delta <- function(model, obj){
 	cat("needed_R_delta :")
 	found_R_delta <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"R_delta",sep="_")))),
+						findFunction(
+							paste(model,"R_delta",sep="_"))),
 
 			warning = function(w){
 				print(w)
@@ -394,8 +394,8 @@ needed_R_delta <- function(model, obj){
 needed_Target_T <- function(model, obj){
 	cat("needed_Target_T :")
 	found_Target_T <- tryCatch(as.logical(
-						length(findFunction(
-							paste(model,"Target_T",sep="_")))),
+						findFunction(
+							paste(model,"Target_T",sep="_"))),
 
 			warning = function(w){
 				print(w)
