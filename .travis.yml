@@ -22,6 +22,11 @@ apt_packages:
 r_binary_packages:
   - RUnit
 
+before_script:
+  - sudo add-apt-repository ppa:marutter/rrutter -y
+  - sudo apt-get update
+  - sudo apt-get upgrade
+
 # Should be changed to install_script.R
 install:
   - ./install_script.R

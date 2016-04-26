@@ -36,3 +36,7 @@ is_valid_string <- function(d){
 is_valid_MVF <- function(d){
   
 }
+
+findFunction <- function(s){
+  return(s %in% ls())
+}
