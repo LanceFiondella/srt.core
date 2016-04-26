@@ -38,8 +38,5 @@ is_valid_MVF <- function(d){
 }
 
 findFunction <- function(s){
-  if(!(s %in% ls())){
-    get(s)
-  }
   return(s %in% ls())
 }
