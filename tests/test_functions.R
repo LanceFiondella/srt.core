@@ -38,8 +38,5 @@ is_valid_MVF <- function(d){
 }
 
 findFunction <- function(s){
-  if(!(s %in% ls())){
-    get(s) # Just to invoke error handler in needed.R
-  }
-  return(s %in% ls())
+  return(s %in% eval(listfunctions))
 }

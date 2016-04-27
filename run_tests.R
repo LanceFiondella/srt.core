@@ -1,11 +1,14 @@
-# library('testthat')
+#!/usr/bin/env Rscript
 
-source('tests/needed.R')
+
+source("tests/needed.R")
 source('tests/generic_tests.R')
+source('tests/test_functions.R')
 model_directories <<- dir("./models", no..=TRUE)
 cat("\nModels Detected: ")
 cat(model_directories)
 cat("\n\n")
+listfunctions <-call("objects", envir = globalenv())
 for(directory in model_directories){
 	current_directory <<- paste(".","models",directory,sep="/")
 	cat(paste("---------------------------------------------------","\n"))
@@ -33,4 +36,3 @@ for(directory in model_directories){
 	model_functions_test(directory)
 	cat("\n\n")	
 }
-

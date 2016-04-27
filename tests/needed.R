@@ -1,4 +1,4 @@
-source('tests/test_functions.R')
+# source('test_functions.R')
 
 #TODO: Should think if this should be sourced here
 # source('model_testing/data_sets.R')
@@ -101,30 +101,33 @@ needed_params <- function(model){
 	# 		breaking when function is not found
 	# 		ex: 'as.logical' way using 'findFunction' to log it.
 	cat("needed_params :")
-	found_params_function <- tryCatch(as.logical(
-						findFunction(
-							paste(model,get(paste(model,"methods",sep="_")),"MLE",sep="_"))),
+
+	found_params_function <- tryCatch(findFunction(paste(model,get(paste(model,"methods",sep="_")),"MLE",sep="_")),
 			# ------Future Version to include approach--------------
 			# get(paste(model,get(paste(model,"method",sep="_"),get(paste(model,"approach",sep="_")))))
 			#-------------------------------------------------------
 			warning = function(){
 				print(w)
-				return(FALSE)
+				quit("no", status=-1)
 			},
 			error = function(e){
 				print(e)
-				return(FALSE)
+				quit("no", status=-1)
 			}
 		)
+	# cat(found_params_function)
+	if(is.na(found_params_function)){
+		found_params_function <- FALSE
+		print("<Error: function not defined>")
+		quit("no", status=-1)
+	}
+
 	# print(found_params_function)
-	if(!found_params_function){
+	else if(!found_params_function){
+		cat("<Error: Function not defined> : Please check if function is defined appropriately. \n\t\t\tPlease look at this doc for naming conventions\n")
 		quit("no", status = -1)
 	}
-	else{
-		# TODO
-	}
-	cat(paste(found_params_function,"\n"))
-	return(found_params_function)
+	cat(paste(" Defined","\n"))
 }
 
 needed_MVF <- function(model, obj){
@@ -159,7 +162,7 @@ needed_MVF <- function(model, obj){
 needed_MVF_inv <- function(model, obj){
 	cat("needed_MVF_inv :")
 	found_MVF <- tryCatch(as.logical(
-						lengthfindFunction(
+						findFunction(
 							paste(model,"MVF_inv",sep="_"))),
 
 			warning = function(w){
