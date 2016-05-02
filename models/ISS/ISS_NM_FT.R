@@ -66,4 +66,126 @@ ISS_MVF <- function(params, d )
 }
 
 
+ISS_FI <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- d$FT[i]
+    r[i,2] <- (params$ISS_aMLE*params$ISS_bMLE*(params$ISS_cMLE + 1)*exp(params$ISS_bMLE*d$FT[i]))/((params$ISS_cMLE + exp(params$ISS_bMLE*d$FT[i]))^2)
+    r[i,3] <- "ISS"
+  }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Count","Failure_Rate","Model")
+  r
+}
 
+ISS_MTTF <- function(params,d){
+  n <- length(d$FT)
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+    r[i,2] <- 1/(params$ISS_aMLE*params$ISS_bMLE*(params$ISS_cMLE + 1)*exp(params$ISS_bMLE*d$FT[i]))/((params$ISS_cMLE + exp(params$ISS_bMLE*d$FT[i]))^2)
+    r[i,3] <- "ISS"
+  }
+  r <- data.frame(r[1],r[2],r[3])
+  names(r) <- c("Failure_Number","MTTF","Model")
+  r
+}
+
+ISS_R_delta <- function(params,cur_time,delta){
+  return(exp(-(ISS_MVF_cont(params,(cur_time+delta)) - ISS_MVF_cont(params,cur_time))))
+}
+
+ISS_lnL <- function(x,params){
+  n <- length(x)
+  tn <- x[n]
+  sum1 <- 0
+  for(i in 1:n){
+    sum1=sum1+(log(ISS_FI(params,x[i])))
+  }
+  return(-1*ISS_MVF(params,tn)+sum1)
+}
+
+
+
+ISS_Target_T <- function(params,cur_time,delta,reliability){
+  
+  f <- function(t){
+    return(ISS_R_MLE_root(params,t,delta,reliability))
+  }
+  
+  current_rel <- ISS_R_delta(params,cur_time,delta)
+  if(current_rel < reliability){
+    # Bound the estimation interval
+    
+    sol <- 0
+    interval_left <- cur_time
+    interval_right <- 2*interval_left
+    local_rel <- ISS_R_delta(params,interval_right,delta)
+    while (local_rel <= reliability) {
+      interval_right <- 2*interval_right
+      if(local_rel == reliability) {
+        interval_right <- 2.25*interval_right
+      }
+      if (is.infinite(interval_right)) {
+        break
+      }
+      local_rel <- ISS_R_delta(params,interval_right,delta)
+    }
+    if(is.finite(interval_right) && is.finite(local_rel) && (local_rel < 1)) {
+      while (ISS_R_delta(params,(interval_left + (interval_right-interval_left)/2),delta) < reliability) {
+        interval_left <- interval_left + (interval_right-interval_left)/2
+      }
+    } else {
+      sol <- Inf
+    }
+    
+    if (is.finite(interval_right) && is.finite(sol)) {
+      sol <- tryCatch(
+        stats::uniroot(f, c(cur_time,cur_time + 50),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
+        warning = function(w){
+          #print(f.lower)
+          if(length(grep("_NOT_ converged",w[1]))>0){
+            maxiter <<- floor(maxiter*1.5)
+            #print(paste("recursive", maxiter,sep='_'))
+            ISS_Target_T(a,b,cur_time,delta, reliability)
+          }
+        },
+        error = function(e){
+          print(e)
+          #return(e)
+        })
+    } else {
+      sol <- Inf
+    }
+  } else {
+    sol <- "Target reliability already achieved"
+  }
+  return(sol)
+}ISS_R_growth<-function(params,data,delta){
+  r<-data.frame()
+  for(i in 1:legnth(d$FT)){
+    r[i,1]<-d$FT[i]
+    temp<-ISS_R_delta(params,d$FT[i],delta)
+    if(typeof(temp)!=typeof("character")){
+      r[i,2]<-temp
+      r[i,3]<-"ISS"
+    }
+    else{
+      r[i,2]<-"NA"
+      r[i,3]<-"ISS"
+    }
+  }
+  g<-data.frame(r[1],r[2],r[3])
+  names(g) <-c("Time","Reliability_Growth", "Model")
+  return(g)
+}
+
+ISS_R_MLE_root<-function(params,cur_time,delta,reliability){
+  root_equation <-reliability-
+    exp(params$ISS_aMLE*(1-exp(-params$ISS_bMLE*cur_time))
+        -params$ISS_aMLE*(1-exp(-params$ISS_bMLE*(cur_time+delta))))
+  return(root_equation)
+}
