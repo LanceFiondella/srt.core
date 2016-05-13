@@ -65,6 +65,20 @@ ISS_MVF <- function(params, d )
   return(r)
 }
 
+ISS_MVF_inv <- function(params, d )
+{ 
+  
+  n <- length(d$FN)
+  r <- data.frame()
+  cumFailTimes <- -(log((param$ISS_aMLE-d$FN)/(param$ISS_aMLE+params$ISS_cMLE*d$FN)))/param$ISS_bMLE
+  r <- data.frame(d$FN,cumFailTimes,rep("ISS", n))
+  names(r) <- c("Failure","Time","Model")
+  return(r)
+}
+
+ISS_MVF_cont <- function(param, t){
+  return(param$ISS_aMLE * (1-exp(-param$ISS_bMLE*t)/(1 + param$ISS_cMLE * exp(-param$ISS_bMLE*t))))
+}
 
 ISS_FI <- function(params,d){
   n <- length(d$FT)
