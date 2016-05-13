@@ -28,7 +28,7 @@ model_functions_test <- function(directory,model_file){
   needed_MVF_cont(directory)
   needed_MTTF(directory)
   needed_FI(directory)
-  needed_R(directory)
+  #needed_R(directory)
   needed_lnL(directory)
   needed_R_growth(directory)
   # needed_FaultsRemaining(directory)
