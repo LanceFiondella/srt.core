@@ -164,7 +164,9 @@ ISS_Target_T <- function(params,cur_time,delta,reliability){
     sol <- "Target reliability already achieved"
   }
   return(sol)
-}ISS_R_growth<-function(params,data,delta){
+}
+
+ISS_R_growth<-function(params,data,delta){
   r<-data.frame()
   for(i in 1:legnth(d$FT)){
     r[i,1]<-d$FT[i]
