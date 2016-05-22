@@ -1,4 +1,4 @@
-Software Reliability Tool ([SRT](http://srt.umassd.edu))
+Software Reliability Tool ([SRT](http://sasdlc.org))
 --------------------------------
 
 A web oriented software reliabilty testing suite written in R. Made to parse data sets and predict failure models based on common statistical approaches using the shiny framework.
