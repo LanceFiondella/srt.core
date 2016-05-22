@@ -22,23 +22,5 @@ runApp("/Path/To/Dir/SRT/")
 ```
 This will launch the app on localhost on a random port and attempt to open a browser.
 
-Team
-----
- * Daniel Garcia 
- * Robert Davis 
- * Richard Muri 
- * Miles Wilhelms-Tricarico 
- * George Haddad 
- * Brain Etienne 
- * Eric J Pires 
- * Jarred Trottier 
- * Jimmy Rodriguez 
- * Rebecca E Field
- * William P Foley 
- * Karthik Katipally 
- * Sameer Bharadwaj 
- * Kencham Varun Kumar 
- * Reddy Garlapati 
- * Vidhyashree Nagaraju
 
 
