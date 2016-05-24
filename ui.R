@@ -301,41 +301,14 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
                                                                  selected = "PDF"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
-                                             ),
-                                             column(12,
-                                                    numericInput("C0", 
-                                                                 label = h6("Expected cost of removing fault during testing."),
-                                                                 min = 0, value = 1)
-                                             ),
-                                             column(12,
-                                                    numericInput("C1", 
-                                                                 label = h6("Expected cost of removing the fault during operation."),
-                                                                 min = 0, value = 1)
-                                             ),
-                                             column(12,
-                                                    numericInput("C2", 
-                                                                 label = h6("Expected cost per unit time of software testing."),
-                                                                 min = 0, value = 1)
                                              )
                                            )
                               ),
                               
                               mainPanel(
-                                tabsetPanel(
-                                  tabPanel("Model Prediction Result Plot", 
-                                    # textOutput("ModelConfigError"), 
-                                    # textOutput("UnsuccessfulModels"), 
-                                    plotOutput("ModelPredictionPlot", dblclick="MPdblclick1", brush=brushOpts(id="MP_brush1", resetOnNew=TRUE))
-                                    ),
-                                  tabPanel("Prediction table",
-                                    DT::dataTableOutput('mytable1')
-                                    ),
-                                 # DT::dataTableOutput('mytable1')
-                                 id="ModelPredictionPlotAndTableTabset"
-                                ), width=8
+                                DT::dataTableOutput('mytable1')
                               )
-                        )
-                            
+                            )
                    ),
                    
                    tabPanel("Evaluate Models",

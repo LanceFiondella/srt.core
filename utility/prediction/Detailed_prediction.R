@@ -148,13 +148,6 @@ est_t <- function(model,params,tn,steps){
   sol
 }
 
-get_optimal_release_time_CC <- function(model, params, c1,c2,c3){
-	return(get(paste(model,"OR_CC",sep="_"))(params,c1,c2,c3))
-}
-
-get_release_release_time_RC <- function(model, params){
-	return(0)
-}
 
 
 
