@@ -1,4 +1,4 @@
-# source('test_functions.R')
+source('tests/test_functions.R')
 
 #TODO: Should think if this should be sourced here
 # source('model_testing/data_sets.R')
