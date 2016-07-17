@@ -22,5 +22,12 @@ runApp("/Path/To/Dir/SRT/")
 ```
 This will launch the app on localhost on a random port and attempt to open a browser.
 
+Deploy using dockers on Linux
+-----------------------------
 
+- Install docker-engine (follow instructions on https://docs.docker.com/engine/installation/)
+- Pull the image using </br>
+```$ docker pull arhik/srt```
+- deploy by portforwarding desired port on your system to the default 3838 port using </br>
+```$ docker run -d -p xxxx:3838 arhik/srt```
 
