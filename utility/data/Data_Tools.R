@@ -120,7 +120,7 @@ isFTCol <- function(d){
 }
 
 
-isFNCol <- function(){
+isFNCol <- function(d){
 	if("FN" %in% d){
 		return(TRUE)
 	}
@@ -140,7 +140,7 @@ isCFCCol <- function(d){
 }
 
 
-isFCCol <- function(){
+isFCCol <- function(d){
 	if("FC" %in% d){
 		return(TRUE)
 	}
@@ -192,11 +192,11 @@ FC_to_CFC <- function(fc_vec){
 	cfc <- c()
 	# cfc[1] <- fc_vec[1] 
 	#cfc[1] <- 0
-	for(i in 1:length(fc_vec$FC)){
+	for(i in 1:length(fc_vec)){
 		cfc[i] <- 0
 		for(j in 1:i){
 			#print(j)
-			cfc[i] <- cfc[i] + fc_vec$FC[j]
+			cfc[i] <- cfc[i] + fc_vec[j]
 		}
 	}
 	cfc
@@ -228,7 +228,7 @@ isPlural <- function(){
 
 generate_dataFrame <- function(raw_data){
 	d <- names(raw_data)
-	if(isDataSafe()){
+	if(isDataSafe()){ # Hard coded data safety as TRUE (sraise issue)
 		if(dataType(d)=="FR"){
 			if(isIFCol(d)){
 				IF <- raw_data$IF
@@ -260,7 +260,7 @@ generate_dataFrame <- function(raw_data){
 
 				FC 	<- raw_data$FC
 				CFC <- FC_to_CFC(raw_data$FC)
-				FT 	<- FC_to_FT(raw_data$T,FC) # Exception handling if T Column doesn't exist
+				FT 	<- FC_to_FT(raw_data$T,FC) # Exception handling if T Column doesn't exist needed
             	IF 	<- FT_to_IF(failure_T = FT)
             	FN 	<- 1:length(FT)
 			}
