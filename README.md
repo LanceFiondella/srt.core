@@ -61,6 +61,12 @@ Versioning:
 ----------
 - v1.0 is released.
 
+Acknowledgement
+--------------
+This research was supported by (i) the Naval Air Systems Command (NAVAIR) through the Systems Engineering Research Center (SERC), a Department of Defense (DoD) University Affiliated Research Center (UARC) under Research Task 139: Software Reliability Modeling and (ii) the National Science Foundation under Grant Number (1526128).
+
+
+
 Copyright and License
 ----------------------
 Code release under [MIT LICENSE](https://github.com/LanceFiondella/srt.core/blob/master/LICENSE.md). 
