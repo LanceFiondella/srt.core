@@ -3,9 +3,9 @@ Software Reliability Tool ([SRT](http://sasdlc.org))
 
 A web oriented software reliabilty testing suite written in R. Made to parse data sets and predict failure models based on common statistical approaches using the shiny framework.
 
-Made by Lance Fiondella at the University of Massachusetts Dartmouth
+Lance Fiondella, University of Massachusetts Dartmouth
 
-Allen P. Nikora at Jet propulsion laboratory/ California Institute of technology
+Allen Nikora, Jet propulsion laboratory/ California Institute of technology
 
 
 Dependancies
