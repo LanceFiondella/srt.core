@@ -48,11 +48,6 @@ TODO:
 
 - [ ] Python port of this is in progress.
 
-Community
-----------
-- Join us at slackroom ()
-- Joint us at Linked Group.
-
 Caution
 -------
 - Under Heavy development use with caution.
