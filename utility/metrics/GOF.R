@@ -2,8 +2,8 @@
 
 #AIC <- 2*p - 2*lnL
 
-aic <- function(p,mle){
-	return (2*p - 2*mle)
+aic <- function(p,lnL){
+	return (2*p - 2*lnL)
 }
 
 # psse_times <- function(model, d, model_params){
