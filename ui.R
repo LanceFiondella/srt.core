@@ -295,13 +295,25 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              ),
-
+                                             
+                                             column(12,
+                                                    h5("Optimal Release Time Input"),
+                                                    numericInput("modelLifeCycle", label = h6("Specify Life Cycle"), min=1, value=1),
+                                                    numericInput("modelCost1", label = h6("Specify Cost 1"), min=1, value=1),
+                                                    numericInput("modelCost2", label = h6("Specify Cost 2"), min=1, value=1),
+                                                    numericInput("modelCost3", label = h6("Specify Cost 3"), min=1, value=1),
+                                                    radioButtons("displayResultsType", label = h6("Select how the data is displayed"),
+                                                                 choices = list("Table" = "Table", "Graph" = "Graph"), inline = TRUE,
+                                                                 selected = "Table")
+                                             ),
+                                             
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
                                                                  selected = "PDF"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
                                              )
+                                             
                                            )
                               ),
                               
