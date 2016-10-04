@@ -730,6 +730,10 @@ tab3_table1_construct <- function(model,data,input){
                                     length(get("data")[[get(paste(model,"input",sep="_"))]]))
 
       opt_release_time <- get_optimal_release_time_CC(model, model_params, input$C0, input$C1, input$C2)
+      cost_at_rel_time <- get_cost_at_time(model,model_params, rel_time, input$T, input$C0, input$C1, input$C2)
+      reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])])
+      cost_at_opt_release_time <- get_cost_at_time(model,model_params, opt_release_time, input$T, input$C0, input$C1, input$C2)
+      
       # opt_release_time <- input$C0 + input$C1 + input$C2
       print(time_fails)
       print(number_fails)
@@ -750,6 +754,10 @@ tab3_table1_construct <- function(model,data,input){
           tab3_table1[count,4]<<- i
           tab3_table1[count,5]<<- time_fails[i]
           tab3_table1[count,6]<<- opt_release_time
+          
+          tab3_table1[count,7]<<- cost_at_rel_time
+          tab3_table1[count,8]<<- reliability_at_opt_release_time
+          tab3_table1[count,9]<<- cost_at_opt_release_time
 
           #  Create Row of NA only once logic
           if(time_fails[i]=="NA"){
@@ -768,6 +776,9 @@ tab3_table1_construct <- function(model,data,input){
         tab3_table1[count,4] <<- "Given-model not defined"
         tab3_table1[count,5] <<- "Given-model not defined"
         tab3_table1[count,6] <<- "Given-model not defined"
+        tab3_table1[count,7] <<- "Given-model not defined"
+        tab3_table1[count,8] <<- "Given-model not defined"
+        tab3_table1[count,9] <<- "Given-model not defined"
       }
       else{
         count<<-count+1
@@ -777,6 +788,9 @@ tab3_table1_construct <- function(model,data,input){
         tab3_table1[count,4] <<- "NON-CONVERGENCE"
         tab3_table1[count,5] <<- "NON-CONVERGENCE"
         tab3_table1[count,6] <<- "NON-CONVERGENCE"
+        tab3_table1[count,7] <<- "NON-CONVERGENCE"
+        tab3_table1[count,8] <<- "NON-CONVERGENCE"
+        tab3_table1[count,9] <<- "NON-CONVERGENCE"
       }
     }
   }
@@ -846,8 +860,8 @@ output$mytable1 <- DT::renderDataTable({
           count <<- count+1
           tab3_table1_construct(i,in_data_tab3,input)
         }
-      tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6])
-      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time")
+      tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6], tab3_table1[7], tab3_table1[8], tab3_table1[9])
+      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time","Cost to achieve tR*", "Reliability at Optimal Release Time", "Cost to achieve tC*")
     tab3_table1
   }
 }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))

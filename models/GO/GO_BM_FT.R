@@ -369,7 +369,7 @@ GO_OR_RC<-function(params,x,R){
   return (s)
 }
 
-GO_cost <- function(params, C1,C2,C3,t, t_opt){
-  return(C1*GO_MVF_cont(params,t) + C2*(GO_MVF_cont(params,t_opt) - GO_MVF_cont(params,t)) + C3*t)
+GO_cost <- function(params, C1,C2,C3,t, t_lifecycle){
+  return(C1*GO_MVF_cont(params,t) + C2*(GO_MVF_cont(params,t_lifecycle) - GO_MVF_cont(params,t)) + C3*t)
 }
 

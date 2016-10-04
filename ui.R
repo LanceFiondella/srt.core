@@ -296,16 +296,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0, value = 1)
                                              ),
                                              
-                                             column(12,
-                                                    h5("Optimal Release Time Input"),
-                                                    numericInput("modelLifeCycle", label = h6("Specify Life Cycle"), min=1, value=1),
-                                                    numericInput("modelCost1", label = h6("Specify Cost 1"), min=1, value=1),
-                                                    numericInput("modelCost2", label = h6("Specify Cost 2"), min=1, value=1),
-                                                    numericInput("modelCost3", label = h6("Specify Cost 3"), min=1, value=1),
-                                                    radioButtons("displayResultsType", label = h6("Select how the data is displayed"),
-                                                                 choices = list("Table" = "Table", "Graph" = "Graph"), inline = TRUE,
-                                                                 selected = "Table")
-                                             ),
+                                             
                                              
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
@@ -313,6 +304,17 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  selected = "PDF"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
                                              ),
+                                             
+                                             column(12,
+                                                    h5("Optimal Release Time Input")
+                                                    
+                                             ),
+                                             column(12,
+                                                    numericInput("T", 
+                                                                 label = h6("Software lifecycle"),
+                                                                 min = 0, value = 1)
+                                             ),
+                                             
                                              column(12,
                                                     numericInput("C0", 
                                                                  label = h6("Expected cost of removing fault during testing."),

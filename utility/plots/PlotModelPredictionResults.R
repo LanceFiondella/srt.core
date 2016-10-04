@@ -4,7 +4,8 @@ plot_model_prediction_results <- function(modelchoicelist,data,C1,C2,C3) {
   print(data)
   localResultsPlot <- ggplot()
   n <- length(data$FT)
-  tn <- data$FT[n]
+  #Change to T
+  tn <- 2*data$FT[n]
   t_opt <- 0
   predictionPlotdataframe <- data.frame("time"=double(),"cost"=double())
   names(predictionPlotdataframe) <- c("time","cost")
