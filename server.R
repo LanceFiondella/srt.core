@@ -3,11 +3,14 @@ library(DT)
 library(gdata) 
 library(ggplot2)
 library(knitr)
-
-source("utility/sources.R")
+  source("utility/sources.R")
 # Contributors guide step - 1
   # Text for error messages
 
+
+
+
+shinyServer(function(input, output, clientData, session) {#reactive shiny function
 openFileDatapath <- ""
 #data_global <- data.frame()
 data_set_global <- ""
@@ -68,10 +71,10 @@ K_tol <- .Machine$double.eps^0.5
 openFileDatapath <- ""
 # data_global <- data.frame()
 data_original <- data.frame()
-
-shinyServer(function(input, output, clientData, session) {#reactive shiny function
-  
   #source("utility.R")
+  
+  
+ #----------------Paste end-----------------
   
   output$sheetChoice <- renderUI({ # ------ > Should fix empty data_set name for .csv files
     if(input$type==1){
@@ -731,7 +734,7 @@ tab3_table1_construct <- function(model,data,input){
 
       opt_release_time <- get_optimal_release_time_CC(model, model_params, input$C0, input$C1, input$C2)
       cost_at_rel_time <- get_cost_at_time(model,model_params, rel_time, input$T, input$C0, input$C1, input$C2)
-      reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])])
+      reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, input$modelRelMissionTime)
       cost_at_opt_release_time <- get_cost_at_time(model,model_params, opt_release_time, input$T, input$C0, input$C1, input$C2)
       
       # opt_release_time <- input$C0 + input$C1 + input$C2
