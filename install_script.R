@@ -24,7 +24,11 @@ if (version$major < 3 || (version$major == 3 && version$minor < 2.2)){ #checks i
   
 }
 
+
 #checks for each dependancy and loads or installs then loads
+remove.packages("htmltools")
+install.packages("htmltools")
+library(htmltools)
 if(!require(shiny)) {install.packages("shiny", repos="http://cran.rstudio.com/");library(shiny)} #shiny is the main interface package
 if(!require(DT)) {install.packages("DT", repos="http://cran.rstudio.com/");library(DT)} #DT
 if(!require(knitr)) {install.packages("knitr", repos="http://cran.rstudio.com/");library(knitr)} #DT
