@@ -74,7 +74,6 @@ maxiter <- 20
 	 #print(aMLE)
    sol <- data.frame("GO_aMLE"=aMLE,"GO_bMLE"=bMLE)
 	 # sol <- c(aMLE,bMLE)
-
 	 sol
 }
 
