@@ -76,7 +76,7 @@ psse_failures <- function(d,model_params){
 
  #  g <- data.frame(cumulr[2],cumulr[1])
  #  names(g) <- c("Time","Failure")
- #  print(g)
+ #  #print(g)
  #  g
 
  	n <- length(data$FT)

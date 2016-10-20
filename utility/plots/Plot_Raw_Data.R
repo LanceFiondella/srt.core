@@ -54,7 +54,7 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
         localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab("Number of Failures per Unit Time")
       } else {
         # Couldn't identify view of data to display.
-        # Print an error message.
+        # #print an error message.
         
         PlotFault <- TRUE
       }
@@ -106,7 +106,7 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
         
       } else {
         # Couldn't identify view of data to display.
-        # Print an error message.
+        # #print an error message.
         
         PlotFault <- TRUE
       }
@@ -115,7 +115,7 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
       
     } else {
       # Couldn't determine whether we're working with IF or FC data.
-      # Print an error message.
+      # #print an error message.
       
       PlotFault <- TRUE
     }

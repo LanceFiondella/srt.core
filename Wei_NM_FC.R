@@ -42,7 +42,6 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  print('In Step 2 while loop of Wei_BM.R')
   leftEndPoint <- leftEndPoint/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
   rightEndPoint <- 2*rightEndPoint
@@ -55,7 +54,6 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 } else {
   b_initial <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
 }
-print(b_initial)
 
 
 b0 <- b_initial
@@ -75,13 +73,12 @@ model <- function(x) {
   {
     sumi[2] <- sumi[2] + ((((exp(-x[2]*tVec[i]^x[3])*tVec[i]^x[3])-(exp(-x[2]*tVec[i-1]^x[3])*tVec[i-1]^x[3]))*kVec[i])/(exp(-x[2]*tVec[i-1]^x[3])-exp(-x[2]*tVec[i]^x[3])))
     sumi[3] <- sumi[3] + ((x[2]*(exp(-x[2]*tVec[i]^x[3])*tVec[i]^x[3] *log(tVec[i]) -  exp(-x[2]*tVec[i-1]^x[3])*tVec[i-1]^x[3] *log(tVec[i-1]))*kVec[i])/(exp(-x[2]*tVec[i-1]^x[3])-exp(-x[2]*tVec[i]^x[3])))
-  }  #print(x)
+  }  
   
   c(F1 =(-1+exp(-x[2]*tn^x[3]))+sumi[1],
     F2 = (-x[1]*exp(-x[2]*tn^x[3])*tn^x[3]) + ((kVec[1]*tVec[1]^x[3])/(exp(x[2]*tVec[1]^x[3])-1)) + sumi[2],
     F3= (-x[1]*x[2]*exp(-x[2]*tn^x[3])*tn^x[3]*log(tn)) + (x[2]*log(tVec[1])*kVec[1]*tVec[1]^x[3])/(-1+exp(x[2]*tVec[1]^x[3]))+sumi[3])
 }
 abc <- multiroot(f=model,start=c(a0,b0,c0),maxiter = 10000,ctol = 1e-24)$root
-print(abc)
 
 

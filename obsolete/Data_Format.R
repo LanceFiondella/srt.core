@@ -122,12 +122,12 @@ createFields <- function(data){
 
 failureN_to_failureCount <-function(x)
 {
-  #print("HI i am X")
-  print(x)  
+  ##print("HI i am X")
+  #print(x)  
   bins <- seq(min(x), max(x), length.out = length(x))
   histo <- hist(x, breaks = bins, col = 'darkgray', border = 'white')
   r <- data.frame(histo$counts)
-  print(r)
+  #print(r)
   r$x
 
 }

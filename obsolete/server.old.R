@@ -21,7 +21,7 @@ shinyServer(function(input, output) {
       return("Please upload an excel file")
     }
       sheets_present <- sheetNames(xls=inFile$datapath)
-      # print(sheets_present)
+      # #print(sheets_present)
       selectInput("dataSheetChoice","Choose Sheet", c(NULL,sheets_present))
     }
     else{
@@ -68,21 +68,21 @@ shinyServer(function(input, output) {
    
   #   inFile <- input$file
   #   #
-  #   #print(inFile)#Read of input file
+  #   ##print(inFile)#Read of input file
   #   sheet_count <- sheetCount(xls=inFile$datapath)
   #   sheets_present <- NULL
   #   if (is.null(inFile))#error handling for null file pointer
   #     return("Please Upload a CSV File")
   #   else if (input$type==1){
       
-  #     #print(sheets_present)
+  #     ##print(sheets_present)
   #     if(is.null(sheets_present)){
   #       return("No sheets present")
   #     }
   #     if(sheet_count > 0){
   #     output$sheetChoice <- renderUI({
   #       sheets_present <- sheetNames(xls=inFile$datapath)
-  #       print(sheets_present)
+  #       #print(sheets_present)
   #       selectInput("dataSheetChoice", "Choose Sheet", c('',sheets_present),selected=NULL)
   #     })
   #  }
@@ -99,14 +99,14 @@ shinyServer(function(input, output) {
 
     else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
-        print(inFile)
+        #print(inFile)
         return("Please upload excel sheet")
       }
-      print(inFile)
+      #print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
       data_set <- "input data"
     }
-    #print(data)
+    ##print(data)
     #if (data[1] =="FC")
     #two coumns
     #else
@@ -124,7 +124,7 @@ shinyServer(function(input, output) {
       #-------------------------------------------------------------
       q <- ggplot(,aes_string(x="index",y="laplace_factor"))
       input_data <- data
-      print(names(input_data))
+      #print(names(input_data))
       # if(length(grep("[DATA]",data_set)) >0){
       #   #input_data <- data
       #   source("Data_Format.R")
@@ -149,7 +149,7 @@ shinyServer(function(input, output) {
       # }
 
       if(length(grep("FT",names(input_data)))>0) {
-        #print("PICKED FT pattern")
+        ##print("PICKED FT pattern")
         #FT <- input_data$FT > 0
         source("Data_Format.R")
         IF <- failureT_to_interF(input_data$FT)
@@ -157,14 +157,14 @@ shinyServer(function(input, output) {
       }
       else if(length(grep("IF",names(input_data))) > 0) {
 
-        #print("PICKED IF pattern")
+        ##print("PICKED IF pattern")
         source("Data_Format.R")
         #IF <- failureT_to_interF(input_data$FT)
         IF <- input_data$IF
         sol <- laplace_trend_test(IF)
       }
       else if(length(grep("CFC",names(input_data)))>0) { 
-        #print("PICKED CFC pattern")     
+        ##print("PICKED CFC pattern")     
         source("Data_Format.R")
         CFC <- input_data$CFC[input_data$CFC > 0]
         FC <- CumulativeFailureC_to_failureC(CFC)
@@ -174,7 +174,7 @@ shinyServer(function(input, output) {
         sol <- laplace_trend_test(IF)
       }
       else if(length(grep("FC",names(input_data)))>0){
-        #print("PICKED FC pattern")
+        ##print("PICKED FC pattern")
         source("Data_Format.R")
         FC <- input_data$FC[input_data$FC > 0]
         T <- input_data$T[input_data$CFC > 0]
@@ -188,7 +188,7 @@ shinyServer(function(input, output) {
       # ------------------------------------------------------------
       plot_data <- sol
       names(plot_data) = c("index","laplace_factor")
-      #print(plot_data)
+      ##print(plot_data)
       if(input$DataPlotType==1){
         q <- q + geom_point(data=plot_data,aes(index,laplace_factor))+ geom_line(data=plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
       }
@@ -220,7 +220,7 @@ shinyServer(function(input, output) {
 
 
       if(length(grep("FT",names(input_data)))>0) {
-        #print("PICKED FT pattern")
+        ##print("PICKED FT pattern")
         #FT <- input_data$FT > 0
         source("Data_Format.R")
         IF <- failureT_to_interF(input_data$FT)
@@ -228,13 +228,13 @@ shinyServer(function(input, output) {
       }
       else if(length(grep("IF",names(input_data))) > 0) {
 
-        #print("PICKED IF pattern")
+        ##print("PICKED IF pattern")
         source("Data_Format.R")
         IF <- input_data$IF
         sol <- running_average_test(IF)
       }
       else if(length(grep("CFC",names(input_data)))>0) { 
-        #print("PICKED CFC pattern")     
+        ##print("PICKED CFC pattern")     
         source("Data_Format.R")
         CFC <- input_data$CFC[input_data$CFC > 0]
         FC <- CumulativeFailureC_to_failureC(CFC)
@@ -244,7 +244,7 @@ shinyServer(function(input, output) {
         sol <- running_average_test(IF)
       }
       else if(length(grep("FC",names(input_data)))>0){
-        #print("PICKED FC pattern")
+        ##print("PICKED FC pattern")
         source("Data_Format.R")
         FC <- input_data$FC[input_data$FC > 0]
         T <- input_data$T[input_data$CFC > 0]
@@ -280,7 +280,7 @@ shinyServer(function(input, output) {
       # ------------------------------------------------------------
       plot_data <- sol
       names(plot_data) = c("Index","Running_Average")
-      #print(plot_data)
+      ##print(plot_data)
       if(input$DataPlotType==1){
         q <- q + geom_point(data=plot_data,aes(Index,Running_Average))+ geom_line(data=plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
       }
@@ -893,29 +893,29 @@ shinyServer(function(input, output) {
             }          
         }
         else if(i==8){
-          print("Goel-okumoto");
+          #print("Goel-okumoto");
         }
         else{
-          print("Other");
+          #print("Other");
         }
-        #print("hello i am out");
+        ##print("hello i am out");
         
-        #print("hello i am a out");
+        ##print("hello i am a out");
           
           
-          #print("i ==6")
+          ##print("i ==6")
         }
-      #print("model selections")
+      ##print("model selections")
     }
-    #print("i am far out");
-    #print(input$runModels)
+    ##print("i am far out");
+    ##print(input$runModels)
     #p <- p + scale_color_manual(name = "Legend",  labels = c("Original Data"),values = c("blue"))
-    #print(input$modelResultChoice)
+    ##print(input$modelResultChoice)
     }
     #plotties <- c(p1,p2)
-    #print(plotties$layers)
+    ##print(plotties$layers)
     #plotSet <- length(plotties$layers)>0
-    #print(length(plotSet))
+    ##print(length(plotSet))
      p <- multiplot(p1,p2,cols=1)
     p
     })
@@ -939,7 +939,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 
  if (numPlots==1) {
-    print(plots[[1]])
+    #print(plots[[1]])
 
   } else {
     # Set up the page
@@ -951,7 +951,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
       # Get the i,j matrix positions of the regions that contain this subplot
       matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
 
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+      #print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
                                       layout.pos.col = matchidx$col))
     }
   }

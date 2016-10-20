@@ -2,8 +2,8 @@
 
 
 get_prediction_k <- function(model,params, t_offset,tn,n){
-	# ! -----> print(">>>>>>>>>")
-	# ! -----> print(params)
+	# ! -----> #print(">>>>>>>>>")
+	# ! -----> #print(params)
 	if("JM_N0" %in% names(params)){
 		est_faults <- JM_MVF_cont(params,tn + t_offset) - JM_MVF_cont(params,tn)
 	}
@@ -128,10 +128,10 @@ est_t <- function(model,params,tn,steps){
 	  sol <- tryCatch(
 	    stats::uniroot(est_time_root, c(interval_left,interval_right),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
 	    warning = function(w){
-	      #print(f.lower)
+	      ##print(f.lower)
 	      if(length(grep("_NOT_ converged",w[1]))>0){
 	        maxiter <<- maxiter+10
-	        print(paste("recursive", maxiter,sep='_'))
+	        #print(paste("recursive", maxiter,sep='_'))
 	        est_t(model,params,tn)
 	      }
 	    },
@@ -143,8 +143,8 @@ est_t <- function(model,params,tn,steps){
 	  sol <- NA
 	}
 	
-	#print("Estimated time for next failure")
-  #print(sol)
+	##print("Estimated time for next failure")
+  ##print(sol)
   sol
 }
 

@@ -28,7 +28,7 @@ GO_BM_MLE<-function(x){
   rightEndPointMLE <- GO_BM_DDB(rightEndPoint)
   
   while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-    print('In Step 2 while loop of GO_BM_FT.R')
+    #print('In Step 2 while loop of GO_BM_FT.R')
     leftEndPoint <- leftEndPoint/2
     leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
     rightEndPoint <- 2*rightEndPoint
@@ -48,16 +48,16 @@ GO_BM_MLE<-function(x){
     bMLE <- uniroot(GO_BM_DDB,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
   }
   
-  #print(bMLE)
+  ##print(bMLE)
   #Step-4
   #MLE of parameter 'a'
   aMLE <- n/(1-exp(-bMLE*(tn)))
-  #	 print(aMLE)
+  #	 #print(aMLE)
   f[1] <- aMLE
   f[2] <- bMLE
   x <- f[1:2]
   f <- data.frame(x)
-  print(x)
+  #print(x)
   return(x)
 }	 
 #NHPP log-likelihood function
@@ -102,7 +102,7 @@ GO_BM_MLE<-function(x){
   rightEndPointMLE <- GO_BM_DDB(rightEndPoint)
   
   while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-    print('In Step 2 while loop of GO_BM_FT.R')
+    #print('In Step 2 while loop of GO_BM_FT.R')
     #leftEndPoint <- leftEndPoint/2
     #leftEndPointMLE <- GO_BM_DDB(leftEndPoint)
     rightEndPoint <- 2*rightEndPoint
@@ -123,16 +123,16 @@ GO_BM_MLE<-function(x){
     bMLE <- uniroot(GO_BM_DDB,lower=leftEndPoint,upper=rightEndPoint, tol = 1e-10)$root
   }
   
-  #print(bMLE)
+  ##print(bMLE)
   #Step-4
   #MLE of parameter 'a'
   aMLE <- n/(1-exp(-bMLE*(tn)))
-  #	 print(aMLE)
+  #	 #print(aMLE)
   f[1] <- aMLE
   f[2] <- bMLE
   x <- f[1:2]
   f <- data.frame(x)
-  #print(x)
+  ##print(x)
   return(x)
 }	
 
