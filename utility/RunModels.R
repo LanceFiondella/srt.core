@@ -60,6 +60,16 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
             ParmEstimatesConverged <- FALSE
           }
         } # End for - we've estimated the parameters for the current model for the current failure.
+
+        # Present code fails to capture and mask the non-convergent models which have 'na' in their parameter values
+        # This is fundamental and critical bug to be fixed. The code logic here is super vague and not easy to digest.
+        # Shoud rewrite this whole section with readable code. 
+
+        if(any(is.na(model_params))) {
+          # Temporary hack to above comment.
+          ParmEstimatesConverged <- FALSE
+        }
+
       } # End for - we've estimated model parameters for the current model over the entire dataset.
       
       if(ParmEstimatesConverged) {
