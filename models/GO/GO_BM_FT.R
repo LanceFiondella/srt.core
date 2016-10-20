@@ -74,7 +74,6 @@ maxiter <- 20
 	 #print(aMLE)
    sol <- data.frame("GO_aMLE"=aMLE,"GO_bMLE"=bMLE)
 	 # sol <- c(aMLE,bMLE)
-
 	 sol
 }
 
@@ -141,39 +140,33 @@ GO_MVF_inv <- function(param,d) {
 # September 1993.  Uses IF equations for NHPP times to failure
 # model, Chapter 7, p 7-3.
   
-GO_MTTF <- function(param,d) {
+#GO_MTTF <- function(param,d) {
+#  n <- length(d$FT)
+#  r <- data.frame()
+#  currentTimes <- utils::tail(d, length(d$FT)-1)
+#  prevTimes <- utils::head(d, length(d$FT)-1)
+#  currentFailNums <- c(2:n)
+#  prevFailNums <- c(1:(n-1))
+#  IFTimes <- ((currentFailNums*currentTimes$FT)/(param$GO_aMLE*(1-exp(-param$GO_bMLE*currentTimes$FT)))) - ((prevFailNums*prevTimes$FT)/(param$GO_aMLE*(1-exp(-param$GO_bMLE*prevTimes$FT))))
+ # r <- data.frame(c(1, currentFailNums), c(((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1])))), IFTimes), rep("GO", n))
+ # names(r) <- c("Failure_Number","MTTF","Model")
+ # r
+#}
+
+    
+GO_MTTF <- function(params,d){
   n <- length(d$FT)
-  r <- data.frame()
-  currentTimes <- utils::tail(d, length(d$FT)-1)
-  prevTimes <- utils::head(d, length(d$FT)-1)
-  currentFailNums <- c(2:n)
-  prevFailNums <- c(1:(n-1))
-  IFTimes <- ((currentFailNums*currentTimes$FT)/(param$GO_aMLE*(1-exp(-param$GO_bMLE*currentTimes$FT)))) - ((prevFailNums*prevTimes$FT)/(param$GO_aMLE*(1-exp(-param$GO_bMLE*prevTimes$FT))))
-  #  r[1,1] <- 1
-  #  r[1,2] <- ((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1]))))
-  #  for(i in 2:n){
-  #    r[i,1] <- i
-  #    r[i,2] <- ((i*d$FT[i])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i])))) - (((i-1)*d$FT[i-1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[i-1]))))
-  #  }
-  r <- data.frame(c(1, currentFailNums), c(((d$FT[1])/(param$GO_aMLE*(1-exp(-param$GO_bMLE*d$FT[1])))), IFTimes), rep("GO", n))
+  r <-data.frame()
+  cumulr <-data.frame()
+  for(i in 1:n){
+    r[i,1] <- i
+   r[i,2] <-(1/(params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))))
+    r[i,3] <- "GO"
+    }
+  r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Failure_Number","MTTF","Model")
   r
 }
-
-    
-#GO_MTTF <- function(params,d){
-#  n <- length(d$FT)
-#  r <-data.frame()
-#  cumulr <-data.frame()
-#  for(i in 1:n){
-#    r[i,1] <- i
-#    r[i,2] <-(1/(params$GO_aMLE*params$GO_bMLE*(exp(-params$GO_bMLE*d$FT[i]))))
-#    r[i,3] <- "GO"
-#    }
-#  r <- data.frame(r[1],r[2],r[3])
-#  names(r) <- c("Failure_Number","MTTF","Model")
-#  r
-#}
 
 # Estimate and forecast failure intensities
 

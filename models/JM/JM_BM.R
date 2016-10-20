@@ -151,7 +151,7 @@ JM_BM_MLE<-function(interFail){
     #===============================================================================================================================
   }
   tmp_phi <- numeric(0) # numeric to avoid precision problems {TODO: mention of type of error if not followed(type casting to numeric)}
-  for(i in 1:n-1){ #deriving phi
+  for(i in 1:n){ #deriving phi
   	tmp_phi[i] <- (N0_MLE-(i-1))*interFail[i]
   }
   Phi <- n/sum(tmp_phi)
