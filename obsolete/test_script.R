@@ -14,13 +14,13 @@ if(header=="JM"){
 	error <- sol - models_solution_list$JM
 	error_check <- error < epsilon
 	names(error_check) <- c("N0","phi")
-	print(error_check)
+	#print(error_check)
 
 	if (sol==models_solution_list$JM){
-		print("JM - PASS")
+		#print("JM - PASS")
 	}
 	else{
-		print("JM - FAIL")
+		#print("JM - FAIL")
 	}
 }
 t$IF

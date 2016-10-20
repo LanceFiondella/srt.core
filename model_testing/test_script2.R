@@ -200,12 +200,12 @@ console_out_u<- function(model,data_set,request,method,type){
   
   cat(begin(format(model,width=9)))
   input_data <- read.xls('model_data.xlsx',sheet=data_set)
-  #print(model)
-  #print(data_set)
+  ##print(model)
+  ##print(data_set)
   if(model=="JM"){
 
     if(length(grep("FT",names(input_data)))>0) {
-      #print("PICKED FT pattern")
+      ##print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
@@ -217,7 +217,7 @@ console_out_u<- function(model,data_set,request,method,type){
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
-      #print("PICKED IF pattern")
+      ##print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
       time <- proc.time()
@@ -227,7 +227,7 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
-      #print("PICKED CFC pattern")     
+      ##print("PICKED CFC pattern")     
       source("Data_Format.R")
       CFC <- input_data$CFC[input_data$CFC > 0]
       FC <- CumulativeFailureC_to_failureC(CFC)
@@ -241,7 +241,7 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
-      #print("PICKED FC pattern")
+      ##print("PICKED FC pattern")
       source("Data_Format.R")
       FC <- input_data$FC[input_data$FC > 0]
       T <- input_data$T[input_data$CFC > 0]
@@ -308,7 +308,7 @@ console_out_u<- function(model,data_set,request,method,type){
   else if(model=="GM"){
 
     if(length(grep("FT",names(input_data)))>0) {
-      print("PICKED FT pattern")
+      #print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
@@ -320,7 +320,7 @@ console_out_u<- function(model,data_set,request,method,type){
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
-      print("PICKED IF pattern")
+      #print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
       time <- proc.time()
@@ -330,7 +330,7 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
-      print("PICKED CFC pattern")     
+      #print("PICKED CFC pattern")     
       source("Data_Format.R")
       CFC <- input_data$CFC[input_data$CFC > 0]
       FC <- CumulativeFailureC_to_failureC(CFC)
@@ -344,7 +344,7 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
-      print("PICKED FC pattern")
+      #print("PICKED FC pattern")
       source("Data_Format.R")
       FC <- input_data$FC[input_data$FC > 0]
       T <- input_data$T[input_data$CFC > 0]
@@ -381,7 +381,7 @@ console_out_u<- function(model,data_set,request,method,type){
     # else{
     #   sol <- GM_BM_MLE(input_data$IF)
     # }
-    #print(sol)
+    ##print(sol)
     if(typeof(sol)=="double"){ 
     info <- make_style("blue",bg = TRUE)
     cat(info(format(paste("TESTING Data: ",data_set),width=50)))
@@ -412,13 +412,13 @@ console_out_u<- function(model,data_set,request,method,type){
   else if(model=="GO"){
 
     if(length(grep("FT",input_data))>0) {
-      print("PICKED FT pattern")
+      #print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
       FT <- input_data$FT
       #split_name <- unlist(strsplit(request,"_"))
-      #print(split_name)
+      ##print(split_name)
       # for(type in model_types){
       #     if(type %in% split_name){
       #       for(method in model_method){
@@ -430,7 +430,7 @@ console_out_u<- function(model,data_set,request,method,type){
       #       }
       #     }       
       #   }
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -441,12 +441,12 @@ console_out_u<- function(model,data_set,request,method,type){
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
-      print("PICKED IF pattern")
+      #print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
       FT <- input_data$FT
       #split_name <- unlist(strsplit(request,"_"))
-      #print(split_name)
+      ##print(split_name)
       # for(type in model_types){
       #     if(type %in% split_name){
       #       for(method in model_method){
@@ -458,7 +458,7 @@ console_out_u<- function(model,data_set,request,method,type){
       #       }
       #     }       
       #   }
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -468,14 +468,14 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
-      print("PICKED CFC pattern")     
+      #print("PICKED CFC pattern")     
       source("Data_Format.R")
       CFC <- input_data$CFC[input_data$CFC > 0]
       FC <- CumulativeFailureC_to_failureC(CFC)
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -485,13 +485,13 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
-      print("PICKED FC pattern")
+      #print("PICKED FC pattern")
       source("Data_Format.R")
       FC <- input_data$FC[input_data$FC > 0]
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -529,7 +529,7 @@ console_out_u<- function(model,data_set,request,method,type){
     # else{
     #   sol <- GO_MLE(input_data$FT)
     # }
-    #print(sol)
+    ##print(sol)
     if(typeof(sol)=="double"){ 
     info <- make_style("blue",bg = TRUE)
     cat(info(format(paste("TESTING Data: ",data_set),width=50)))
@@ -558,13 +558,13 @@ console_out_u<- function(model,data_set,request,method,type){
 
 
     if(length(grep("FT",names(input_data)))>0) {
-      print("PICKED FT pattern")
+      #print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
       FT <- input_data$FT
       #split_name <- unlist(strsplit(request,"_"))
-      #print(split_name)
+      ##print(split_name)
       # for(type in model_types){
       #     if(type %in% split_name){
       #       for(method in model_method){
@@ -576,12 +576,12 @@ console_out_u<- function(model,data_set,request,method,type){
       #       }
       #     }       
       #   }
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
 
       sol <- MLE_construct(FT)
-      print(print(anyNA(sol)))
+      #print(#print(anyNA(sol)))
       if(anyNA(sol)){
         sol <- c("nonconvergence")
       }
@@ -592,12 +592,12 @@ console_out_u<- function(model,data_set,request,method,type){
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
-      print("PICKED IF pattern")
+      #print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
       FT <- input_data$FT
       #split_name <- unlist(strsplit(request,"_"))
-      #print(split_name)
+      ##print(split_name)
       # for(type in model_types){
       #     if(type %in% split_name){
       #       for(method in model_method){
@@ -609,7 +609,7 @@ console_out_u<- function(model,data_set,request,method,type){
       #       }
       #     }       
       #   }
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -622,14 +622,14 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
-      print("PICKED CFC pattern")     
+      #print("PICKED CFC pattern")     
       source("Data_Format.R")
       CFC <- input_data$CFC[input_data$CFC > 0]
       FC <- CumulativeFailureC_to_failureC(CFC)
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -642,17 +642,17 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
-      print("PICKED FC pattern")
+      #print("PICKED FC pattern")
       source("Data_Format.R")
       FC <- input_data$FC[input_data$FC > 0]
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
-      print(sol)
+      #print(sol)
       if(anyNA(sol)){
         sol <- c("nonconvergence")
       }
@@ -690,7 +690,7 @@ console_out_u<- function(model,data_set,request,method,type){
     # else{
     #   sol <- GO_MLE(input_data$FT)
     # }
-    #print(sol)
+    ##print(sol)
     if(typeof(sol)=="double"){ 
     info <- make_style("blue",bg = TRUE)
     cat(info(format(paste("TESTING Data: ",data_set),width=50)))
@@ -721,13 +721,13 @@ console_out_u<- function(model,data_set,request,method,type){
 
 
     if(length(grep("FT",names(input_data)))>0) {
-      print("PICKED FT pattern")
+      #print("PICKED FT pattern")
       #FT <- input_data$FT > 0
       source("Data_Format.R")
       IF <- failureT_to_interF(input_data$FT)
       FT <- input_data$FT
       #split_name <- unlist(strsplit(request,"_"))
-      #print(split_name)
+      ##print(split_name)
       # for(type in model_types){
       #     if(type %in% split_name){
       #       for(method in model_method){
@@ -739,7 +739,7 @@ console_out_u<- function(model,data_set,request,method,type){
       #       }
       #     }       
       #   }
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -750,12 +750,12 @@ console_out_u<- function(model,data_set,request,method,type){
     }
     else if(length(grep("IF",names(input_data))) > 0) {
 
-      print("PICKED IF pattern")
+      #print("PICKED IF pattern")
       source("Data_Format.R")
       IF <- input_data$IF
       FT <- input_data$FT
       #split_name <- unlist(strsplit(request,"_"))
-      #print(split_name)
+      ##print(split_name)
       # for(type in model_types){
       #     if(type %in% split_name){
       #       for(method in model_method){
@@ -767,7 +767,7 @@ console_out_u<- function(model,data_set,request,method,type){
       #       }
       #     }       
       #   }
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -777,14 +777,14 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("CFC",names(input_data)))>0) { 
-      print("PICKED CFC pattern")     
+      #print("PICKED CFC pattern")     
       source("Data_Format.R")
       CFC <- input_data$CFC[input_data$CFC > 0]
       FC <- CumulativeFailureC_to_failureC(CFC)
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -794,13 +794,13 @@ console_out_u<- function(model,data_set,request,method,type){
       del_time <- new_time - time
     }
     else if(length(grep("FC",names(input_data)))>0){
-      print("PICKED FC pattern")
+      #print("PICKED FC pattern")
       source("Data_Format.R")
       FC <- input_data$FC[input_data$FC > 0]
       T <- input_data$T[input_data$CFC > 0]
       FT <-failureC_to_failureT(T,FC)
       IF <- failureT_to_interF(failure_T = FT)
-      print(paste(model,method,c("MLE"),sep="_"))
+      #print(paste(model,method,c("MLE"),sep="_"))
       MLE_construct <- get(paste(model,method,type,c("MLE"),sep="_"))
       time <- proc.time()
       sol <- MLE_construct(FT)
@@ -838,7 +838,7 @@ console_out_u<- function(model,data_set,request,method,type){
     # else{
     #   sol <- GO_MLE(input_data$FT)
     # }
-    #print(sol)
+    ##print(sol)
     if(typeof(sol)=="double"){ 
     info <- make_style("blue",bg = TRUE)
     cat(info(format(paste("TESTING Data: ",data_set),width=50)))
@@ -1013,7 +1013,7 @@ for(model in model_names){
               next
             }
             source(paste(paste(model,method,type,sep="_"),".R",sep=""))
-            print("Called")
+            #print("Called")
             request <- paste(model,data_set,sep="_")
             if(data_set=="SS1"){   # SS4 data set is failing for some reason needs inspection
               next

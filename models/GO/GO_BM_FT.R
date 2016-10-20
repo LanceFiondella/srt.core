@@ -9,7 +9,7 @@ GO_BM_MLE <- function(x){
 n <- length(x)
 tn <- x[n]
 sumT <- sum(as.numeric(x))
-#print("GO_BM_R\n")
+##print("GO_BM_R\n")
 #Define MLE of parameter 'b'
 GO_MLEeq<-function(b){
 	((n*tn*exp(-b*tn))/(1-exp(- b*tn)))+sumT - n/b 
@@ -29,7 +29,7 @@ rightEndPoint <- 1.2*b0
 rightEndPointMLE <- GO_MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-	#print('In Step 2 while loop of GO_BM_FT.R')
+	##print('In Step 2 while loop of GO_BM_FT.R')
 	leftEndPoint <- leftEndPoint/2
 	leftEndPointMLE <- GO_MLEeq(leftEndPoint)
 	rightEndPoint <- 2*rightEndPoint
@@ -48,15 +48,15 @@ maxiter <- 20
     sol <- tryCatch(
       stats::uniroot(GO_MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
       warning = function(w){
-      #print(f.lower)
+      ##print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <<- maxiter+1 
-          #print(paste("recursive", maxiter,sep='_'))
+          ##print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
       error = function(e){
-        print(e)
+        #print(e)
         #return(e)
       })
     sol
@@ -67,11 +67,11 @@ maxiter <- 20
 	#bMLE <- stats::uniroot(GO_MLEeq,c(leftEndPoint,rightEndPoint))$root
 }
 
-#print(bMLE)
+##print(bMLE)
 #Step-4
 #MLE of parameter 'a'
 	 aMLE <- n/(1-exp(-bMLE*(tn)))
-	 #print(aMLE)
+	 ##print(aMLE)
    sol <- data.frame("GO_aMLE"=aMLE,"GO_bMLE"=bMLE)
 	 # sol <- c(aMLE,bMLE)
 	 sol
@@ -277,15 +277,15 @@ GO_Target_T <- function(params,cur_time,delta, reliability){
       sol <- tryCatch(
         stats::uniroot(f, c(interval_left, interval_right),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
-          #print(f.lower)
+          ##print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- floor(maxiter*1.5)
-            print(paste("recursive", maxiter,sep='_'))
+            #print(paste("recursive", maxiter,sep='_'))
             GO_Target_T(a,b,cur_time,delta, reliability)
           }
         },
         error = function(e){
-          print(e)
+          #print(e)
           #return(e)
         })
     } else {
@@ -303,7 +303,7 @@ GO_R_growth <- function(params,d,delta){
   for(i in 1:length(d$FT)){   
     r[i,1] <- d$FT[i]
     temp <- GO_R_delta(params,d$FT[i],delta)
-    #print(typeof(temp))
+    ##print(typeof(temp))
     if(typeof(temp) != typeof("character")){
       r[i,2] <- temp
       r[i,3] <- "GO"
@@ -315,7 +315,7 @@ GO_R_growth <- function(params,d,delta){
   }
   g <- data.frame(r[1],r[2],r[3])
   names(g) <- c("Time","Reliability_Growth","Model")
-  #print(g)
+  ##print(g)
   g
 }
 
@@ -327,7 +327,7 @@ GO_R_growth <- function(params,d,delta){
 #  for(i in 1:length(tt_index)){   
 #    r[i,1] <- tt_index[i]
 #    temp <- GO_R_delta(params,tt_index[i],delta)
-#    #print(typeof(temp))
+#    ##print(typeof(temp))
 #    if(typeof(temp) != typeof("character")){
 #      r[i,2] <- temp
 #      r[i,3] <- "GO"
@@ -339,7 +339,7 @@ GO_R_growth <- function(params,d,delta){
 #  }
 #  g <- data.frame(r[1],r[2],r[3])
 #  names(g) <- c("Time","Reliability_Growth","Model")
-#  #print(g)
+#  ##print(g)
 #  g
 #  
 #}

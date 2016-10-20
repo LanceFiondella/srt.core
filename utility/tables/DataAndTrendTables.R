@@ -43,7 +43,7 @@ data_or_trend_table <- function(inputData, DataRange, DataOrTrend, TrendTest) {
       } else {
         
         # Couldn't determine trend test type.
-        # Print an error message.
+        # #print an error message.
         
         TableCreateError <- TRUE
       }
@@ -51,7 +51,7 @@ data_or_trend_table <- function(inputData, DataRange, DataOrTrend, TrendTest) {
       
       # Couldn't determine whether to create a data or
       # trend test table.
-      # Print an error message.
+      # #print an error message.
       
       TableCreateError <- TRUE
     }
@@ -96,7 +96,7 @@ data_or_trend_table <- function(inputData, DataRange, DataOrTrend, TrendTest) {
       } else {
         
         # Couldn't determine trend test type.
-        # Print an error message.
+        # #print an error message.
         
         TableCreateError <- TRUE
       }
@@ -104,14 +104,14 @@ data_or_trend_table <- function(inputData, DataRange, DataOrTrend, TrendTest) {
       
       # Couldn't determine whether to create a data or
       # trend test table.
-      # Print an error message.
+      # #print an error message.
       
       TableCreateError <- TRUE
     }
   } else {
     
     # Couldn't identify input data type.
-    # Print an error message.
+    # #print an error message.
     
     TableCreateError <- TRUE
   }

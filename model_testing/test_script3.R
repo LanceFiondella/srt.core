@@ -14,18 +14,18 @@ Mathematica_result <- function(model,dataset){
 		}
 	}
 	d <- as.matrix(d)
-	#!----> print(d)
-	#!----> print(dimnames(d))
+	#!----> #print(d)
+	#!----> #print(dimnames(d))
 	dimnames(d) <- list(d[,1],dimnames(d)[[2]])
-	#!----> print(d)
+	#!----> #print(d)
 	a <- data.frame()
 	#!-----> dataset_row <<- as.matrix(d[paste(dataset),])
 	for(i in 1:(length(get(paste(model,"params",sep="_"))))){
 		a[1,i] <- d[dataset,get(paste(model,"params",sep="_"))[i]]
 	}
 	# !----> a <- data.frame(a[1])
-	# !----> print(a)
-	# !----> print(get(paste(model,"params",sep="_")))
+	# !----> #print(a)
+	# !----> #print(get(paste(model,"params",sep="_")))
 	names(a) <- get(paste(model,"params",sep="_"))
 	a
 }

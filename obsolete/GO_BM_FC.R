@@ -42,7 +42,7 @@ rightEndPoint <- 2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  print('In Step 2 while loop of GO_BM_FC.R')
+  #print('In Step 2 while loop of GO_BM_FC.R')
   leftEndPoint <- leftEndPoint/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
   rightEndPoint <- 1.1*rightEndPoint
@@ -59,11 +59,11 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
   
 }
 
-print(bMLE)
+#print(bMLE)
 #Step-4
 #MLE of parameter 'a'
 aMLE <- sum(kVec)/(1-exp(-bMLE*tn))
-print(aMLE)
+#print(aMLE)
 
 #NHPP log-likelihood function
 

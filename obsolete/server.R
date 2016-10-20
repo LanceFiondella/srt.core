@@ -66,7 +66,7 @@ shinyServer(function(input, output) {#reactive shiny fuction
       # ------------------------------------------------------------
       plot_data <- sol
       names(plot_data) = c("index","laplace_factor")
-      print(plot_data)
+      #print(plot_data)
       q <- q + geom_point(data=plot_data,aes(color="blue"))
       #label <- c("Trend test")
       #value <- c("")
@@ -90,12 +90,12 @@ shinyServer(function(input, output) {#reactive shiny fuction
     }
     if (input$Model == "GO"){
       y <- as.vector(data[,2])
-      print(y)
+      #print(y)
       newdata <- GO_BM_MLE(y)
       newdata <- y * as.vector(newdata)
       newdata <- data.frame(newdata)
       data[,2] <- newdata[,1]
-      print(data)
+      #print(data)
       p <- p + geom_point(data=data,aes(color="red",group="Geol-Okumoto Model"))
       p <- p + geom_line(data=data,aes(color="red",group="Geol-Okumoto Model"))
       model <- c("Geol-Okumoto Model")

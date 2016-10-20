@@ -38,9 +38,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
   } else {
     
     # Couldn't identify view of data to display.
-    # Print an error message.
+    # #print an error message.
     
-    print(msgModelDataViewUnknown)
+    #print(msgModelDataViewUnknown)
     PlotFault <- TRUE
   }
   
@@ -128,9 +128,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     } else {
       
       # Couldn't identify view of data to display.
-      # Print an error message.
+      # #print an error message.
       
-      print(msgModelDataViewUnknown)
+      #print(msgModelDataViewUnknown)
       PlotFault <- TRUE
     }
     
@@ -146,9 +146,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     } else {
       
       # Couldn't identify the plot type.
-      # Print an error message.
+      # #print an error message.
       
-      print(paste0("plot_model_results: ", msgPlotTypeUnknown))
+      #print(paste0("plot_model_results: ", msgPlotTypeUnknown))
       PlotFault <- TRUE
     }
   }
@@ -173,9 +173,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
         
       } else {
         # The type of the input data couldn't be determined.
-        # Print an error message.
+        # #print an error message.
         
-        print(msgInputDataTypeUnknown)
+        #print(msgInputDataTypeUnknown)
         PlotFault <- TRUE
       }
       
@@ -193,9 +193,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
       } else if (!((DataView == "R") || (DataView == "R_growth"))) {
         
         # Couldn't identify view of data to display.
-        # Print an error message.
+        # #print an error message.
         
-        print(msgModelDataViewUnknown)
+        #print(msgModelDataViewUnknown)
         PlotFault <- TRUE
       }
       
@@ -208,9 +208,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
       } else {
         
         # Couldn't identify the plot type.
-        # Print an error message.
+        # #print an error message.
         
-        print(paste0("plot_model_results: ", msgPlotTypeUnknown))
+        #print(paste0("plot_model_results: ", msgPlotTypeUnknown))
         PlotFault <- TRUE
       }
     }

@@ -195,7 +195,7 @@ FC_to_CFC <- function(fc_vec){
 	for(i in 1:length(fc_vec)){
 		cfc[i] <- 0
 		for(j in 1:i){
-			#print(j)
+			##print(j)
 			cfc[i] <- cfc[i] + fc_vec[j]
 		}
 	}

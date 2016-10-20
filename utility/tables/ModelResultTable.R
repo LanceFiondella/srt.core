@@ -33,7 +33,7 @@ model_result_table <- function (in_data, NumObservations, ResultsToShow, RelMiss
   } else {
     
     # Somehow we don't have any model results to display.
-    # Print an error message.
+    # #print an error message.
     
     MR_Table_Error <- TRUE
     

@@ -27,7 +27,6 @@ DSS_BM_MLE <- function(x){
   rightEndPointMLE <- MLEeq(rightEndPoint)
   
   while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-    #print('In Step 2 while loop of DSS_BM_FT.R')
     leftEndPoint <- leftEndPoint/2
     leftEndPointMLE <- MLEeq(leftEndPoint)
     rightEndPoint <- 2*rightEndPoint
@@ -45,16 +44,13 @@ DSS_BM_MLE <- function(x){
       sol <- tryCatch(
         stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
         warning = function(w){
-          #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- maxiter+1 
-            #print(paste("recursive", maxiter,sep='_'))
             soln(maxiter)
           }
         },
         error = function(e){
           print(e)
-          #return(e)
         })
       sol
     }
@@ -66,11 +62,9 @@ DSS_BM_MLE <- function(x){
     #bMLE <- stats::uniroot(MLEeq,c(leftEndPoint,rightEndPoint))$root
   }
   
-  #print(bMLE)
   #Step-4
   #MLE of parameter 'a'
   aMLE <- n/(1-exp(-bMLE*tn)*(1+bMLE*tn))
-  #print(aMLE)
   
   params <- data.frame("DSS_aMLE"=aMLE,"DSS_bMLE"=bMLE)
   params
@@ -79,10 +73,8 @@ DSS_BM_MLE <- function(x){
 
 # Mean Value function
 DSS_MVF <- function(param,d){
-  #param$aMLE <- 100
   n <- length(d$FT)
   r <- data.frame()
-  #print(param)
   #t_index <- seq(0,9000,1)
   # param$aMLE <- 142.8809
   # param$bMLE <- 3.420379e-05
@@ -251,11 +243,9 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
       sol <- tryCatch(
         stats::uniroot(f, c(interval_left, interval_right), extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
-          #print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- floor(maxiter*1.5)
             dlt <<- dlt+100
-            #print(paste("recursive", maxiter,sep='_'))
             DSS_Target_T(a,b,cur_time,delta, reliability)
           }
         },
@@ -278,7 +268,6 @@ DSS_R_growth <- function(params,d,delta){
   for(i in 1:length(d$FT)){   
     r[i,1] <- d$FT[i]
     temp <- DSS_R_delta(params,d$FT[i],delta)
-    #print(typeof(temp))
     if(typeof(temp) != typeof("character")){
       r[i,2] <- temp
     }
@@ -288,6 +277,5 @@ DSS_R_growth <- function(params,d,delta){
   }
   g <- data.frame(r[1],r[2],rep("DSS", length(d$FT)))
   names(g) <- c("Time","Reliability_Growth","Model")
-  #print(g)
   g
 }

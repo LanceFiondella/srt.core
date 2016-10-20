@@ -13,7 +13,7 @@ aic <- function(p,lnL){
 # 		t <- (d$FT[i] - mvf_data$Time[i])^2 + t
 # 	}
 	
-# 	print(paste("PSSE: ",t))
+# 	#print(paste("PSSE: ",t))
 # 	t
 # }
 
