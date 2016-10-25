@@ -54,7 +54,7 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
       localTrendPlot <- localTrendPlot+ggtitle(paste(c("Running Average trend test of"),DataName))
     } else {
       # Couldn't identify view of data to display.
-      # Print an error message.
+      # #print an error message.
       
       PlotFault <- TRUE
     }

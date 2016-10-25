@@ -56,10 +56,21 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
             local_results[[paste0(modelID, "_parm_", paramNum)]][failure_num] <- NaN
             
             # Also indicate that this is a model that won't be displayed on the plot.
-            
+            #print("Models that didnt converge")
+            #print(modelID)
             ParmEstimatesConverged <- FALSE
           }
         } # End for - we've estimated the parameters for the current model for the current failure.
+
+        # Present code fails to capture and mask the non-convergent models which have 'na' in their parameter values
+        # This is fundamental and critical bug to be fixed. The code logic here is super vague and not easy to digest.
+        # Shoud rewrite this whole section with readable code. 
+
+        if(any(is.na(model_params))) {
+          # Temporary hack to above comment.
+          ParmEstimatesConverged <- FALSE
+        }
+
       } # End for - we've estimated model parameters for the current model over the entire dataset.
       
       if(ParmEstimatesConverged) {
@@ -142,11 +153,19 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
 
         pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime"))), select=get(paste0(modelID, "_CumTime")))-OffsetTime)
         names(pred_input_data) <- c("FT")
-        local_results[[paste0(modelID, "_FI")]] <- c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Failure_Rate"]], ModelPredsZero)
-        local_results[[paste0(modelID, "_IF")]] <- c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["MTTF"]], ModelPredsInf)
+        #print(model_params)
+        if(any(sapply(model_params,is.finite) )== TRUE){
+          # #print(local_results)
+          # #print(c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Failure_Rate"]], ModelPredsZero))
+          # #print("--------")
+        # #print(length(local_results[0]))
+        local_results[[paste0(modelID, "_FI")]] <- try(c(get(paste(modelID,"FI",sep="_"))(model_params, pred_input_data)[["Failure_Rate"]], ModelPredsZero),silent=TRUE)
+        # #print(local_results)
+        local_results[[paste0(modelID, "_IF")]] <- try(c(get(paste(modelID,"MTTF",sep="_"))(model_params, pred_input_data)[["MTTF"]], ModelPredsInf),silent=TRUE)
         
-        local_results[[paste0(modelID, "_R_growth")]] <-c(get(paste(modelID,"R_growth",sep="_"))(model_params, pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes)
+        local_results[[paste0(modelID, "_R_growth")]] <-try(c(get(paste(modelID,"R_growth",sep="_"))(model_params, pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes), silent=TRUE)
         
+        }
         #local_results[[paste0(modelID, "_Rel")]] <- NaNFill
         pred_input_data <- NULL
         
@@ -162,7 +181,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
     # We should never get here.  If we do, that means that it couldn't
     # be determined whether the input data was TTFs or FCs.
     
-    print("Type of input data for the models could not be determined.")
+    #print("Type of input data for the models could not be determined.")
   }
   
   # Return model results here, as well as the

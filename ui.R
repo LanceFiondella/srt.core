@@ -192,8 +192,8 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              column(12,
                                                     numericInput("modelCurveAdditionalTime",
-                                                                 label=h6("For how much time should the model results curve extend beyond the last prediction point?"),
-                                                                 min=0, value=10000, step=1000)
+                                                                 label=h6("Enter the duration for which the model results curves should extend beyond the last prediction point."),
+                                                                 min=0, value=100, step=1000)
                                                     )
                                            ),
                                            

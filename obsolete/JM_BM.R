@@ -24,7 +24,7 @@ return(N0_MLE)
 
 #b0 <- n/sum(interFail)
 b0 <- n
-#print(paste("b): ",b0))
+##print(paste("b): ",b0))
 #Step-2: Bracket root
 
 i <- 0 
@@ -34,11 +34,11 @@ leftEndPointMLE <- MLEeq(leftEndPoint)
 rightEndPoint <- 1.1*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
-#print(paste("left:",leftEndPointMLE))
-#print(paste("right:",rightEndPointMLE))
+##print(paste("left:",leftEndPointMLE))
+##print(paste("right:",rightEndPointMLE))
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-	#print('In Step 2 while loop of JM_BM.R')
+	##print('In Step 2 while loop of JM_BM.R')
 	#leftEndPoint <- leftEndPoint/2
 	#leftEndPointMLE <- MLEeq(leftEndPoint)
 	rightEndPoint <- 1.1*rightEndPoint
@@ -55,7 +55,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 	N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-24)$root
 	#N0_MLE <- uniroot(MLEeq,lower=mpfr(leftEndPoint,300),upper=mpfr(rightEndPoint,300), tol = 1e-40)$root
 }
-#print(N0_MLE)
+##print(N0_MLE)
 
 #Step-4
 #MLE of parameter '\phi'

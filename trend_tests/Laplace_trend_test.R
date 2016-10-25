@@ -14,19 +14,14 @@ laplace_trend_test <- function(inter_failure)
   for(i in 2:n)
   {
     sumint <- 0
-    sumint1 <- 0
     for(j in 1:(i-1))
     {
-      sumint <- sumint + inter_failure[j]             # the laplace test function is implemented acccrding to (http://www.ece.uvic.ca/~itraore/seng426-07/notes/qual07-8.pdf)
-        for(k in 1:j)
-        {
-          sumint1 <- sumint1 +inter_failure[k]
-        }
+      sumint <- sumint + failure_time[j]             # the laplace test function is implemented acccrding to (http://www.ece.uvic.ca/~itraore/seng426-07/notes/qual07-8.pdf)
     }
-    laplace_trend[i] <-(((1/(i-1))*sumint1) -(sumint/2))/(failure_time[i]*(1/(12*(i-1))^(0.5)))
+    laplace_trend[i] <-(((1/(i-1))*sumint) -(failure_time[i]/2))/(failure_time[i]*(1/(12*(i-1))^(0.5)))
   }
-  #print(laplace_score)   #printing laplace score on the console
-  #print(laplace_trend) 
+  ##print(laplace_score)   ##printing laplace score on the console
+  ##print(laplace_trend) 
   #plot(laplace_trend,type="b")    # ploting laplace function
   #laplace_trend
   trend_data <- data.frame(c(1:length(laplace_trend)),laplace_trend)

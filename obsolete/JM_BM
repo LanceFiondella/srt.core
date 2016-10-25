@@ -41,7 +41,7 @@ rightEndPoint <- 1.1*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-	print('In Step 2 while loop of JM_BM.R')
+	#print('In Step 2 while loop of JM_BM.R')
 	#leftEndPoint <- leftEndPoint/2
 	#leftEndPointMLE <- MLEeq(leftEndPoint)
 	rightEndPoint <- 1.1*rightEndPoint
@@ -56,7 +56,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 } else {
 	N0_MLE <- uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
 }
-print(N0_MLE)
+#print(N0_MLE)
 
 #Step-4
 #MLE of parameter '\phi'
@@ -66,5 +66,5 @@ for(i in 1:n-1){
 }
 phi <- n/sum(tmp_phi)
 
-print(phi)
+#print(phi)
 

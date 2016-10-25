@@ -174,8 +174,8 @@ console_out_u<- function(model,data_set,request){
   
   cat(begin(format(model,width=9)))
   input_data <- read.xls('model_data.xlsx',sheet=data_set)
-  #print(model)
-  #print(data_set)
+  ##print(model)
+  ##print(data_set)
   if(model=="JM"){
     if(length(grep("[DATA]",data_set)) > 0){
       
@@ -250,7 +250,7 @@ console_out_u<- function(model,data_set,request){
     else{
       sol <- GM_BM_MLE(input_data$IF)
     }
-    #print(sol)
+    ##print(sol)
     if(typeof(sol)=="double"){ 
     info <- make_style("blue",bg = TRUE)
     cat(info(format(paste("TESTING Data: ",data_set),width=50)))
@@ -301,7 +301,7 @@ console_out_u<- function(model,data_set,request){
     else{
       sol <- GO_MLE(input_data$FT)
     }
-    #print(sol)
+    ##print(sol)
     if(typeof(sol)=="double"){ 
     info <- make_style("blue",bg = TRUE)
     cat(info(format(paste("TESTING Data: ",data_set),width=50)))

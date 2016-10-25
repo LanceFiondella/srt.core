@@ -67,14 +67,14 @@ JM_BM_MLE<-function(interFail){
   rightEndPointMLE  <- MLEeq(rightEndPoint) # likelihood function value at rightendpoint
 
   # ----------------------DEBUG STATEMENTS-------------------
-  #------> ! print(paste("left:",leftEndPointMLE))
-  #------> ! print(paste("right:",rightEndPointMLE))
+  #------> ! #print(paste("left:",leftEndPointMLE))
+  #------> ! #print(paste("right:",rightEndPointMLE))
   # =========================================================
 
   while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
 
     #------------DEBUG STATEMENTS--------------------
-    #print('In Step 2 while loop of JM_BM.R')
+    ##print('In Step 2 while loop of JM_BM.R')
     #================================================
 
     # leftendPoint is reduced to half and rightendpoint is doubled 
@@ -88,8 +88,8 @@ JM_BM_MLE<-function(interFail){
   }
 
   # ---------------------DEBUG STATEMENTS--------------------
-  # Printing endPoints to check.
-  # -----> ! print(c(leftEndPointMLE,rightEndPointMLE))
+  # #printing endPoints to check.
+  # -----> ! #print(c(leftEndPointMLE,rightEndPointMLE))
   #==========================================================
 
 
@@ -124,12 +124,12 @@ JM_BM_MLE<-function(interFail){
                 warning = function(w){
                   if(length(grep("_NOT_ converged",w[1]))>0){
                     maxiter <- maxiter+10
-                    #print(paste("recursive", maxiter,sep='_'))
+                    ##print(paste("recursive", maxiter,sep='_'))
                     soln(maxiter)
                   }
                 },
                 error = function(e){
-                  print(e)
+                  #print(e)
               })
       sol
     }
@@ -480,15 +480,15 @@ JM_Target_T <- function(params,cur_time,delta, reliability){
       sol <- tryCatch(
         stats::uniroot(f, c(interval_left, interval_right),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
         warning = function(w){
-          #print(f.lower)
+          ##print(f.lower)
           if(length(grep("_NOT_ converged",w[1]))>0){
             maxiter <<- floor(maxiter*1.5)
-            print(paste("recursive", maxiter,sep='_'))
+            #print(paste("recursive", maxiter,sep='_'))
             JM_Target_T(a,b,cur_time,delta, reliability)
           }
         },
         error = function(e){
-          print(e)
+          #print(e)
           #return(e)
         })
     } else {
@@ -520,7 +520,7 @@ JM_R_growth <- function(params,d,delta){
   for(i in 1:length(d$FT)){   
     r[i,1] <- d$FT[i]
     temp <- JM_R_delta(params,d$FT[i],delta)
-    #print(typeof(temp))
+    ##print(typeof(temp))
     if(typeof(temp) != typeof("character")){
       r[i,2] <- temp
       r[i,3] <- "JM"
@@ -543,7 +543,7 @@ JM_R_growth <- function(params,d,delta){
 #    for(i in 1:length(tt_index)){   
 #      r[i,1] <- tt_index[i]
 #      temp <- JM_R_delta(params,tt_index[i],delta)
-#      #print(typeof(temp))
+#      ##print(typeof(temp))
 #      if(typeof(temp) != typeof("character")){
 #        r[i,2] <- temp
 #        r[i,3] <- "JM"
@@ -555,7 +555,7 @@ JM_R_growth <- function(params,d,delta){
 #    }
 #    g <- data.frame(r[1],r[2],r[3])
 #    names(g) <- c("Time","Reliability_Growth","Model")
-#    #print(g)
+#    ##print(g)
 #    g
 #      
 #}

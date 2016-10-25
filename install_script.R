@@ -18,11 +18,16 @@ if (version$major < 3 || (version$major == 3 && version$minor < 2.2)){ #checks i
     updateR() # this will start the updating process of your R installation.  It will check for newer versions, and if one is available, will guide you through the decisions you'd need to make.
   }
   else{
-    #print explainationfor non-windows users
     stop("Your machine requires a newer version of R. Please download the updated version for your platform at https://cran.rstudio.com/")
   }
   
 }
+
+#Uncomment the next 3 lines if docker has issues using an old version of
+#htmltools. Warning: Travis will fail if the lines are uncommented
+#remove.packages("htmltools")
+#install.packages("htmltools")
+#library(htmltools)
 
 #checks for each dependancy and loads or installs then loads
 if(!require(shiny)) {install.packages("shiny", repos="http://cran.rstudio.com/" , dep = TRUE);library(shiny)} #shiny is the main interface package

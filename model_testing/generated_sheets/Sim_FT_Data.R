@@ -28,7 +28,7 @@ for(i in 1:N0){
 	}
 	failureTime[i] <- interFail[i] + failureTime[i-1]
 }
-#print(failureTime)
-#print(interFail)
+##print(failureTime)
+##print(interFail)
 	failureTime
 }

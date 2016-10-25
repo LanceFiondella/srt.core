@@ -24,8 +24,8 @@ laplace_trend_test <- function(inter_failure)
     }
     laplace_trend[i] <-(((1/(i-1))*sumint1) -(sumint/2))/(failure_time[i]*(1/(12*(i-1))^(0.5)))
   }
-  #print(laplace_score)   #printing laplace score on the console
-  #print(laplace_trend) 
+  ##print(laplace_score)   ##printing laplace score on the console
+  ##print(laplace_trend) 
   #plot(laplace_trend,type="b")    # ploting laplace function
   trend_data <- data.frame(c(1:length(laplace_trend)),laplace_trend)
   names(trend_data) <- c("Index","Laplace_factor")

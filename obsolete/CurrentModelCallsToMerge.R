@@ -14,7 +14,7 @@ output$ModelPlot <- renderPlot({
   count <-0
   # while(is.null(input$modelResultChoice) || length(input$modelResultChoice)==0 ){
   #   count <- count+1
-  #   print(count)
+  #   #print(count)
   #   return
   # }
   
@@ -48,16 +48,16 @@ output$ModelPlot <- renderPlot({
             # if(input$modelPlotChoice==2){
             #  #p1 <- ggplot(,aes_string(x=Time,y=Failure));
             #  new_params <- JM_BM_MLE(IF)
-            #  print(new_params)
-            #  print(typeof(new_params))
+            #  #print(new_params)
+            #  #print(typeof(new_params))
             #  data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
             #  if(typeof(new_params)=="double"){
-            #    #print("I am 1")
+            #    ##print("I am 1")
             
             #    frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-            #    #print(" I am 2")
+            #    ##print(" I am 2")
             #    mvf_plot_data <- JM_MVF(frame_params,data)
-            #    #print("I am 3")
+            #    ##print("I am 3")
             #    if(input$ModelDataPlotType==1){
             #      p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
             #    }
@@ -75,7 +75,7 @@ output$ModelPlot <- renderPlot({
             #  }
             #  else if(new_params=="nonconvergence"){
             
-            #    #print("I am here so :")
+            #    ##print("I am here so :")
             #    original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
             #    p1 <- p1 + geom_point(data=original_data,aes(Time,Failure))
             #    #c + geom_text(data = NULL, x = 5, y = 30, label = "plot mpg vs. wt")
@@ -84,7 +84,7 @@ output$ModelPlot <- renderPlot({
             #    p1 <- p1+ annotate("text", label = "Non-Convergence", x = length(original_data$Failure)/2, y = length(original_data$Time)/2, size = 8, colour = "red")
             #  }
             #  else{
-            #    print (" I am an else ")
+            #    #print (" I am an else ")
             #  }
             
             #  p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))  
@@ -307,16 +307,16 @@ output$ModelPlot <- renderPlot({
             if(input$modelPlotChoice==2){
               #p1 <- ggplot(,aes_string(x=Time,y=Failure));
               new_params <- JM_BM_MLE(IF)
-              print(new_params)
-              print(typeof(new_params))
+              #print(new_params)
+              #print(typeof(new_params))
               data <- data.frame("FT"=FT,"IF"=IF,"FN"=1:length(FT))
               if(typeof(new_params)=="double"){
-                #print("I am 1")
+                ##print("I am 1")
                 
                 frame_params <- data.frame("N0"=c(new_params[1]),"Phi"=c(new_params[2]))
-                #print(" I am 2")
+                ##print(" I am 2")
                 mvf_plot_data <- JM_MVF(frame_params,data)
-                #print("I am 3")
+                ##print("I am 3")
                 if(input$ModelDataPlotType==1){
                   p1 <- p1 + geom_point(data=mvf_plot_data,aes(Time,Failure))+ geom_line(data=mvf_plot_data)# + ggtitle(paste(c("Laplace trend of "),data_set))
                 }
@@ -334,7 +334,7 @@ output$ModelPlot <- renderPlot({
               }
               else if(new_params=="nonconvergence"){
                 
-                #print("I am here so :")
+                ##print("I am here so :")
                 original_data <- data.frame("Time"=data$FT,"Failure" =data$FN)
                 p1 <- p1 + geom_point(data=original_data,aes(Time,Failure))
                 #c + geom_text(data = NULL, x = 5, y = 30, label = "plot mpg vs. wt")
@@ -343,7 +343,7 @@ output$ModelPlot <- renderPlot({
                 p1 <- p1+ annotate("text", label = "Non-Convergence", x = length(original_data$Failure)/2, y = length(original_data$Time)/2, size = 8, colour = "red")
               }
               else{
-                print (" I am an else ")
+                #print (" I am an else ")
               }
               
               p1 <- p1+ggtitle(paste(c("Mean Value function plot of"),input$dataSheetChoice))  
@@ -698,14 +698,14 @@ output$ModelPlot <- renderPlot({
         }
         
         else if(i=="Goel-okumoto"){
-          print("Goel-okumoto");
+          #print("Goel-okumoto");
           #p1 <- ggplot(,aes_string(x=Time,y=Failure))
           if(length(grep("IF",names(data)))){
             if(input$modelPlotChoice==2){
               FT <- interF_to_failureT(data$IF)
               #p1 <- ggplot(,aes_string(x=Time,y=Failure));
               new_params <- GO_BM_MLE(FT)
-              print(new_params)
+              #print(new_params)
               data <- data.frame("FT"=FT,"IF"=data$IF,"FN"=1:length(data$FT))
               frame_params <- data.frame("aMLE"=c(new_params[1]),"bMLE"=c(new_params[2]))
               mvf_plot_data <- GO_BM_MVF(frame_params,data)
@@ -982,18 +982,18 @@ output$ModelPlot <- renderPlot({
           
         }
         else{
-          print("Other");
+          #print("Other");
         }
-        #print("hello i am out");
+        ##print("hello i am out");
         
-        #print("hello i am a out");
+        ##print("hello i am a out");
         
         
-        #print("i ==6")
+        ##print("i ==6")
       }
       p1
       
-      #print("model selections")
+      ##print("model selections")
       
     }
     
@@ -1003,16 +1003,16 @@ output$ModelPlot <- renderPlot({
   
   
   
-  #print("i am far out");
-  #print(input$runModels)
+  ##print("i am far out");
+  ##print(input$runModels)
   #p <- p + scale_color_manual(name = "Legend",  labels = c("Original Data"),values = c("blue"))
-  #print(input$modelResultChoice)
+  ##print(input$modelResultChoice)
   
   
   #plotties <- c(p1,p1)
-  #print(plotties$layers)
+  ##print(plotties$layers)
   #plotSet <- length(plotties$layers)>0
-  #print(length(plotSet))
+  ##print(length(plotSet))
   #p <- multiplot(p1,p1,cols=1)
   
 } ) 

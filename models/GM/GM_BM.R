@@ -41,7 +41,7 @@ rightEndPoint <- 1.2*b0
 rightEndPointMLE <- MLEeq(rightEndPoint)
 
 while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-  #print('In Step 2 while loop of GM_BM.R')
+  ##print('In Step 2 while loop of GM_BM.R')
   leftEndPoint <- leftEndPoint/2
   leftEndPointMLE <- MLEeq(leftEndPoint)
   rightEndPoint <- 1.1*rightEndPoint
@@ -61,15 +61,15 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
     sol <- tryCatch(
       stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
       warning = function(w){
-      #print(f.lower)
+      ##print(f.lower)
         if(length(grep("_NOT_ converged",w[1]))>0){
           maxiter <- maxiter+1 
-          print(paste("recursive", maxiter,sep='_'))
+          #print(paste("recursive", maxiter,sep='_'))
           soln(maxiter)
         }
       },
       error = function(e){
-        print(e)
+        #print(e)
         #return(e)
       })
     sol
@@ -84,7 +84,7 @@ if(leftEndPointMLE*rightEndPointMLE > 0 ){
 
   #phiMLE <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
 }
-#print(phiMLE)
+##print(phiMLE)
 
 #Step-4
 #MLE of parameter 'D'
@@ -94,7 +94,7 @@ for(i in 1:n){
 }
 D_MLE <- (phiMLE*n)/DrTerm
 
-#print(D_MLE)
+##print(D_MLE)
 params <- data.frame("GM_D0"=D_MLE,"GM_Phi"=phiMLE)
 params
 }
@@ -161,7 +161,7 @@ GM_R <- function(param,d){
   }
   r <- data.frame(r[1],r[2],r[3])
   names(r) <- c("Time","Reliability","Model")
-  print(r)
+  #print(r)
   r
   
 }
@@ -171,14 +171,14 @@ GM_lnL <-  function(x,params){
 
   sum1=0
   sum2=0
-  print(params)
+  #print(params)
   n <- length(x)
   for(i in 1:n){
     sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
     sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
   }
   lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
-  print(lnL)
+  #print(lnL)
   return(lnL)
 }
 
@@ -235,15 +235,15 @@ GM_Target_T <- function(params,cur_time,delta, reliability){
         sol <- tryCatch(
           stats::uniroot(f, c(interval_left,interval_right),extendInt="yes", maxiter=maxiter, tol=1e-10)$root,
           warning = function(w){
-            #print(f.lower)
+            ##print(f.lower)
             if(length(grep("_NOT_ converged",w[1]))>0){
               maxiter <<- floor(maxiter*1.5)
-              print(paste("recursive", maxiter,sep='_'))
+              #print(paste("recursive", maxiter,sep='_'))
               GM_Target_T(a,b,cur_time,delta, reliability)
             }
           },
           error = function(e){
-            print(e)
+            #print(e)
             #return(e)
           })
       } else {
@@ -262,7 +262,7 @@ GM_R_growth <- function(params,d,delta){
     for(i in 1:length(d$FT)){   
       r[i,1] <- d$FT[i]
       temp <- GM_R_delta(params,d$FT[i],delta)
-      #print(typeof(temp))
+      ##print(typeof(temp))
       if(typeof(temp) != typeof("character")){
         r[i,2] <- temp
         r[i,3] <- "GM"
@@ -274,7 +274,7 @@ GM_R_growth <- function(params,d,delta){
     }
     g <- data.frame(r[1],r[2],r[3])
     names(g) <- c("Time","Reliability_Growth","Model")
-    #print(g)
+    ##print(g)
     g
       
 }
@@ -287,7 +287,7 @@ GM_R_growth <- function(params,d,delta){
 #  for(i in 1:length(tt_index)){   
 #    r[i,1] <- tt_index[i]
 #    temp <- GM_R_delta(params,tt_index[i],delta)
-#    #print(typeof(temp))
+#    ##print(typeof(temp))
 #    if(typeof(temp) != typeof("character")){
 #      r[i,2] <- temp
 #      r[i,3] <- "GM"
@@ -299,7 +299,7 @@ GM_R_growth <- function(params,d,delta){
 #  }
 #  g <- data.frame(r[1],r[2],r[3])
 #  names(g) <- c("Time","Reliability_Growth","Model")
-#  #print(g)
+#  ##print(g)
 #  g
 #  
 #}

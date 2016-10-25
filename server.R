@@ -83,7 +83,6 @@ data_original <- data.frame()
       return("Please upload an excel file")
     }
       sheets_present <- sheetNames(xls=inFile$datapath)
-      # print(sheets_present)
       selectInput("dataSheetChoice","Choose Sheet", c(NULL,sheets_present))
     }
     else{
@@ -122,20 +121,15 @@ data_original <- data.frame()
       data_original <<- data
     } else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
-        #print(inFile)
         return("Please upload excel sheet")
       }
-      #print(inFile)
       data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
       data_original <<- data # ----? should think of its usage 'data_original'
       data_set <- inFile$filename
     }
     data_set_global <<- data_set
-    #data
-    #print(data)
     if(dataType(names(data))=="FR"){
       data_generated <- generate_dataFrame(data)
-      #print(data_generated)
       data_generated
     }
     else if(dataType(names(data))=="FC"){
@@ -574,8 +568,8 @@ data_original <- data.frame()
   })
 
   
-  # If one or more of the models didn't complete successfully, display a message
-  # notifying the user of that fact.
+#   #If one or more of the models didn't complete successfully, display a message
+#   #notifying the user of that fact.
   
 #  UnsuccessfulModelsMessage <- reactive({
 #    outputMessage <- ""
@@ -627,12 +621,10 @@ data_original <- data.frame()
       if(length(input$modelResultChoice)==0){
         return(MR_Table)
       }
-      if(input$modelResultChoice=="None"){
+      if(input$modelResultChoice[1]=="None"){
         return(MR_Table)
       }
-      print(ModelResults)
       if(is.null(ModelResults)){
-        print("NO results to display.")
         return
       }
       else if(!is.null(ModelResults)) {
@@ -707,13 +699,11 @@ data_original <- data.frame()
 tab3_table1_construct <- function(model,data,input){
   if(dataType(names(data))=="FR"){
     model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
-    # ----> ! print("Table1 construct: ")
-    # ----> ! print(model_params)
-    # ----> ! print(data)
-    # ----> ! print(count)
-    print("==============")
-    print(model_params)
-    #print()
+    # ----> ! #print("Table1 construct: ")
+    # ----> ! #print(model_params)
+    # ----> ! #print(data)
+    # ----> ! #print(count)
+   
     if(typeof(model_params)!="character"){
       number_fails <- get_prediction_k( model,
                                         model_params, 
@@ -737,11 +727,15 @@ tab3_table1_construct <- function(model,data,input){
       reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, input$modelRelMissionTime)
       cost_at_opt_release_time <- get_cost_at_time(model,model_params, opt_release_time, input$T, input$C0, input$C1, input$C2)
       
+
       # opt_release_time <- input$C0 + input$C1 + input$C2
-      print(time_fails)
-      print(number_fails)
-      print(rel_time)
-      print(opt_release_time)
+      #print(time_fails)
+      #print(number_fails)
+      #print(rel_time)
+      #print(opt_release_time)
+
+     
+
       ExpectedNumFailuresExceeded <- FALSE
       for( i in 1:length(time_fails)){
         if(!ExpectedNumFailuresExceeded){
@@ -886,18 +880,12 @@ tab4_table1_construct <- function(model,data,input){
   if(dataType(names(data))=="FR"){
     model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
 
-    # ----> ! print("Table1 construct: ")
-    print(model_params)
-    # ----> ! print(data)
-    # ----> ! print(count)
+    
     if(typeof(model_params)!="character"){
       # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
       max_lnL <- try(get(paste(model,"lnL",sep="_"))(get("data")[[get(paste(model,"input",sep="_"))]],model_params),silent=TRUE)
       # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
-      #----> !  print(time_fails)
-      #----> !  print(number_fails)
-      print("Log LIkehood -----------------------------------------")
-      print(max_lnL)
+     
       if(length(grep("not found",max_lnL))) {
         count<<-count+1
         tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
@@ -912,10 +900,8 @@ tab4_table1_construct <- function(model,data,input){
       }
       else {
         AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
-        # print(data)
         PSSE <- psse(model,data$FT,model_params,input$percentData)
-        print("PSSE -----------------------------------------")
-        print(PSSE)
+       
         count <<- count+1
         tab4_table1[count,1]<<- get(paste0(model, "_fullname"))
         tab4_table1[count,2]<<- AIC
@@ -991,7 +977,6 @@ output$mytable2 <- DT::renderDataTable({
         return
     }
     
-    print(ModelsToEval)
     tab4_table1 <<- data.frame()
     
     # Use the subset of data to which models were applied
