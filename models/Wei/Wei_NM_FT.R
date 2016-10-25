@@ -287,3 +287,31 @@ Wei_R_growth <- function(params,d,delta){
     g
       
 }
+
+#Weibull SRGM
+#Method -1: tStar equation 
+Wei_OR_CC <- function(params,c1,c2,c3){
+library(emdbook)
+  return(((-(params$Wei_cMLE-1)*lambertW(((c3/(params$Wei_aMLE*params$Wei_bMLE*params$Wei_cMLE*(c2-c1)))^(params$Wei_cMLE/(params$Wei_cMLE-1))*params$Wei_bMLE*params$Wei_cMLE)/(1-params$Wei_cMLE)))/(params$Wei_bMLE*params$Wei_cMLE))^(1/params$Wei_cMLE))
+}
+
+#Method-2: Using uniroot function
+#eqn <- function(d){
+#  aMLE<- 172.526
+#    bMLE<- 0.000696057
+#    cMLE<- 0.676739
+#    c1<- 50
+#    c2<-1000000
+#    c3<-200
+#  rt <- numeric(0)
+#  rt <-(bMLE*cMLE*exp(-bMLE*(d^cMLE))*d^(cMLE-1)*aMLE)-(c3/(c2-c1))
+#  return(rt)}
+
+#end point of the data
+#tn<-88682
+#uniroot(eqn, c(0.0000001,tn), tol=1e-10, extendInt="yes")$root
+
+#Cost equation for Weibull optimal release plots
+Wei_cost <- function(params,c1,c2,c3,t,t_lifecycle){
+  return(c1*Wei_MVF_cont(params,t) + c2*(Wei_MVF_cont(params,t_lifecycle) - Wei_MVF_cont(params,t)) + c3*t)
+}

@@ -488,7 +488,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 )                              
                               )
                             )
-                   ),
-tags$footer(includeHTML("analytics/clustrmaps.html")),
-tags$footer(includeHTML("analytics/statcounter.html"))
+                   )
+#tags$footer(includeHTML("analytics/clustrmaps.html")),
+#tags$footer(includeHTML("analytics/statcounter.html"))
 ))

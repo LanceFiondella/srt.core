@@ -303,3 +303,13 @@ GM_R_growth <- function(params,d,delta){
 #  g
 #  
 #}
+#Geometric SRGM   
+
+GM_OR_CC <- function(param,c1,c2,c3){
+  return((c1*param$GM_D0-c2*param$GM_D0+c3*param$GM_Phi)/(c3*param$GM_D0*log(param$GM_Phi)))
+}
+
+#Cost equation for GM optimal release plots
+GM_cost <- function(params,c1,c2,c3,t,t_lifecycle){
+  return(c1*GM_MVF_cont(params,t) + c2*(GM_MVF_cont(params,t_lifecycle) - GM_MVF_cont(params,t)) + c3*t)
+}

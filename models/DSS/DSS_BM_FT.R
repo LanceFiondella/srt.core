@@ -291,3 +291,15 @@ DSS_R_growth <- function(params,d,delta){
   #print(g)
   g
 }
+
+
+
+DSS_OR_CC <- function(param,c1,c2,c3){
+   library(emdbook)
+  return(-(lambertW(c3/(param$DSS_aMLE*param$DSS_bMLE*(c1-c2))))/(param$DSS_bMLE))
+}
+
+#Cost equation for DSS optimal release plots
+DSS_cost <- function(params,c1,c2,c3,t,t_lifecycle){
+  return(c1*DSS_MVF_cont(params,t) + c2*(DSS_MVF_cont(params,t_lifecycle) - DSS_MVF_cont(params,t)) + c3*t)
+}
