@@ -246,7 +246,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     Width <- session$clientData$output_DataAndTrendPlot_width
     Height <- session$clientData$output_DataAndTrendPlot_height
     if((Width > Height) && (Width > 400)) {
-      Height <- Width
+      Height <- Width*0.75
     }
     Height
   })
@@ -279,7 +279,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     Width <- session$clientData$output_ModelPlot_width
     Height <- session$clientData$output_ModelPlot_height
     if((Width > Height) && (Width > 400)) {
-      Height <- Width
+      Height <- Width*0.75
     }
     Height
   })
@@ -810,7 +810,7 @@ output$mytable1 <- DT::renderDataTable({
         count <<- 0
         tab3_table1<<- data.frame()
         for(i in ModelsToQuery){
-          count <<- count+1
+          count <<- count
           tab3_table1_construct(i,in_data_tab3,input)
         }
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
