@@ -1,7 +1,7 @@
 # Plot model results (and raw data, if specified)
 
 plot_model_prediction_results <- function(modelchoicelist,data,C1,C2,C3) {
-  print(data)
+  #print(data)
   localResultsPlot <- ggplot()
   n <- length(data$FT)
   #Change to T
@@ -27,7 +27,7 @@ plot_model_prediction_results <- function(modelchoicelist,data,C1,C2,C3) {
     predictionPlotdataframe <- rbind(predictionPlotdataframe, prediction )  
   }
     
-  print(prediction)
+  #print(prediction)
   localResultsPlot <- localResultsPlot + geom_point(data=predictionPlotdataframe,aes(time,cost))
   return(localResultsPlot)
 }

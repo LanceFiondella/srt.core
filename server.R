@@ -649,7 +649,7 @@ data_original <- data.frame()
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
-          # MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+          #MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
           names(MR_Table) <- MR_Table_Names
         }
@@ -740,21 +740,25 @@ tab3_table1_construct <- function(model,data,input){
       for( i in 1:length(time_fails)){
         if(!ExpectedNumFailuresExceeded){
           count <<- count+1
-          tab3_table1[count,1]<<- get(paste0(model, "_fullname"))
+          
           if(i == 1) {
+            tab3_table1[count,1]<<- get(paste0(model, "_fullname"))
             tab3_table1[count,2]<<- as.character(rel_time)
             tab3_table1[count,3]<<- number_fails
+            
           } else {
             tab3_table1[count,2]<<- " "
             tab3_table1[count,3]<<- " "
           }
           tab3_table1[count,4]<<- i
           tab3_table1[count,5]<<- time_fails[i]
-          tab3_table1[count,6]<<- opt_release_time
           
-          tab3_table1[count,7]<<- cost_at_rel_time
-          tab3_table1[count,8]<<- reliability_at_opt_release_time
-          tab3_table1[count,9]<<- cost_at_opt_release_time
+          if(i==1) {
+            tab3_table1[count,6]<<- opt_release_time
+            tab3_table1[count,7]<<- cost_at_rel_time
+            tab3_table1[count,8]<<- reliability_at_opt_release_time
+            tab3_table1[count,9]<<- cost_at_opt_release_time
+          }
 
           #  Create Row of NA only once logic
           if(time_fails[i]=="NA"){
@@ -858,10 +862,26 @@ output$mytable1 <- DT::renderDataTable({
           tab3_table1_construct(i,in_data_tab3,input)
         }
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6], tab3_table1[7], tab3_table1[8], tab3_table1[9])
+      
+      # Rounding digits of the data frame. TODO: Find way to display rounded digits
+      #is.num <- sapply(tab3_table1, is.numeric)
+      #tab3_table1 <- lapply(tab3_table1, round, 6)
+      
       names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time","Cost to achieve tR*", "Reliability at Optimal Release Time", "Cost to achieve tC*")
     tab3_table1
   }
-}, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+}, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All')),
+                                rowCallback = JS("
+                                    //This callback function is meant to display only 6 decimals of precision. col_list keeps an array of columns which will be affected. 
+                                    function( row, data, index) {
+                                        var col_list = [2,3,5,6,7,8,9]
+                                        for (var i =0; i < col_list.length; i++) {
+                                            if(parseFloat(data[col_list[i]]))
+                                                $('td:eq('+ col_list[i].toString() +')',row).html(parseFloat(data[col_list[i]]).toFixed(6));
+                                    }
+                                    
+                                }
+                                ")))
 
 tracked_models <- reactive({
   input$modelDetailChoice

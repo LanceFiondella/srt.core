@@ -295,7 +295,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  min = 0, value = 1)
                                              ),
                                              
+                                             column(12, 
+                                                    radioButtons("saveQueryResultsType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
+                                                                 choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                                                                 selected = "JPG")
+                                             ),
                                              
+                                             column(8, downloadButton(outputId = "saveQueryResults", label = "Save")),
                                              
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
@@ -311,18 +317,18 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12,
                                                     numericInput("T", 
                                                                  label = h6("Software lifecycle"),
-                                                                 min = 0, value = 1)
+                                                                 min = 0, value = 100000)
                                              ),
                                              
                                              column(12,
                                                     numericInput("C0", 
                                                                  label = h6("Expected cost of removing fault during testing."),
-                                                                 min = 0, value = 1)
+                                                                 min = 0, value = 50)
                                              ),
                                              column(12,
                                                     numericInput("C1", 
                                                                  label = h6("Expected cost of removing the fault during operation."),
-                                                                 min = 0, value = 1)
+                                                                 min = 0, value = 1000)
                                              ),
                                              column(12,
                                                     numericInput("C2", 
@@ -335,13 +341,13 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
+                                  tabPanel("Prediction table",
+                                    DT::dataTableOutput('mytable1')
+                                    ),
                                   tabPanel("Model Prediction Result Plot", 
                                     # textOutput("ModelConfigError"), 
                                     # textOutput("UnsuccessfulModels"), 
                                     plotOutput("ModelPredictionPlot", dblclick="MPdblclick1", brush=brushOpts(id="MP_brush1", resetOnNew=TRUE))
-                                    ),
-                                  tabPanel("Prediction table",
-                                    DT::dataTableOutput('mytable1')
                                     ),
                                  # DT::dataTableOutput('mytable1')
                                  id="ModelPredictionPlotAndTableTabset"
