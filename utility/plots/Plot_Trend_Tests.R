@@ -70,7 +70,7 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
     if(PlotType=="lines"){
       localTrendPlot <- localTrendPlot + geom_step(data=plot_data,aes(index,trend_test_statistic))
     }
-    localTrendPlot <- localTrendPlot + theme(legend.position = "bottom")
+    localTrendPlot <- localTrendPlot + theme(legend.position = "bottom", text = element_text(size=25))
   } else {
     PlotFault <- TRUE
   }

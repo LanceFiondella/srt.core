@@ -71,7 +71,7 @@ maxiter <- 20
 #Step-4
 #MLE of parameter 'a'
 	 aMLE <- n/(1-exp(-bMLE*(tn)))
-	 ##print(aMLE)
+	 print(aMLE)
    sol <- data.frame("GO_aMLE"=aMLE,"GO_bMLE"=bMLE)
 	 # sol <- c(aMLE,bMLE)
 	 sol
@@ -128,6 +128,8 @@ GO_MVF_inv <- function(param,d) {
   n <- length(d$FN)
   r <- data.frame()
   cumFailTimes <- -(log((param$GO_aMLE-d$FN)/param$GO_aMLE))/param$GO_bMLE
+  cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
+  #print(cumFailTimes)
   r <- data.frame(d$FN,cumFailTimes, rep("GO", n))
   names(r) <- c("Failure","Time","Model")
   r
