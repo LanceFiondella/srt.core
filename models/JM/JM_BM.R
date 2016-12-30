@@ -230,6 +230,7 @@ JM_MVF_inv <- function(param,d) {
   r <- data.frame()
   cumFailTimes <- -(log((param$JM_N0-d$FN)/param$JM_N0))/param$JM_Phi
   cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
+  cumFailTimes[cumFailTimes == 0] <- max(cumFailTimes)
   r <- data.frame(d$FN,cumFailTimes, rep("JM", n))
   names(r) <- c("Failure","Time", "Model")
   r

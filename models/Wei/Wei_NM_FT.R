@@ -143,6 +143,8 @@ Wei_MVF_inv <- function(param,d){
   n <- length(d$FN)
   r <- data.frame()
   cumFailTimes <- (-log((param$Wei_aMLE-d$FN)/param$Wei_aMLE)/param$Wei_bMLE)^(1/param$Wei_cMLE)
+  cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
+  cumFailTimes[cumFailTimes == 0] <- max(cumFailTimes)
   r <- data.frame(d$FN,cumFailTimes,rep("Wei", n))
   names(r) <- c("Failure","Time","Model")
   r

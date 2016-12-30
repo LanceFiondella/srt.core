@@ -128,8 +128,12 @@ GO_MVF_inv <- function(param,d) {
   n <- length(d$FN)
   r <- data.frame()
   cumFailTimes <- -(log((param$GO_aMLE-d$FN)/param$GO_aMLE))/param$GO_bMLE
+  #cumFailTimes <- cumFailTimes[!is.na(cumFailTimes)]
+  #n <- length(cumFailTimes)
   cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
+  cumFailTimes[cumFailTimes == 0] <- max(cumFailTimes)
   #print(cumFailTimes)
+  #r <- data.frame(d$FN[1:n],cumFailTimes, rep("GO", n))
   r <- data.frame(d$FN,cumFailTimes, rep("GO", n))
   names(r) <- c("Failure","Time","Model")
   r
