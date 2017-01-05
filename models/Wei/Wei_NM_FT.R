@@ -143,8 +143,15 @@ Wei_MVF_inv <- function(param,d){
   n <- length(d$FN)
   r <- data.frame()
   cumFailTimes <- (-log((param$Wei_aMLE-d$FN)/param$Wei_aMLE)/param$Wei_bMLE)^(1/param$Wei_cMLE)
-  cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
-  cumFailTimes[cumFailTimes == 0] <- max(cumFailTimes)
+  numPredPoints = floor(param$Wei_aMLE) - (d$FN[1]-1) #Number of points to be predicted : floor(aMLE) - (number of samples)
+  print(param$Wei_aMLE)
+  print(d$FN[1])
+  
+  if(numPredPoints < n){
+    cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
+    cumFailTimes[numPredPoints:length(cumFailTimes)] <- max(cumFailTimes[1:numPredPoints]) #Replace the end of the frame with the max of cumulative times
+  }
+  
   r <- data.frame(d$FN,cumFailTimes,rep("Wei", n))
   names(r) <- c("Failure","Time","Model")
   r
