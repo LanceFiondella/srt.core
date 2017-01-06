@@ -71,7 +71,7 @@ maxiter <- 20
 #Step-4
 #MLE of parameter 'a'
 	 aMLE <- n/(1-exp(-bMLE*(tn)))
-	 print(aMLE)
+	 #print(aMLE)
    sol <- data.frame("GO_aMLE"=aMLE,"GO_bMLE"=bMLE)
 	 # sol <- c(aMLE,bMLE)
 	 sol
@@ -127,13 +127,14 @@ GO_MVF <- function(param,d) {
 GO_MVF_inv <- function(param,d) {
   n <- length(d$FN)
   r <- data.frame()
+  #print(d$FN)
   cumFailTimes <- -(log((param$GO_aMLE-d$FN)/param$GO_aMLE))/param$GO_bMLE
   numPredPoints = floor(param$GO_aMLE) - (d$FN[1]-1) #Number of points to be predicted : floor(aMLE) - (number of samples)
   if(numPredPoints < n){
     cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
     cumFailTimes[numPredPoints:length(cumFailTimes)] <- max(cumFailTimes[1:numPredPoints])
     d$FN[numPredPoints:n] <- max(d$FN[1:numPredPoints])
-    print(d$FN)
+    
     }
   r <- data.frame(d$FN,cumFailTimes, rep("GO", n))
   names(r) <- c("Failure","Time","Model")
