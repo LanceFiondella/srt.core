@@ -124,5 +124,6 @@ data_or_trend_table <- function(inputData, DataRange, DataOrTrend, TrendTest) {
     
     D_or_T_table <- data.frame()
   }
+  D_or_T_table = round_table(D_or_T_table, 6)
   return(D_or_T_table)
 }

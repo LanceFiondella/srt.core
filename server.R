@@ -629,6 +629,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
           MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
         }
       }
+      
+      
       if (length(MR_Table) <= 1) {
         MR_Table <- data.frame()
       } else {
@@ -646,10 +648,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
           # MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
           names(MR_Table) <- MR_Table_Names
+          
         }
       }
+      #MR_Table = round_table(MR_Table, 6)
       MR_Table
     }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  
   
 
 # ------------------------------------------------------------------------------------------------------
