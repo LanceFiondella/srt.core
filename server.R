@@ -820,6 +820,7 @@ output$mytable1 <- DT::renderDataTable({
         }
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
       names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
+      tab3_table1 = round_table(tab3_table1, 6)
     tab3_table1
   }
 }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
@@ -957,6 +958,7 @@ output$mytable2 <- DT::renderDataTable({
       tab4_table1 <<- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
       names(tab4_table1) <<- c("Model","AIC","PSSE")
     }
+    tab4_table1 = round_table(tab4_table1, 6)
 
     tab4_table1
   }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
