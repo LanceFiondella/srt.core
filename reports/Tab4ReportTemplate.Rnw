@@ -1,0 +1,8 @@
+\documentclass{article}
+\usepackage{longtable}
+\begin{document}
+
+<<kable,echo=FALSE,results='asis'>>=
+kable(tab4_table1_2_save)
+@
+\end{document}
