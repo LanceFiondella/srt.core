@@ -222,7 +222,7 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     
   
   #localResultsPlot <- localResultsPlot + scale_color_manual("", breaks=scaleManBreaks, values=scaleManColors)
-  localResultsPlot <- localResultsPlot + theme(legend.position = "bottom", text = element_text(size=20))
+  localResultsPlot <- localResultsPlot + theme(legend.position = "bottom", text = element_text(size=14))
 
   if(PlotFault) {
     localResultsPlot = NULL
