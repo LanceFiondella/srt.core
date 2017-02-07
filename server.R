@@ -635,6 +635,8 @@ data_original <- data.frame()
           MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
         }
       }
+      
+      
       if (length(MR_Table) <= 1) {
         MR_Table <- data.frame()
       } else {
@@ -652,10 +654,13 @@ data_original <- data.frame()
           #MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
           MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
           names(MR_Table) <- MR_Table_Names
+          
         }
       }
+      #MR_Table = round_table(MR_Table, 6)
       MR_Table
     }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+  
   
 
 # ------------------------------------------------------------------------------------------------------
@@ -861,13 +866,12 @@ output$mytable1 <- DT::renderDataTable({
           count <<- count
           tab3_table1_construct(i,in_data_tab3,input)
         }
+
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6], tab3_table1[7], tab3_table1[8], tab3_table1[9])
-      
-      # Rounding digits of the data frame. TODO: Find way to display rounded digits
-      #is.num <- sapply(tab3_table1, is.numeric)
-      #tab3_table1 <- lapply(tab3_table1, round, 6)
-      
       names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time","Cost to achieve tR*", "Reliability at Optimal Release Time", "Cost to achieve tC*")
+
+      tab3_table1 = round_table(tab3_table1, 6)
+
     tab3_table1
   }
 }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All')),
@@ -1016,6 +1020,7 @@ output$mytable2 <- DT::renderDataTable({
       tab4_table1 <<- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
       names(tab4_table1) <<- c("Model","AIC","PSSE")
     }
+    tab4_table1 = round_table(tab4_table1, 6)
 
     tab4_table1
   }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))

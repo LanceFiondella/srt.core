@@ -41,6 +41,16 @@ model_result_table <- function (in_data, NumObservations, ResultsToShow, RelMiss
 
   if(MR_Table_Error) {
     local_MR_Table <- data.frame()
-  }  
+  }
+  local_MR_Table = round_table(local_MR_Table, 6)
   return(local_MR_Table)
+}
+
+#This function rounds the entire table to 'round_decimal' number of places regardless of whether there are NA and text present
+round_table <- function(MR_Table, round_decimal) {
+MR_Table[] <- lapply(MR_Table, function(x) {
+           x1 <- type.convert(as.character(x), as.is=TRUE)
+    ifelse(grepl("^[0-9.]+$", x1), round(as.numeric(x1), round_decimal), x1)})
+return(MR_Table)
+    
 }

@@ -228,7 +228,15 @@ JM_MVF_inv <- function(param,d) {
   #========================================================================
   n <- length(d$FN)
   r <- data.frame()
+  #print(param$JM_N0)
+  #print(d$FN)
+  numPredPoints = floor(param$JM_N0) - (d$FN[1] - 1) #Number of points to be predicted : floor(aMLE) - (number of samples)
   cumFailTimes <- -(log((param$JM_N0-d$FN)/param$JM_N0))/param$JM_Phi
+  
+  if(numPredPoints < n){
+    cumFailTimes[is.na(cumFailTimes)] <- 0 #If there are NaNs in the frame, replace it with zeros
+    cumFailTimes[numPredPoints:length(cumFailTimes)] <- max(cumFailTimes[1:numPredPoints])
+  }
   r <- data.frame(d$FN,cumFailTimes, rep("JM", n))
   names(r) <- c("Failure","Time", "Model")
   r

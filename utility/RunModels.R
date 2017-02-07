@@ -106,7 +106,9 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
           if(abs(local_estim[length(local_estim)]-round(local_estim[length(local_estim)])) < tol_local) {
             lower_pred_bound <- local_estim[length(local_estim)]+1
           } else {
-            lower_pred_bound <- floor(local_estim[length(local_estim)])+1
+            lower_pred_bound <- round(local_estim[length(local_estim)]+1)
+            print(modelID)
+            print(lower_pred_bound)
           }
           
           if(PredAheadSteps < ExpectedTotalFailures-(DataEnd-DataStart+1)) {
@@ -121,12 +123,13 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
               if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < tol_local) {
                 
                 # The model's expected number of failures is a whole number
-                
                 invMVFinput <- c(lower_pred_bound:(floor(ExpectedTotalFailures)-1))
+                
               } else {
                 # The model's expected number of failures is not a whole number
                 
                 invMVFinput <- c(lower_pred_bound:as.integer(ExpectedTotalFailures))
+                
               }
             } else {
               invMVFinput <- c()
@@ -144,6 +147,7 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
 
         if(length(invMVFinput) > 0) {
           pred_input_data <- data.frame("FN" = invMVFinput)
+          
           local_results[[paste0(modelID, "_CumTime")]] <- c(in_data[["FT"]]+OffsetTime, get(paste(modelID,"MVF_inv",sep="_"))(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
           local_results[[paste0(modelID, "_MVF")]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
         } else {

@@ -138,7 +138,7 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
       
       localDataPlot <- localDataPlot + geom_step(data=plot_data,aes(Index,FailureDisplayType))
     }
-    localDataPlot <- localDataPlot + theme(legend.position = "bottom")
+    localDataPlot <- localDataPlot + theme(legend.position = "bottom", text = element_text(size=14))
   } else {
     PlotFault <- TRUE
   }

@@ -30,11 +30,12 @@ if (version$major < 3 || (version$major == 3 && version$minor < 2.2)){ #checks i
 #library(htmltools)
 
 #checks for each dependancy and loads or installs then loads
-if(!require(shiny)) {install.packages("shiny", repos="http://cran.rstudio.com/" , dep = TRUE);library(shiny)} #shiny is the main interface package
-if(!require(DT)) {install.packages("DT", repos="http://cran.rstudio.com/" , dep = TRUE);library(DT)} #DT
-if(!require(knitr)) {install.packages("knitr", repos="http://cran.rstudio.com/", dep = TRUE);library(knitr)} #DT
-if(!require(gdata)) {install.packages("gdata", repos="http://cran.rstudio.com/" , dep = TRUE);library(gdata)} #gdata is used for manipulating the data out of an excel sheet
-if(!require(ggplot2)) {install.packages("ggplot2", repos="http://cran.rstudio.com/", dep = TRUE);library(ggplot2)} #ggplot2 is used for crerating various plots
-if(!require(rootSolve)) {install.packages("rootSolve", repos="http://cran.rstudio.com/", dep = TRUE);library(rootSolve)}
-#rootSolve is used for finding a root of an equation
+install.packages("htmltools")
+if(!require(shiny)) {install.packages("shiny", repos="http://cran.rstudio.com/");library(shiny)} #shiny is the main interface package
+if(!require(DT)) {install.packages("DT", repos="http://cran.rstudio.com/");library(DT)} #DT
+if(!require(knitr)) {install.packages("knitr", repos="http://cran.rstudio.com/");library(knitr)} #DT
+if(!require(gdata)) {install.packages("gdata", repos="http://cran.rstudio.com/");library(gdata)} #gdata is used for manipulating the data out of an excel sheet
+if(!require(ggplot2)) {install.packages("ggplot2", repos="http://cran.rstudio.com/");library(ggplot2)} #ggplot2 is used for crerating various plots
+if(!require(rootSolve)) {install.packages("rootSolve", repos="http://cran.rstudio.com/");library(rootSolve)} #rootSolve is used for finding a root of an equation
 if(!require(emdbook)) {install.packages("emdbook", repos="http://cran.rstudio.com/", dep = TRUE);library(emdbook)}
+
