@@ -18,7 +18,6 @@ download.packages(getPkgsDep(required_packages), destdir="./packages", type="sou
 write_PACKAGES("./packages")
 install.packages(c("shiny", "ggplot2", "rootSolve", "DT", "gdata", "knitr"), lib="./lib", contriburl=contrib_dir)
 
-
-# Renviron
-# .libpaths 
-# 
+# Other variables which might help in future:
+# - Renviron
+# - .libpaths 

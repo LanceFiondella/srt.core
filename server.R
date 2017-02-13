@@ -3,7 +3,8 @@ library(DT)
 library(gdata) 
 library(ggplot2)
 library(knitr)
-
+library(tools)
+library(rmarkdown)
 source("utility/sources.R")
 # Contributors guide step - 1
   # Text for error messages
@@ -759,22 +760,44 @@ tab3_table1_construct <- function(model,data,input){
 
 output$downloadData <- downloadHandler(
     filename <- function() {
-      if (input$saveModelDetailsType == "PDF") {
-        paste(paste0(ModeledDataName, "_Model_Queries"), "pdf", sep=".")
-      } else {
-        paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
-      }
+    #   if (input$saveModelDetailsType == "PDF") {
+    #     paste(paste0(ModeledDataName, "_Model_Queries"), "pdf", sep=".")
+    #   } else {
+    #     paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
+    #   }
+    # },
+    # 
+      paste('Tab3Report', sep='.', switch(
+        input$saveModelDetailsType, PDF='pdf', HTML='html', CSV='csv'
+      ))
     },
-    content <- function(filename) {
+    content <- function(file) {
       tab3_table1_2_save <<- subset(tab3_table1, tab3_table1$Model != "<NA>")
-
-      if (input$saveModelDetailsType == "PDF") {
-        names(tab3_table1_2_save) <- c("Model", paste0("Time to R=", as.character(input$modelTargetReliability)), paste("Num failures in", as.character(input$modelDetailPredTime)), paste0("Failure"), paste0("Times to failures"))
-        out_put = knit2pdf('Tab3ReportTemplate.Rnw', clean = TRUE)
-        file.rename(out_put, filename) # move pdf to file for downloading
-      } else {
-        write.csv(tab3_table1_2_save, filename)
-      }
+      src <- normalizePath(paste(getwd(),'/reports/Tab3ReportTemplate.Rnw', sep=''))
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      outputfile <- c('Tab3report.Rnw')
+      file.copy(src, outputfile, overwrite = TRUE)
+      out <- switch(
+        input$saveModelDetailsType,
+        PDF = knit2pdf(outputfile, clean=TRUE),
+        HTML = knit2html(outputfile),
+        CSV = write.csv(tab3_table1_2_save,'Tab3report.csv')
+      )
+      file.rename(out, file)
+      contentType <- switch(
+        input$saveModelDetailsType,
+        PDF = 'application/pdf',
+        HTML = 'text/html',
+        CSV = 'text/csv'
+      )
+      # if (input$saveModelDetailsType == "PDF") {
+      #   names(tab3_table1_2_save) <- c("Model", paste0("Time to R=", as.character(input$modelTargetReliability)), paste("Num failures in", as.character(input$modelDetailPredTime)), paste0("Failure"), paste0("Times to failures"))
+      #   out_put = knit2pdf('reports/Tab3ReportTemplate.Rnw', clean = TRUE)
+      #   file.rename(out_put, filename) # move pdf to file for downloading
+      # } else {
+      #   write.csv(tab3_table1_2_save, filename)
+      # }
     }
 )
   
@@ -819,7 +842,7 @@ output$mytable1 <- DT::renderDataTable({
           tab3_table1_construct(i,in_data_tab3,input)
         }
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5])
-      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
+      names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "\nfor mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures \n for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"))
       tab3_table1 = round_table(tab3_table1, 6)
     tab3_table1
   }
@@ -893,36 +916,39 @@ tab4_table1_construct <- function(model,data,input){
 # Download handler for saving model result evaluation tables.
 
 output$saveModelEvals <- downloadHandler(
-  filename = function() {
-    if(input$saveModelEvalType == "PDF") {
-      paste(paste0(ModeledDataName, "_Model_Evals"), "pdf", sep=".")
-    } else {
-      paste(paste0(ModeledDataName, "_Model_Evals"), "csv", sep=".")
+  filename <- function() {
+      paste('Tab4Report', sep='.', switch(
+        input$saveModelEvalType, PDF='pdf', HTML='html', CSV='csv'
+      ))
+    },
+    content <- function(file) {
+      tab4_table1_2_save <<- subset(tab4_table1, tab4_table1$Model != "<NA>")
+
+      # Not necessary if we make sure that we get dataframe here always
+        if(length(tab4_table1_2_save) <= 1) {
+        tab4_table1_2_save <- data.frame()
+      }
+      names(tab4_table1_2_save) <- c("Model", "AIC", "PSSE")
+      src <- normalizePath(paste(getwd(),'/reports/Tab4ReportTemplate.Rnw', sep=''))
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      outputfile <- c('Tab4report.Rnw')
+      file.copy(src, outputfile, overwrite = TRUE)
+      out <- switch(
+        input$saveModelEvalType,
+        PDF = knit2pdf(outputfile, clean=TRUE),
+        HTML = knit2html(outputfile),
+        CSV = write.csv(tab3_table1_2_save,'Tab4report.csv')
+      )
+      
+      file.rename(out, file)
+      contentType <- switch(
+        input$saveModelDetailsType,
+        PDF = 'application/pdf',
+        HTML = 'text/html',
+        CSV = 'text/csv'
+      )
     }
-  },
-  content = function(filespec) {
-    tab4_table1_2_save <- tab4_table1
-    
-    # Turn OutputTable to character representations to avoid
-    # difficulties with NA, Inf, and NaN.
-    
-    TableNames <- names(tab4_table1_2_save)
-    for (nameIndex in TableNames) {
-      tab4_table1_2_save[[nameIndex]] <- as.character(tab4_table1_2_save[[nameIndex]])
-    }
-    names(tab4_table1_2_save) <- c("Model", "AIC", "PSSE")
-    
-    if(length(tab4_table1_2_save) <= 1) {
-      tab4_table1_2_save <- data.frame()
-    }
-    
-    if(input$saveModelEvalType == "PDF") {
-      out_put = knit2pdf('Tab4ReportTemplate.Rnw', clean = TRUE)
-      file.rename(out_put, filespec) # move pdf to file for downloading
-    } else {
-      utils::write.csv(tab4_table1_2_save, file=filespec, quote=TRUE, na="NA")
-    }
-  }
 )
 
 

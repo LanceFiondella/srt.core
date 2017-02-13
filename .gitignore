@@ -5,3 +5,5 @@ SRT.Rproj
 *.out
 shiny-server.conf
 *.swp
+*.log
+*.tex
