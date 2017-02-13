@@ -366,7 +366,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     },
     content = function(filespec) {
       if(input$DataPlotAndTableTabset == "Plot") {
-        ggsave(filespec)
+        ggsave(filespec,width=20,height=15)
       } else {
         OutputTable <- data.frame(x=FailureDataTable())
         if(length(OutputTable) > 1) {
@@ -399,7 +399,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     },
     content = function(filespec) {
       if(input$ModelPlotAndTableTabset == "Model Result Plot") {
-        ggsave(filespec)
+        ggsave(filespec,width=20,height=15)
       } else {
         OutputTable <- ModelResults
         
