@@ -683,9 +683,9 @@ data_original <- data.frame()
 
    output$ModelPredictionPlot <- renderPlot({
     MRPlot <- NULL
-    if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+    if((length(input$modelDetailChoice) > 0) && (input$modelDetailChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
 
-      MRPlot <- plot_model_prediction_results(input$modelResultChoice, data_global(), input$C0, input$C1, input$C2)
+      MRPlot <- plot_model_prediction_results(input$modelDetailChoice, data_global(), input$C0, input$C1, input$C2)
     #   if(!is.null(MRPlot)) {
     #     MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
     #   }
@@ -869,8 +869,8 @@ output$mytable1 <- DT::renderDataTable({
 
       tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6], tab3_table1[7], tab3_table1[8], tab3_table1[9])
       names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time","Cost to achieve tR*", "Reliability at Optimal Release Time", "Cost to achieve tC*")
-
-      tab3_table1 = round_table(tab3_table1, 6)
+      
+      tab3_table1 = round_table(tab3_table1, 6) #Rounding values in the table to 6 decimal places
 
     tab3_table1
   }
