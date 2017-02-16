@@ -685,7 +685,7 @@ data_original <- data.frame()
     MRPlot <- NULL
     if((length(input$modelDetailChoice) > 0) && (input$modelDetailChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
 
-      MRPlot <- plot_model_prediction_results(input$modelDetailChoice, data_global(), input$C0, input$C1, input$C2)
+      MRPlot <- plot_model_prediction_results(input$modelDetailChoice, data_global(), input$C0, input$C1, input$C2, input$T)
     #   if(!is.null(MRPlot)) {
     #     MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
     #   }
