@@ -295,22 +295,6 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              ),
-                                             
-                                             column(12, 
-                                                    radioButtons("saveQueryResultsType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
-                                                                 choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
-                                                                 selected = "JPG")
-                                             ),
-                                             
-                                             column(8, downloadButton(outputId = "saveQueryResults", label = "Save")),
-                                             
-                                             column(12, 
-                                                    radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
-                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "PDF"),
-                                                    downloadButton('downloadData', 'Save Model Predictions')
-                                             ),
-                                             
                                              column(12,
                                                     h5("Optimal Release Time Input")
                                                     
@@ -335,8 +319,25 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                     numericInput("C2", 
                                                                  label = h6("Expected cost per unit time of software testing."),
                                                                  min = 0, value = 1)
-                                             )
+                                             ),
+                                             column(12, 
+                                                    radioButtons("queryResultsPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                                                                 inline=TRUE,
+                                                                 selected = "points_and_lines"),
+                                                    radioButtons("saveQueryResultsType", label = h6("Choose the type of file to save plots."),
+                                                                 choices = list("JPG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                                                                 selected = "JPG")
+                                             ),
                                              
+                                             column(8, downloadButton(outputId = "saveQueryResults", label = "Save")),
+                                             
+                                             column(12, 
+                                                    radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
+                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
+                                                                 selected = "PDF"),
+                                                    downloadButton('downloadData', 'Save Model Predictions')
+                                             )
                                            )
                               ),
                               

@@ -383,6 +383,17 @@ data_original <- data.frame()
     }
   )
 
+  output$saveQueryResults <- downloadHandler(
+    filename = function() {
+      paste(paste0(ModeledDataName, "_Query_", input$modelPlotChoice), input$saveQueryResultsType, sep=".")
+    },
+    content = function(filespec) {
+      ggsave(filespec,width=20,height=15)
+    }
+
+  )
+
+  
     
   # Download handler for saving model result plots or tables.
   
@@ -685,7 +696,7 @@ data_original <- data.frame()
     MRPlot <- NULL
     if((length(input$modelDetailChoice) > 0) && (input$modelDetailChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
 
-      MRPlot <- plot_model_prediction_results(input$modelDetailChoice, data_global(), input$C0, input$C1, input$C2, input$T)
+      MRPlot <- plot_model_prediction_results(input$modelDetailChoice, input$queryResultsPlotType, data_global(), input$C0, input$C1, input$C2, input$T)
     #   if(!is.null(MRPlot)) {
     #     MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
     #   }

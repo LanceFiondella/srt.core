@@ -1,6 +1,6 @@
 # Plot model results (and raw data, if specified)
 
-plot_model_prediction_results <- function(modelchoicelist,data,C1,C2,C3,lifecycle) {
+plot_model_prediction_results <- function(modelchoicelist,plotType,data,C1,C2,C3,lifecycle) {
   #print(data)
   localResultsPlot <- ggplot()
   n <- length(data$FT)
@@ -28,7 +28,17 @@ plot_model_prediction_results <- function(modelchoicelist,data,C1,C2,C3,lifecycl
   }
     
   #print(prediction)
-  localResultsPlot <- localResultsPlot + geom_point(data=predictionPlotdataframe,aes(time,cost,color=Model)) + theme(legend.position = "bottom", text = element_text(size=14)) + xlab("Time")+ylab("Cost")
+  if(plotType == "points_and_lines"){
+      localResultsPlot <- localResultsPlot + geom_point(data=predictionPlotdataframe,aes(time,cost,color=Model)) + geom_step(data=predictionPlotdataframe,aes(time,cost,color=Model))
+    }
+    else if (plotType == "points"){
+      localResultsPlot <- localResultsPlot + geom_point(data=predictionPlotdataframe,aes(time,cost,color=Model)) 
+    }
+    else {
+      localResultsPlot <- localResultsPlot + geom_step(data=predictionPlotdataframe,aes(time,cost,color=Model)) 
+    }
+
+    localResultsPlot <- localResultsPlot + theme(legend.position = "bottom", text = element_text(size=14)) + xlab("Time")+ylab("Cost")
   return(localResultsPlot)
 }
 
