@@ -1,0 +1,10 @@
+\documentclass{report}
+
+\begin{document}
+
+
+<<kable,echo=FALSE>>=
+library(knitr)
+kable(tab3_table1_2_save, digits=6, align = c(rep("l", 4), rep("c", 4), rep("r", 4)))
+@
+\end{document}

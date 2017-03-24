@@ -544,12 +544,13 @@ data_original <- data.frame()
       # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
       ModelResults <<- tempResultsList[["Results"]]
-      print("----------------------------------")
-      print("model results")
-      print(ModelResults)
+      #print("----------------------------------")
+      #print("model results")
+      #print(ModelResults)
       SuccessfulModels <<- tempResultsList[["SuccessfulModels"]]
       FailedModels <<- tempResultsList[["FailedModels"]]
-      
+      print("Failed Models")
+      print(FailedModels)
       # Update the model results selection pull-downs with the names of the
       # models that have been successfully run.
       
@@ -829,12 +830,13 @@ output$downloadData <- downloadHandler(
 
       if (input$saveModelDetailsType == "PDF") {
         names(tab3_table1_2_save) <- c("Model", paste0("Time to R=", as.character(input$modelTargetReliability)), paste("Num failures in", as.character(input$modelDetailPredTime)), paste0("Failure"), paste0("Times to failures"))
-        out_put = knit2pdf('Tab3ReportTemplate.Rnw', clean = TRUE)
-        file.rename(out_put, filename) # move pdf to file for downloading
+        out_put = knit2pdf('./utility/tables/Tab3ReportTemplate.Rnw', clean = TRUE)
+        file.copy(out_put, filename) # move pdf to file for downloading
       } else {
         write.csv(tab3_table1_2_save, filename)
       }
     }
+    
 )
   
 output$mytable1 <- DT::renderDataTable({
