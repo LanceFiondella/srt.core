@@ -5,9 +5,10 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
   in_data <- raw_data
   if (dataType(names(in_data)) == "FR") {
     in_data$FT <- in_data$FT - OffsetTime
-    results = run_FR_models(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
+    results <- run_FR_models(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
   } else if (dataType(names(in_data))=="FC") {
     # Need to complete for failure counts data
+    results <- run_FC_models()
   }
   
   # Return model results here, as well as the
@@ -16,6 +17,11 @@ run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAhead
   
   #return(list("Results"=local_results, "SuccessfulModels"=PlottableModels, "FailedModels"=UnplottableModels))
   return(results)
+  
+}
+
+run_FC_models <- function(){
+
   
 }
 
@@ -66,27 +72,29 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
       ParmEstimatesConverged <- TRUE
       for (failure_num in c(localEstIntvlEnd:length(in_data[[1]]))) {
         model_methods <- paste(modelID,"methods",sep="_")
-        sel_method <- get(model_methods)[1]
+        sel_method <- NA
         model_input <- paste(modelID,"input",sep="_")
         
         tVec <- head(in_data[[get(model_input)]], failure_num)
 
         #This for loop selects one of the methods indicated in the Model_Specifications.R file.
-        #The model that provides the lowest loglikelihood value is selected
+        
         lnL_value <- Inf
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          temp_lnL <- get(model_lnL)(tVec,temp_params)
-          if(temp_lnL < lnL_value){
+          #temp_lnL <- get(model_lnL)(tVec,temp_params)
+          if(!anyNA(temp_params)){
             lnL_value <- temp_lnL
             model_params <- temp_params
             sel_method <- method
+            break
           }
         }
 
-        if(is.nan(lnL_value)){
-          print("model does not converge?")
+        if(is.na(sel_method)){
+          print("None of the algorithms work")
+          ParmEstimatesConverged <- FALSE
         }
         
         print("Selected method")
@@ -99,26 +107,16 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
             
             if(typeof(model_params)!="character") {
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
-            } else {
+            } 
+            else {
               # The model results didn't converge.  Use NaN to indicate nonconvergence.
-              
               local_results[[model_parm_num]][failure_num] <- NaN
-              
               # Also indicate that this is a model that won't be displayed on the plot.
               #print("Models that didnt converge")
               #print(modelID)
               ParmEstimatesConverged <- FALSE
             }
         } # End for - we've estimated the parameters for the current model for the current failure.
-
-        # Present code fails to capture and mask the non-convergent models which have 'na' in their parameter values
-        # This is fundamental and critical bug to be fixed. The code logic here is super vague and not easy to digest.
-        # Shoud rewrite this whole section with readable code. 
-
-        if(any(is.na(model_params))) {
-          # Temporary hack to above comment.
-          ParmEstimatesConverged <- FALSE
-        }
 
       } # End for - we've estimated model parameters for the current model over the entire dataset.
       

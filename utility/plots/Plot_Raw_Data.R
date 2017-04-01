@@ -113,7 +113,9 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
       
       names(plot_data) = c("Index","FailureDisplayType")
       
-    } else {
+    }
+    
+     else {
       # Couldn't determine whether we're working with IF or FC data.
       # #print an error message.
       
