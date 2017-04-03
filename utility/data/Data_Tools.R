@@ -1,3 +1,5 @@
+library(gdata)
+
 isDataFR <- function(d){
 	# input is names of input data file
 	# d <- names(data)
@@ -227,7 +229,7 @@ isPlural <- function(){
 	#-----> required to fix the plural forms
 }
 
-generate_dataFrame <- function(raw_data){
+generateDataFrame <- function(raw_data){
 	d <- names(raw_data)
 	if(isDataSafe()){ # Hard coded data safety as TRUE (sraise issue)
 		if(dataType(d)=="FR"){
@@ -244,7 +246,10 @@ generate_dataFrame <- function(raw_data){
 			else{
 				# To be programmed
 			}
-			data_gen <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
+			FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
+			data_gen <- list(FR)
+			names(data_gen) <- c("FRate")
+			
 		}
 		else if(dataType(d)=="FC"){
 			if(isCFCCol(d)){
@@ -265,14 +270,18 @@ generate_dataFrame <- function(raw_data){
             	IF 	<- FT_to_IF(failure_T = FT)
             	FN 	<- 1:length(FT)
 			}
-			data_gen.FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
-			data_gen.FC <- data.frame("FC"=FC, "CFC"=CFC)
-			data_gen <- list(data_gen.FR,data_gen.FC)
+			FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
+			FC <- data.frame("FC"=FC, "CFC"=CFC)
+			data_gen <- list(FR,FC)
 			names(data_gen) <- c("FRate","FCount")
 		}
 	}
-	data_gen
+	#print(data_gen)
+	return(data_gen)
 }
+
+
+  
 
 
 FCFrame_to_IFFrame <- function(time_vec_in,num_count_in) #transforms FC data to an IF/FT frame

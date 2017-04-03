@@ -12,10 +12,13 @@ library(knitr)
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
   
+  fileType <- NA
   openFileDatapath <- ""
   data_set_global <- ""
   data_set_global_type <- ""
   FC_to_IF_data <- data.frame()
+  
+  
 
   DataModelIntervalStart <- 1
   DataModelIntervalEnd <- 5
@@ -62,162 +65,107 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
   openFileDatapath <- ""
 
-  output$sheetChoice <- renderUI({ # ------ > Should fix empty data_set name for .csv files
-      
-      if(is.null(input$file)){
+  output$sheetChoice <- renderUI({ 
+      inFile <- input$file
+      fileType <- getFileType(inFile)
+      if(is.na(fileType)){
         return("Please upload an excel or csv file")
-      }
-      
-      if(input$type==1 && length(grep(".xls",input$file$name)>0)){
-        inFile <- input$file
+      } else 
+      if(fileType == "xls"){
         sheets_present <- sheetNames(xls=inFile$datapath)
         selectInput("dataSheetChoice","Choose Sheet", c(NULL,sheets_present))
       }
-      else{
-        #textInput("dataSheetChoice","Choose Sheet", c("test"))
-        return("Please upload a csv file")
+      else {
+        return("This file does not have multiple sheets")
       }
       })
-   
-    
-    verify_input_file <- function(inFile){
-        if(is.null(inFile)){
-        return("Please upload an excel file")
-      }
-      
-      if(input$type==1){
-        
-        if(length(grep(".csv",inFile$name))>0){
-          return("Please upload excel sheet")
-        }
-        
-        if(is.null(input$dataSheetChoice)){
-          return("No sheet selected")
-        }
-        
-        data_set <- input$dataSheetChoice
-        data <- read.xls(inFile$datapath,sheet=data_set)
-        
-      
-      } else if (input$type==2){
-        if(length(grep(".xls",inFile$name))>0){
-          return("Please upload a csv file")
-        }
-        data <- read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % ")#same as before needs error handling
-        data_set <- inFile$filename
-      }
 
+ getInputFileData <- function(inFile, fileType, dataSheet){
+    if(is.na(fileType)){
+        return(NA)
+    } else if(fileType == "csv"){
+        return(read.csv(inFile$datapath, head = TRUE, sep = ',', quote = " % "))
+    } else if(fileType == "xls" && !is.null(dataSheet)){
+        return(read.xls(inFile$datapath, sheet=dataSheet))
     }
+}
+
+getFileType <- function(inFile){
+    if(is.null(inFile)){
+        return(NA)
+        } else 
+    if (length(grep(".csv",inFile$name))>0){
+        return("csv")
+    } else 
+    if (length(grep(".xls",inFile$name))>0){
+        return("xls")
+    }
+}
+  
 
   # Select and read in a data file.  This is a reactive data item.
     data_global <- reactive({
+      data_generated <- NULL
       inFile <- input$file
-      data_set <- verify_input_file(inFile)
-      if(!is.data.frame(data_set)){
-        return(data_set)
-      }
-
-      data_set_global <<- data_set
-
-      if(dataType(names(data))=="FR"){
-        data_intermediate <- generate_dataFrame(data)
-        data_generated <- data_intermediate
-        #data_generated
-      }
-      else if(dataType(names(data))=="FC"){
-        data_intermediate <<- generate_dataFrame(data)
-        #data_generated <- data_intermediate$FRate
-        data_generated <- data_intermediate$FCount
+      fileType <- getFileType(inFile)
+      dataSheet <- input$dataSheetChoice
+      data <- getInputFileData(inFile, fileType, dataSheet)
+      if(dataType(names(data))=="FR" || dataType(names(data))=="FC") {
+        data_generated <- generateDataFrame(data)
+       
+        # Set up the initial values for modeling data range and the initial parameter
+        # estimation range
         
-      }
-      
-      # Set up the initial values for modeling data range and the initial parameter
-      # estimation range
-      
-      # Set up the initial values for modeling data range and the initial parameter
-      # estimation range
-      
-      DataModelIntervalStart <<- 1
-      DataModelIntervalEnd <<- length(data_generated[,1])
-      if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
-        output$InputFileError <- renderText({msgDataFileTooSmall})
-      } else {
-        output$InputFileError <- renderText({""})
-      }
-      
-      # Complete all columns for FT/IF data, including failure number.
-      # This information will be used later for subsetting the data.
-      
-      if(dataType(names(data_generated))=="FR") {
-        data_set_global_type <<- "IFTimes"
-
-        # Update the selection list for the models that can be run.
-        
-        updateSelectInput(session, "modelsToRun", choices = K_IF_ModelsList, selected = K_IF_ModelsList)
-        
-        # Update failure data view choices for IF/FT data and model result views.
-        
-        updateSelectInput(session, "dataPlotChoice",
-                          choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
-                                        "Failure Intensity" = "FI"), selected = "CF")
-        # updateSelectInput(session, "modelPlotChoice",
-        #                  choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-        #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
-        updateSelectInput(session, "modelPlotChoice",
-                          choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
-                                        "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
-        
-
-        # Update the default mission time for computing reliability
-        # on both Tab 2 and Tab 3.  Also update the default time on
-        # Tab 3 for which we want to know how many failures we'll
-        # observe in the future.  We choose the most recent IF time
-        # that is greater than 0.
-        
-        for (dataIndex in length(data_generated$IF):1) {
-          if(data_generated$IF[dataIndex] > 0) {break}
+        DataModelIntervalStart <<- 1
+        DataModelIntervalEnd <<- length(data_generated$FRate[,1])
+        if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+            output$InputFileError <- renderText({msgDataFileTooSmall})
+        } else {
+            output$InputFileError <- renderText({""})
         }
-        updateSliderInput(session, "modelRelMissionTime",
-                          min=0, value=data_generated$IF[length(data_generated$IF)])
-        updateSliderInput(session, "modelDetailPredTime",
-                          min=0, value=data_generated$IF[length(data_generated$IF)])
-        updateSliderInput(session, "modelRelMissionTime2",
-                          min=0, value=data_generated$IF[length(data_generated$IF)])
+        print("Setting plotchoices and models2run")
+        
+        # Complete all columns for FT/IF data, including failure number.
+        # This information will be used later for subsetting the data.
+        
+        if("FCount" %in% names(data_generated) && "FRate" %in% names(data_generated)){
+            print("FC data detected")
+            data_set_global_type <<- "FailureCounts"
 
-      } else if(dataType(names(data_generated))=="FC") {
-        print("FC data detected")
-        data_set_global_type <<- "FailureCounts"
+            # Add a column for test intervals.
+            
+            #data_generated$TI <- c(1:length(data$FC))
+            
+            #FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+            
+            # Update the selection list for the models that can be run.
+            
+            updateSelectInput(session, "modelsToRun", choices = K_FC_ModelsList, selected = K_FC_ModelsList)
+            
+            # Update failure data view choices for CFC/FC data/model views.
+            # Includes a "failure counts" view which IF/FT data does not.
+            
+            updateSelectInput(session, "dataPlotChoice",
+                            choices = list( "Cumulative Failures" = "CF",
+                                            "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+            # updateSelectInput(session, "modelPlotChoice",
+            #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+            #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+            updateSelectInput(session, "modelPlotChoice",
+                            choices = list( "Cumulative Failures" = "MVF",
+                                            "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
+            
+            
+        
+        
+        updateSliderInput(session, "modelDataRange",
+                            min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
+                            max = DataModelIntervalEnd)
+        
+        } 
+        
 
-        # Add a column for test intervals.
-        
-        data_generated$TI <- c(1:length(data$FC))
-        
-        FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
-        
-        # Update the selection list for the models that can be run.
-        
-        updateSelectInput(session, "modelsToRun", choices = K_FC_ModelsList, selected = K_FC_ModelsList)
-        
-        # Update failure data view choices for CFC/FC data/model views.
-        # Includes a "failure counts" view which IF/FT data does not.
-        
-        updateSelectInput(session, "dataPlotChoice",
-                          choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
-                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
-        # updateSelectInput(session, "modelPlotChoice",
-        #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-        #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
-        updateSelectInput(session, "modelPlotChoice",
-                          choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
-                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
-        
-        
-      }
-      
-      updateSliderInput(session, "modelDataRange",
-                        min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
-                        max = DataModelIntervalEnd)
-
+      }  
       # Finally, output data set
       
       data_generated
@@ -316,31 +264,37 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     output$DataAndTrendPlot <- renderPlot({ #reactive function, basically Main()
       
       DataAndTrendPlot <<- NULL   # Set the plot object to NULL to prevent error messages.
-      data <- data.frame(x=data_global())
-      DataColNames <- names(data)
-      names(data) <- gsub("x.", "", DataColNames)
-      if(length(names(data)) > 1) {
-        Time <- names(data[1]) # generic name of column name of data frame (x-axis)
-        Failure <- names(data[2]) # (y-axis)
-        
-        data_set <- input$dataSheetChoice
-        if(input$PlotDataOrTrend == 1){
-          
-          # Plot the raw failure data
-          
-          DataAndTrendPlot <<- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
-        } else if (input$PlotDataOrTrend == 2) {
-          
-          # Plot the selected trend test
-          
-          DataAndTrendPlot <<- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
+      #data <- data.frame(x=data_global())
+      data <- data_global()
+      
+      if(!is.null(data)){
+        data <- data$FRate
+        DataColNames <- names(data)
+        names(data) <- gsub("x.", "", DataColNames)
+        if(length(names(data)) > 1) {
+            Time <- names(data[1]) # generic name of column name of data frame (x-axis)
+            Failure <- names(data[2]) # (y-axis)
+            
+            data_set <- input$dataSheetChoice
+            if(input$PlotDataOrTrend == 1){
+            
+            # Plot the raw failure data
+            
+            DataAndTrendPlot <<- plot_failure_data(data, FC_to_IF_data, data_set, input$modelDataRange, input$dataPlotChoice, input$DataPlotType, K_minDataModelIntervalWidth)
+            } else if (input$PlotDataOrTrend == 2) {
+            
+            # Plot the selected trend test
+            
+            DataAndTrendPlot <<- plot_trend_tests(data, FC_to_IF_data, data_set, input$modelDataRange, input$trendPlotChoice, input$confidenceLP, LPTestStatistic(), input$DataPlotType, K_minDataModelIntervalWidth)
+            }
+            
+            DataAndTrendPlot <<- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
+            
+            DataAndTrendPlot
+            
+            #plot(data) Leave this here to use if ggplot() stops working. 
+            } 
         }
-        
-        DataAndTrendPlot <<- DataAndTrendPlot + coord_cartesian(xlim = DTPranges$x, ylim = DTPranges$y)
-        DataAndTrendPlot
-        
-        #plot(data) Leave this here to use if ggplot() stops working. 
-      }
     }, height=DTP_height)
     
     
@@ -447,7 +401,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     
     FailureDataTable <- reactive ({
       DataTrendTable <- NULL
-      if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
+      #if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
+      if(!(is.null(input$file))){
         if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
           data <- data.frame(x=data_global())
           DataTrendTable <- data_or_trend_table(data, input$modelDataRange, input$PlotDataOrTrend, input$trendPlotChoice)
@@ -464,7 +419,11 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # go below specified minimal values.
       
     output$DataSubsetError <- renderText({
-      data_local <- data.frame(x=data_global())
+      #data_local <- data.frame(x=data_global())
+      data_local <- data_global()
+      data_local <- data_local$FRate
+      
+      if(!is.null(data_local)){
       DataColNames <- names(data_local)
       names(data_local) <- gsub("x.", "", DataColNames)
       
@@ -503,6 +462,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       #                  max = DataModelIntervalEnd-1)    
       
       outputMessage
+    }
+    
     })
 
     
