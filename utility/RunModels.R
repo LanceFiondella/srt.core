@@ -1,14 +1,29 @@
 library(rootSolve)
 
-run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
+#run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
+run_models <- function(raw_data, input, tol_local) {
+  print(names(raw_data))
+  DataRange <- input$modelDataRange
+  PredAheadSteps <- input$modelNumPredSteps
+  Models2Run <- input$modelsToRun
+  RelMissionTime <- input$modelRelMissionTime
+
+  if ("FRate" %in% (names(raw_data))) {
+    if(DataRange[1] == 1) {
+          OffsetTime <- 0
+        } else {
+          OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
+        }
+    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ModeledData$FT <- ModeledData$FT - OffsetTime
+    ParmInitIntvl <- length(ModeledData[,1])
+    results <- run_FR_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
   
-  in_data <- raw_data
-  if (dataType(names(in_data)) == "FR") {
-    in_data$FT <- in_data$FT - OffsetTime
-    results <- run_FR_models(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
-  } else if (dataType(names(in_data))=="FC") {
+  
+  } else if (dataType(names(raw_data))=="FC") {
     # Need to complete for failure counts data
     results <- run_FC_models()
+  
   }
   
   # Return model results here, as well as the
@@ -85,7 +100,7 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
           temp_params <- get(model_sm_MLE)(tVec)
           #temp_lnL <- get(model_lnL)(tVec,temp_params)
           if(!anyNA(temp_params)){
-            lnL_value <- temp_lnL
+            #lnL_value <- temp_lnL
             model_params <- temp_params
             sel_method <- method
             break
@@ -97,7 +112,7 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
           ParmEstimatesConverged <- FALSE
         }
         
-        print("Selected method")
+        print(paste0("Selected method for ",modelID))
         print(sel_method)
         
         # Now put the parameter estimates into the results frame

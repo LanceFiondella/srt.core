@@ -1,9 +1,17 @@
 # Plot model results (and raw data, if specified)
 
-plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, PlotDataEnd, RelMissionTime, plotWidthRange, plotHeightRange, plotPixels, AdditionalCurveLength) {
-  
+#plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, PlotDataEnd, RelMissionTime, plotWidthRange, plotHeightRange, plotPixels, AdditionalCurveLength) {
+#plot_model_results          (ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width, input$modelCurveAdditionalTime)
+plot_model_results <- function(ModResults, DataModeled, DataSetName, input, plotWidthRange, plotHeightRange, plotPixels) {
   require(ggplot2)
-  
+  print(DataModeled)
+  DisplayModels <- input$modelResultChoice
+  DataView <- input$modelPlotChoice
+  PlotView <- input$ModelDataPlotType
+  PlotData <- input$checkboxDataOnPlot
+  PlotDataEnd <- input$checkboxDataEndOnPlot
+  RelMissionTime <- input$modelRelMissionTime
+  AdditionalCurveLength <- input$modelCurveAdditionalTime
   PlotFault <- FALSE
   
   # Initialize the model results plot

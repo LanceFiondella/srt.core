@@ -249,6 +249,7 @@ generateDataFrame <- function(raw_data){
 			FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
 			data_gen <- list(FR)
 			names(data_gen) <- c("FRate")
+			currentDatasetType <<- "FRate"
 			
 		}
 		else if(dataType(d)=="FC"){
@@ -274,6 +275,7 @@ generateDataFrame <- function(raw_data){
 			FC <- data.frame("FC"=FC, "CFC"=CFC)
 			data_gen <- list(FR,FC)
 			names(data_gen) <- c("FRate","FCount")
+			currentDatasetType <<- "FCount"
 		}
 	}
 	#print(data_gen)
