@@ -115,9 +115,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                            h5("Specify the number of failures for which the models will make predictions"),
                                            
                                            fluidRow(
-                                             # column(12,
-                                             #       uiOutput("ParameterInterval")
-                                             # ),
+                                             column(12,
+                                                  uiOutput("ParameterInterval")
+                                             ),
                                              
                                              column(12,
                                                     numericInput("modelNumPredSteps", 
@@ -232,10 +232,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                 tabsetPanel(
                                   tabPanel("Model Result Plot", textOutput("ModelConfigError"), textOutput("UnsuccessfulModels"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Model Result Table",
-                                           selectInput(
-                                             "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
-                                             choices=list("No model results to display"="None"),
-                                             multiple=TRUE, selected="None"),
+                                           fluidRow(
+                                             column(6,
+                                                    selectInput(
+                                                      "AllModelsRun", label = h6("Choose one or more sets of model results to display."), 
+                                                      choices=list("No model results to display"="None"),
+                                                      multiple=TRUE, selected="None")
+                                                    ),
+                                             column(6,
+                                                    radioButtons("confidenceBoundsForResultsTable", label=h6("Show most likely parameter values or confidence bounds."),
+                                                                 choices = list("Low" = "LOW_CONF", "Most likely" = "MOST_LIKELY", "High" = "HIGH_CONF"), inline = TRUE,
+                                                                 selected = "MOST_LIKELY")
+                                                    )
+                                           ),
                                            DT::dataTableOutput("ModelResultTable")),
                                   id="ModelPlotAndTableTabset"), width=8
                               )

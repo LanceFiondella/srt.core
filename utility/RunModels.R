@@ -83,7 +83,7 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          #temp_lnL <- get(model_lnL)(tVec,temp_params)
+          temp_lnL <- get(model_lnL)(tVec,temp_params)
           if(!anyNA(temp_params)){
             lnL_value <- temp_lnL
             model_params <- temp_params
