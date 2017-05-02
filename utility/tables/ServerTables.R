@@ -8,7 +8,7 @@
       #if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
       if(!(is.null(input$file))){
         if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
-          data <- data.frame(x=data_global())
+          data <- data.frame(x=data_global()$FRate)
           DataTrendTable <- data_or_trend_table(data, input$modelDataRange, input$PlotDataOrTrend, input$trendPlotChoice)
         }
       }

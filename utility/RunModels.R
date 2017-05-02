@@ -7,9 +7,13 @@ run_models <- function(raw_data, input, tol_local) {
   PredAheadSteps <- input$modelNumPredSteps
   Models2Run <- input$modelsToRun
   RelMissionTime <- input$modelRelMissionTime
+  
 
-  if ("FRate" %in% (names(raw_data))) {
-    if(DataRange[1] == 1) {
+  if (("FRate" %in% (names(raw_data))) && !("FCount" %in% (names(raw_data)))) {
+
+    dataType = "FT"
+
+      if(DataRange[1] == 1) {
           OffsetTime <- 0
         } else {
           OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
@@ -17,35 +21,42 @@ run_models <- function(raw_data, input, tol_local) {
     ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ModeledData$FT <- ModeledData$FT - OffsetTime
     ParmInitIntvl <- length(ModeledData[,1])
-    results <- run_FR_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
+    results <- process_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
   
   
-  } else if (dataType(names(raw_data))=="FC") {
+  } else if (("FRate" %in% (names(raw_data))) && ("FCount" %in% (names(raw_data)))) {
     # Need to complete for failure counts data
-    results <- run_FC_models()
-  
+    #Runs all FC models if there are failed models in the results, only those are run using FR models
+    dataType = "FC"
+    ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ParmInitIntvl <- length(ModeledData[,1])
+    results <- process_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
+    
+    if (length(results[["FailedModels"]]) > 0){
+      dataType = "FT"
+      if(DataRange[1] == 1) {
+          OffsetTime <- 0
+        } else {
+          OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
+        }
+    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ModeledData$FT <- ModeledData$FT - OffsetTime
+    ParmInitIntvl <- length(ModeledData[,1])
+      results <- process_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType)
+
+    }
   }
-  
-  # Return model results here, as well as the
-  # vectors of plottable and unplottable models.
-  # This is all packaged up in a list.
-  
-  #return(list("Results"=local_results, "SuccessfulModels"=PlottableModels, "FailedModels"=UnplottableModels))
   return(results)
-  
 }
 
-run_FC_models <- function(){
 
-  
-}
-
-run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local){
+process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType){
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   OffsetFailure <- DataStart-1
   localEstIntvlEnd <- ParmInitIntvl-DataStart+1
   
+
   # Set up two local vectors to hold the names of models that completed
   # successfully and those that did not.
   
@@ -72,10 +83,10 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
       model_MVF_inv <- paste(modelID,"MVF_inv",sep="_")
       model_R_growth <- paste0(modelID, "_R_growth")
       model_MTTF <- paste(modelID,"MTTF",sep="_")
-      model_lnL <- paste(modelID,"lnL",sep="_")
+      model_lnL <- paste(modelID,dataType,"lnL",sep="_")
 
       for (paramNum in 1:length(get(model_params_label))) {
-        model_parm_num = paste0(modelID, "_parm_", paramNum)
+        model_parm_num <- paste0(modelID, "_parm_", paramNum)
         local_results[[model_parm_num]] <- naFill
       }
       local_results[[model_CumTime]] <- NaNFill
@@ -90,14 +101,22 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
         sel_method <- NA
         model_input <- paste(modelID,"input",sep="_")
         
-        tVec <- head(in_data[[get(model_input)]], failure_num)
+        
 
         #This for loop selects one of the methods indicated in the Model_Specifications.R file.
         
         lnL_value <- Inf
         for (method in get(model_methods)){
-          model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
-          temp_params <- get(model_sm_MLE)(tVec)
+          model_sm_MLE <- paste(modelID, method, dataType, "MLE",sep="_")
+          if(dataType == "FC" && dataType %in% model_input){
+            tVec <- head(in_data$FCount$T, failure_num)
+            kVec <- head(in_data$FCount$FC, failure_num)
+            temp_params <- get(model_sm_MLE)(kVec, tVec)
+          } else if (dataType == "FT" && dataType %in% model_input){
+            tVec <- head(in_data[[get(model_input)]], failure_num)
+            temp_params <- get(model_sm_MLE)(tVec)
+          }
+          
           #temp_lnL <- get(model_lnL)(tVec,temp_params)
           if(!anyNA(temp_params)){
             #lnL_value <- temp_lnL
@@ -127,8 +146,6 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
               # The model results didn't converge.  Use NaN to indicate nonconvergence.
               local_results[[model_parm_num]][failure_num] <- NaN
               # Also indicate that this is a model that won't be displayed on the plot.
-              #print("Models that didnt converge")
-              #print(modelID)
               ParmEstimatesConverged <- FALSE
             }
         } # End for - we've estimated the parameters for the current model for the current failure.

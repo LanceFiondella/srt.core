@@ -167,14 +167,13 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         # Subset the data according to the range we've specified.
         
-        #ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
+        ModeledData <<- tail(head(data_global(), input$modelDataRange[2]), (input$modelDataRange[2]-input$modelDataRange[1]+1))
         raw_data <<- data_global()
         ModeledDataName <<- data_set_global
         
         
-        # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
-        #tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
         tempResultsList <- run_models(raw_data, input, K_tol)
+        print(tempResultsList[["Results"]])
         ModelResults <<- tempResultsList[["Results"]]
         #print("----------------------------------")
         #print("model results")

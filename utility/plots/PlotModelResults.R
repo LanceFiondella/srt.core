@@ -4,7 +4,8 @@
 #plot_model_results          (ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width, input$modelCurveAdditionalTime)
 plot_model_results <- function(ModResults, DataModeled, DataSetName, input, plotWidthRange, plotHeightRange, plotPixels) {
   require(ggplot2)
-  print(DataModeled)
+  
+  DataModeled <- DataModeled$FRate
   DisplayModels <- input$modelResultChoice
   DataView <- input$modelPlotChoice
   PlotView <- input$ModelDataPlotType
@@ -76,7 +77,9 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, input, plot
     
     model_params <- c()
     for (parmIndex in 1:length(get(paste0(modelIndex, "_params")))) {
+      
       model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
+      
     }
     names(model_params) <- paste(modelIndex, get(paste0(modelIndex, "_params")), sep="_")
     
