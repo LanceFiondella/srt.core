@@ -91,7 +91,7 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
             break
           }
         }
-
+        
         if(is.na(sel_method)){
           print("None of the algorithms work")
           ParmEstimatesConverged <- FALSE
@@ -104,8 +104,17 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
         
         for (paramNum in 1:length(get(model_params_label))) {
             model_parm_num <- paste0(modelID, "_parm_", paramNum) 
-            
             if(typeof(model_params)!="character") {
+              
+              # Now we estimate confidence bounds for the model parameters.
+              
+              if(paramNum == 1) {
+                
+                # Test code
+                print(model_sm_MLE)
+                print(length(tVec))
+                # End test code
+              }
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 
             else {
