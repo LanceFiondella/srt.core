@@ -120,6 +120,12 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              ),
                                              
                                              column(12,
+                                                    numericInput("parmConfInterval",
+                                                                 label=h6("Specify a confidence interval for parameter estimates."),
+                                                                 min=0.01, max=0.9999, step=0.01, value=0.95)
+                                            ),
+                                             
+                                             column(12,
                                                     numericInput("modelNumPredSteps", 
                                                                  label = h6("Specify for how many failures into the future the models will predict"),
                                                                  min = 1, value = 1)
