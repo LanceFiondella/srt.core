@@ -1,11 +1,11 @@
 library(rootSolve)
 
-run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
+run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
   
   in_data <- raw_data
   if (dataType(names(in_data)) == "FR") {
     in_data$FT <- in_data$FT - OffsetTime
-    results <- run_FR_models(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
+    results <- run_FR_models(in_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
   } else if (dataType(names(in_data))=="FC") {
     # Need to complete for failure counts data
     results <- run_FC_models()
@@ -25,7 +25,7 @@ run_FC_models <- function(){
   
 }
 
-run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local){
+run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local){
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   OffsetFailure <- DataStart-1
@@ -83,7 +83,7 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          temp_lnL <- get(model_lnL)(tVec,temp_params)
+          temp_lnL <- get(model_lnL)(c(temp_params,1),tVec)
           if(!anyNA(temp_params)){
             lnL_value <- temp_lnL
             model_params <- temp_params
@@ -111,8 +111,11 @@ run_FR_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAhe
               if(paramNum == 1) {
                 
                 # Test code
-                print(model_sm_MLE)
-                print(length(tVec))
+                #print(model_sm_MLE)
+                #print(length(tVec))
+                fit<-optim(c(model_params,0),x=tVec,get(model_lnL),hessian=T,method="Nelder-Mead")
+                se<-sqrt(diag(solve(fit$hessian)))
+                print(c(model_params,fit$par))
                 # End test code
               }
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
