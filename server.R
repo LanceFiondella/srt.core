@@ -536,8 +536,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         } else {
           TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
         }
-        tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
-        # tempResultsList <- run_models(ModeledData, input$modelDataRange, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+        tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmConfInterval, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+        # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmConfInterval, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
         ModelResults <<- tempResultsList[["Results"]]
         #print("----------------------------------")
         #print("model results")
@@ -915,7 +915,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       if(typeof(model_params)!="character"){
         # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
-        max_lnL <- try(get(paste(model,"lnL",sep="_"))(get("data")[[get(paste(model,"input",sep="_"))]],model_params),silent=TRUE)
+        max_lnL <- try(get(paste(model,"lnL",sep="_"))(c(model_params,1),get("data")[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
         # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
       
         if(length(grep("not found",max_lnL))) {
