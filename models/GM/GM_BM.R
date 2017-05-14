@@ -166,8 +166,35 @@ GM_R <- function(param,d){
   
 }
 
+GM_lnL <-  function(params,x){
+  
+  sum1=0
+  sum2=0
+  #print(params)
+  n <- length(x)
+  for(i in 1:n){
+    sum1=sum1+ ((i-1)*log(params[2])) 
+    sum2=sum2+ (params[2]^(i-1) * x[i])
+  }
+  lnL <- n*log(params[1]) + sum1 - params[1]*sum2
+  #print(lnL)
+  if(params[3]>0) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
+}
 
-GM_lnL <-  function(x,params){
+# This is the original lnL function.  It's been rewritten
+# (see above) and renamed.  The rewrite was done so it can
+# be used as input to "optim" to compute the hessian, then
+# Fisher information, then confidence intervals for the
+# parameter estimates.
+
+GM_lnL_orig <-  function(x,params){
 
   sum1=0
   sum2=0
