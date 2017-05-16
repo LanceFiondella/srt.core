@@ -1,7 +1,7 @@
 # require("Rmpfr") # This was our option if precision is a problem. It stays here as long we are not sure.
 require("utils") # depends on utils library
 
-JM_BM_MLE<-function(interFail){
+JM_BM_IF_MLE<-function(interFail){
   # ---------------------------------------------------------------------------------
   # Maximumum likelihood estimation method is used to estimate the parameters 
   # 'N0' and 'Phi'. The initial estimate leftinterval and right interval are expanded
@@ -404,7 +404,9 @@ JM_MVF_cont <- function(params,t){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
-  return(params$JM_N0*(1-exp(-params$JM_Phi*t)))
+  print("---")
+  print(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
+  return(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
 }
 
 JM_R_delta <- function(params,cur_time,delta){

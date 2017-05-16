@@ -58,7 +58,7 @@
             # User has selected at one model to display as a table.
             
             #MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
-            MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
+            MR_Table <- model_result_table(ModelResults, length(ModelResults), input$AllModelsRun, input$modelRelMissionTime)
           }
         }
         
@@ -97,19 +97,32 @@
 
   tab3_table1_construct <- function(model,data,input){
     if(dataType(names(data))=="FR"){
-      model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+      print("Constructing table 3")
+      last_row <- length(ModelResults[,1]) - PredAheadSteps
+      print(is.atomic(ModelResults[last_row,2]))
+      #model_params <- ModelResults[last_row,]
+      model_params <- as.data.frame(matrix(0, ncol=length(ModelResults[1,]), nrow = 1))
+      colnames(model_params) <- colnames(ModelResults)
+      model_params[1,] <- ModelResults[last_row,]
+      #model_params <- setNames(as.character(colnames(ModelResults)), as.numeric(ModelResults[last_row,]))
+      print(model_params)
+      #model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=FALSE)
+
+      
       # ----> ! #print("Table1 construct: ")
-      # ----> ! #print(model_params)
-      # ----> ! #print(data)
+      #print(model_params)
+      print(data$FRate$FT)
       # ----> ! #print(count)
-    
+      #print(data$FRate[length(get("data")[[get(paste(model,"input",sep="_"))]])])
       if(typeof(model_params)!="character"){
         number_fails <- get_prediction_k( model,
                                           model_params, 
                                           input$modelDetailPredTime, 
-                                          data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
-                                          length(get("data")[[get(paste(model,"input",sep="_"))]]))
-        
+                                          #data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                          data$FRate$FT[last_row],
+                                          #length(get("data")[[get(paste(model,"input",sep="_"))]])
+                                          last_row)
+        print(number_fails)
         time_fails <- get_prediction_t( model,
                                         model_params, 
                                         input$modelDetailPredFailures,

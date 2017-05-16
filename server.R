@@ -173,7 +173,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         
         tempResultsList <- run_models(raw_data, input, K_tol)
-        print(tempResultsList[["Results"]])
+        #print(tempResultsList[["Results"]])
         ModelResults <<- tempResultsList[["Results"]]
         #print("----------------------------------")
         #print("model results")

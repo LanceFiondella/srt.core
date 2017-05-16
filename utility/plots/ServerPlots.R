@@ -127,7 +127,7 @@
       },
       content = function(filespec) {
         if(input$DataPlotAndTableTabset == "Plot") {
-          ggsave(filespec,width=20,height=15)
+          ggsave(filespec,plot=DataAndTrendPlot,width=20,height=15)
         } else {
           OutputTable <- data.frame(x=FailureDataTable())
           if(length(OutputTable) > 1) {
@@ -171,7 +171,7 @@
       },
       content = function(filespec) {
         if(input$ModelPlotAndTableTabset == "Model Result Plot") {
-          ggsave(filespec,width=20,height=15)
+          ggsave(filespec, plot=MRPlot, width=20,height=15)
         } else {
           OutputTable <- ModelResults
           
@@ -212,13 +212,13 @@
 
 
     output$ModelPlot <- renderPlot({
-      MRPlot <- NULL
+      MRPlot <<- NULL
       if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
         #MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width, input$modelCurveAdditionalTime)
         
-        MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width)
+        MRPlot <<- plot_model_results(ModelResults, ModeledData, ModeledDataName, input, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width)
         if(!is.null(MRPlot)) {
-          MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
+          MRPlot <<- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
         }
       }
       MRPlot

@@ -4,7 +4,7 @@ library(rootSolve)
 run_models <- function(raw_data, input, tol_local) {
   print(names(raw_data))
   DataRange <- input$modelDataRange
-  PredAheadSteps <- input$modelNumPredSteps
+  PredAheadSteps <<- input$modelNumPredSteps
   Models2Run <- input$modelsToRun
   RelMissionTime <- input$modelRelMissionTime
   
@@ -86,7 +86,8 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
       model_lnL <- paste(modelID,dataType,"lnL",sep="_")
 
       for (paramNum in 1:length(get(model_params_label))) {
-        model_parm_num <- paste0(modelID, "_parm_", paramNum)
+        #model_parm_num <- paste0(modelID, "_parm_", paramNum)
+        model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
         local_results[[model_parm_num]] <- naFill
       }
       local_results[[model_CumTime]] <- NaNFill
@@ -108,13 +109,18 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
         lnL_value <- Inf
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID, method, dataType, "MLE",sep="_")
-          if(dataType == "FC" && dataType %in% model_input){
-            tVec <- head(in_data$FCount$T, failure_num)
-            kVec <- head(in_data$FCount$FC, failure_num)
+          if(dataType == "FC" && dataType %in% get(model_input)){
+            tVec <- head(in_data$T, failure_num)
+            kVec <- head(in_data$FC, failure_num)
             temp_params <- get(model_sm_MLE)(kVec, tVec)
-          } else if (dataType == "FT" && dataType %in% model_input){
-            tVec <- head(in_data[[get(model_input)]], failure_num)
+          } else if (dataType == "FT" && dataType %in% get(model_input)){
+            tVec <- head(in_data$FT, failure_num)
             temp_params <- get(model_sm_MLE)(tVec)
+          } else if (dataType == "FT" && "IF" %in% get(model_input)){
+            print(in_data$IF)
+            IF <- head(in_data$IF, failure_num)
+            model_sm_MLE <- paste(modelID, method, "IF", "MLE",sep="_")
+            temp_params <-get(model_sm_MLE)(IF)
           }
           
           #temp_lnL <- get(model_lnL)(tVec,temp_params)
@@ -137,9 +143,11 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
         # Now put the parameter estimates into the results frame
         
         for (paramNum in 1:length(get(model_params_label))) {
-            model_parm_num <- paste0(modelID, "_parm_", paramNum) 
-            
+            #model_parm_num <- paste0(modelID, "_parm_", paramNum) 
+            model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
             if(typeof(model_params)!="character") {
+              print("Type of param number : ")
+              print(typeof(model_params[[paramNum]]))
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 
             else {

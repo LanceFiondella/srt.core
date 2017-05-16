@@ -76,9 +76,13 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, input, plot
     # Get the model parameters.
     
     model_params <- c()
-    for (parmIndex in 1:length(get(paste0(modelIndex, "_params")))) {
+    model_params_label <- paste(modelIndex,"params",sep="_")
+    for (parmIndex in 1:length(get(model_params_label))) {
       
-      model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
+      #model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
+      
+      model_parm_num <- paste0(modelIndex, "_", get(model_params_label)[parmIndex])
+      model_params <- c(model_params, ModResults[[model_parm_num]][length(DataModeled[[1]])])
       
     }
     names(model_params) <- paste(modelIndex, get(paste0(modelIndex, "_params")), sep="_")
