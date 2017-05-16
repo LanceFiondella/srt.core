@@ -158,8 +158,31 @@ Wei_AEM_MLE <- function(tVec){
 #}
 #multiroot(Model, c(bMLE,c0))
 
+Wei_lnL <- function(params,x,NegLnL){
+  n <- length(x)
+  tn <- x[n]
+  sum1 <- 0
+  for(i in 1:n){
+    sum1=sum1+ (log(params[2]*params[3]*exp(-params[2]*(x[i]^params[3]))*params[1]*(x[i]^(params[3]-1))))
+  }
+  lnL <- ((-1+exp(-params[2]*(tn^params[3])))*params[1]) + sum1
+  if(NegLnL == FALSE) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
+}
 
-Wei_lnL <- function(x,params){
+# This is the original lnL function.  It's been rewritten
+# (see above) and renamed.  The rewrite was done so it can
+# be used as input to "optim" to compute the hessian, then
+# Fisher information, then confidence intervals for the
+# parameter estimates.
+
+Wei_lnL_orig <- function(x,params){
   n <- length(x)
   tn <- x[n]
   sum1 <- 0

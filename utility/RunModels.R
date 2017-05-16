@@ -83,7 +83,7 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          temp_lnL <- get(model_lnL)(c(temp_params,1),tVec)
+          temp_lnL <- get(model_lnL)(temp_params,tVec,FALSE)
           if(!anyNA(temp_params)){
             lnL_value <- temp_lnL
             model_params <- temp_params
@@ -113,9 +113,12 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
                 # Test code
                 #print(model_sm_MLE)
                 #print(length(tVec))
-                fit<-optim(c(model_params,0),x=tVec,get(model_lnL),hessian=T,method="Nelder-Mead")
+                fit<-optim(model_params,x=tVec,NegLnL=TRUE,get(model_lnL),hessian=T,method="Nelder-Mead")
                 se<-sqrt(diag(solve(fit$hessian)))
-                print(c(model_params,fit$par))
+                CritValue<-qnorm(0.5+ParmConfInterval/2)
+                lowerConfBound<-model_params-CritValue*se
+                upperConfBound<-model_params+CritValue*se
+                print(unlist(c(model_sm_MLE,length(tVec),model_params-fit$par,lowerConfBound,model_params,upperConfBound),use.names=FALSE))
                 # End test code
               }
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]

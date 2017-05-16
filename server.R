@@ -915,7 +915,7 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       if(typeof(model_params)!="character"){
         # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
-        max_lnL <- try(get(paste(model,"lnL",sep="_"))(c(model_params,1),get("data")[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+        max_lnL <- try(get(paste(model,"lnL",sep="_"))(model_params,get("data")[[get(paste(model,"input",sep="_"))]],FALSE),silent=TRUE)
         # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
       
         if(length(grep("not found",max_lnL))) {

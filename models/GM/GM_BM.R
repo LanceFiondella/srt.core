@@ -166,7 +166,7 @@ GM_R <- function(param,d){
   
 }
 
-GM_lnL <-  function(params,x){
+GM_lnL <-  function(params,x,NegLnL){
   
   sum1=0
   sum2=0
@@ -178,7 +178,7 @@ GM_lnL <-  function(params,x){
   }
   lnL <- n*log(params[1]) + sum1 - params[1]*sum2
   #print(lnL)
-  if(params[3]>0) {
+  if(NegLnL == FALSE) {
     return(lnL)
   }
   else {

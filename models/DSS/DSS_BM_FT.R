@@ -120,10 +120,37 @@ DSS_MVF_inv <- function(param,d){
   r
 }
 
-
-
 # log-Likelihood
-DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
+
+DSS_lnL <- function(params,x,NegLnL){ # ----> params should be the option to generalize
+  #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
+  n <- length(x)
+  tn <- x[n]
+  firstSumTerm=0
+  secondSumTerm = 0
+  
+  for(i in 1:n){
+    firstSumTerm = firstSumTerm + log(x[i])
+    secondSumTerm = secondSumTerm + (-params[2]*x[i])
+  }
+  lnL <- -params[1]*(1-(1+params[2]*tn)*exp(-params[2]*tn))+ n*(log(params[1])) + 2*n*log(params[2]) +  firstSumTerm + secondSumTerm
+  if(NegLnL == FALSE) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
+}
+
+# This is the original lnL function.  It's been rewritten
+# (see above) and renamed.  The rewrite was done so it can
+# be used as input to "optim" to compute the hessian, then
+# Fisher information, then confidence intervals for the
+# parameter estimates.
+
+DSS_lnL_orig <- function(x,params){ # ----> params should be the option to generalize
   #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
   n <- length(x)
   tn <- x[n]
