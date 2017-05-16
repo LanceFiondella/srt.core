@@ -190,7 +190,10 @@ DSS_Faults_Remain <- function(){
 }
 
 DSS_MVF_cont <- function(param,t){
-  return(param$DSS_aMLE[[1]]*(1-exp(-1*t*param$DSS_bMLE[[1]])*(1+param$DSS_bMLE[[1]]*t)))
+
+
+#print(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
+  return(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
 }
 
 DSS_R_delta <- function(params,cur_time,delta){
@@ -208,6 +211,7 @@ dlt <- 100
 maxiter <- 1000
 
 DSS_Target_T <- function(params,cur_time,delta, reliability){
+
   
   f <- function(t){
     return(DSS_R_MLE_root(params,t,delta, reliability))
@@ -286,7 +290,9 @@ DSS_R_growth <- function(params,d,delta){
 
 DSS_OR_CC <- function(param,c1,c2,c3){
    library(emdbook)
-  return(-(lambertW(c3/(param$DSS_aMLE*param$DSS_bMLE*(c1-c2))))/(param$DSS_bMLE))
+   aMLE <-  param$DSS_aMLE
+   bMLE <- param$DSS_bMLE
+  return(-(lambertW(c3/(aMLE*bMLE*(c1-c2))))/(bMLE))
 }
 
 #Cost equation for DSS optimal release plots

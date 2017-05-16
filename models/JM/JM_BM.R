@@ -404,8 +404,8 @@ JM_MVF_cont <- function(params,t){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
-  print("---")
-  print(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
+  #print("---")
+  #print(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
   return(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
 }
 

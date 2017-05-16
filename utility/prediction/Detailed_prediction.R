@@ -4,29 +4,9 @@
 get_prediction_k <- function(model,params, t_offset,tn,n){
 	print(">>>>>>>>>")
 	
-	if("JM_N0" %in% names(params)){
-		est_faults <- JM_MVF_cont(params,tn + t_offset) - JM_MVF_cont(params,tn)
-		print(est_faults)
-	}
-	else if("GM_D0" %in% names(params)){
-		est_faults <- GM_MVF_cont(params,tn + t_offset) - GM_MVF_cont(params,tn)
-		#print(est_faults)
-	}
-	else if("GO_aMLE" %in% names(params)){
-		est_faults <- GO_MVF_cont(params,tn + t_offset) - GO_MVF_cont(params,tn)
-		#print(est_faults)
-	}
-	else if("DSS_aMLE" %in% names(params)){
-		est_faults <- DSS_MVF_cont(params,tn + t_offset) - DSS_MVF_cont(params,tn)
-		#print(est_faults)
-	}
-	else if("Wei_aMLE" %in% names(params)){
-		est_faults <- Wei_MVF_cont(params,tn + t_offset) - Wei_MVF_cont(params,tn)
-		#print(est_faults)
-	}
-	else{
-		est_faults <- "Not Implemented"
-	}
+	est_faults <- get(paste(model,"MVF_cont",sep="_"))(params,tn)
+	
+	
   # return(floor(est_faults))
   
   # est_faults is an expected value, so it may not be a
@@ -38,6 +18,7 @@ get_prediction_k <- function(model,params, t_offset,tn,n){
 
 
 get_prediction_t <- function(model, params, faults, tn, n){
+        
 	time_indexes <- c()
 	if(faults!=0){
 		for(i in 1: faults){

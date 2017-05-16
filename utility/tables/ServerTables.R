@@ -103,15 +103,26 @@
       #model_params <- ModelResults[last_row,]
       model_params <- as.data.frame(matrix(0, ncol=length(ModelResults[1,]), nrow = 1))
       colnames(model_params) <- colnames(ModelResults)
-      model_params[1,] <- ModelResults[last_row,]
+      
+      #Generating model_params from ModelResults. If the column is a list, it is converted to numeric
+      for(i in 1:length(model_params[1,])){
+        if (typeof(model_params[1,i]) == "list"){
+            model_params[1, i] <- as.numeric(model_params[1,i][[1]])
+        }
+        else{
+            model_params[1, i] <- ModelResults[last_row, i]
+        }
+      }
+      
+      
       #model_params <- setNames(as.character(colnames(ModelResults)), as.numeric(ModelResults[last_row,]))
-      print(model_params)
+      #print(model_params)
       #model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=FALSE)
 
       
       # ----> ! #print("Table1 construct: ")
       #print(model_params)
-      print(data$FRate$FT)
+      #print(data$FRate$FT)
       # ----> ! #print(count)
       #print(data$FRate[length(get("data")[[get(paste(model,"input",sep="_"))]])])
       if(typeof(model_params)!="character"){
@@ -122,20 +133,25 @@
                                           data$FRate$FT[last_row],
                                           #length(get("data")[[get(paste(model,"input",sep="_"))]])
                                           last_row)
-        print(number_fails)
+        
         time_fails <- get_prediction_t( model,
                                         model_params, 
                                         input$modelDetailPredFailures,
-                                        data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
-                                        length(get("data")[[get(paste(model,"input",sep="_"))]]))
+                                        #data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                        data$FRate$FT[last_row],
+                                        #length(get("data")[[get(paste(model,"input",sep="_"))]]))
+                                        last_row)
         rel_time <- get_reliability_t(model,
                                       model_params, 
                                       input$modelTargetReliability, input$modelRelMissionTime2, 
-                                      data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
-                                      length(get("data")[[get(paste(model,"input",sep="_"))]]))
+                                      #data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                      data$FRate$FT[last_row],
+                                      #length(get("data")[[get(paste(model,"input",sep="_"))]]))
+                                      last_row)
 
         opt_release_time <- get_optimal_release_time_CC(model, model_params, input$C0, input$C1, input$C2)
-        cost_at_rel_time <- get_cost_at_time(model,model_params, rel_time, input$T, input$C0, input$C1, input$C2)
+        #cost_at_rel_time <- get_cost_at_time(model,model_params, rel_time, input$T, input$C0, input$C1, input$C2)
+        cost_at_rel_time <- 0
         reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, input$modelRelMissionTime)
         cost_at_opt_release_time <- get_cost_at_time(model,model_params, opt_release_time, input$T, input$C0, input$C1, input$C2)
         
