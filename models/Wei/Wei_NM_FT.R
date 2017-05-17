@@ -1,6 +1,6 @@
 library(rootSolve)
 
-Wei_NM_MLE <- function(tVec){
+Wei_NM_FT_MLE <- function(tVec){
       tVec <- as.numeric(tVec)
       n <- length(tVec)
       tn <- tVec[n]

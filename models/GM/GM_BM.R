@@ -3,7 +3,7 @@
 
 
 
-GM_BM_MLE <- function(interFail){
+GM_BM_IF_MLE <- function(interFail){
   # TODO :
       # ----> as numeric is prefered if data contain large values Should consider its propagation effect through out
       # ----> should also check its effects on precision.

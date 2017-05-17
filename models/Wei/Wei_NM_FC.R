@@ -5,7 +5,7 @@ library(rootSolve)
 #kVec <- c(10,64,18,43,44,13,34,28,15,10)
 #tVec <- c(1,1.5,2,3,4.5,6,8,11,12,13)
 
-Wei_NM_FC <- function(tVec, kVec){
+Wei_NM_FC_MLE <- function(tVec, kVec){
             #tVec <- c(0,tVec)
             n <- length(kVec)
 
@@ -85,10 +85,18 @@ Wei_NM_FC <- function(tVec, kVec){
 
             if(is.nan(abc[1])){
               b0 <- sumK/(sumT*tn)
-              abcd <- multiroot(f=model,start=c(a0,b0,c0),maxiter = 100000,ctol = 1e-24)$root
+              abc <- multiroot(f=model,start=c(a0,b0,c0),maxiter = 100000,ctol = 1e-24)$root
             }
 
-            print(b0)
-            print(abcd)
-
+            #print(b0)
+            #print(abcd)
+	aMLE <- abc[1]
+  bMLE <- abc[2]
+  cMLE <- abc[3] 
+	print(aMLE, bMLE, cMLE)
+	#sol <- data.frame(aMLE, bMLE, cMLE)
+  sol <- data.frame(abc[1], abc[2], abc[3])
+  names(sol) <- c("Wei_aMLE", "Wei_bMLE", "Wei_cMLE")
+    # sol <- c(aMLE,bMLE)
+    sol
 }

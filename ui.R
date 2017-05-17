@@ -8,17 +8,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Select, Analyze, and Subset Failure Data"),
-                                           fluidRow(
-                                             column(10, 
-                                                    h5("Specify the input file format"),
-                                                    
-                                                    radioButtons("type", label = "", 
-                                                                 choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), inline = TRUE, selected = 1)
-                                             )
-                                           ),
+                                           #fluidRow(
+                                           #  column(10, 
+                                           #         h5("Upload an input file in csv or Excel format (.xls or .xlsx)"),
+                                           #         
+                                           #         radioButtons("type", label = "", 
+                                           #                      choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), inline = TRUE, selected = 1)
+                                           #  )
+                                           #),
                                            
                                            fluidRow(
-                                             column(8, fileInput("file", label = h5("Select a failure data file"),
+                                             column(8, 
+                                              h5("Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)"),
+                                             fileInput("file", label = h5("Select a failure data file"),
                                                                  accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
                                            ),
                                            
