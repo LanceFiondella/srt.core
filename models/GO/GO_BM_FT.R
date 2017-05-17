@@ -230,9 +230,9 @@ GO_lnL <- function(params,x,NegLnL){
   tn <- x[n]
   firstSumTerm <- 0
   for(i in 1:n){
-    firstSumTerm = firstSumTerm + (-params[2]*x[i])
+    firstSumTerm = firstSumTerm + (-as.list(params)$GO_bMLE*x[i])
   }
-  lnL <- -(params[1])*(1-exp(-params[2]*tn)) + n*(log(params[1])) +n*log(params[2]) + firstSumTerm
+  lnL <- -(as.list(params)$GO_aMLE)*(1-exp(-as.list(params)$GO_bMLE*tn)) + n*(log(as.list(params)$GO_aMLE)) +n*log(as.list(params)$GO_bMLE) + firstSumTerm
   if(NegLnL == FALSE) {
     return(lnL)
   }

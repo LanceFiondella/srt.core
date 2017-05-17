@@ -166,6 +166,7 @@ GM_R <- function(param,d){
   
 }
 
+
 GM_lnL <-  function(params,x,NegLnL){
   
   sum1=0
@@ -173,10 +174,10 @@ GM_lnL <-  function(params,x,NegLnL){
   #print(params)
   n <- length(x)
   for(i in 1:n){
-    sum1=sum1+ ((i-1)*log(params[2])) 
-    sum2=sum2+ (params[2]^(i-1) * x[i])
+    sum1=sum1+ ((i-1)*log(as.list(params)$GM_Phi)) 
+    sum2=sum2+ (as.list(params)$GM_Phi^(i-1) * x[i])
   }
-  lnL <- n*log(params[1]) + sum1 - params[1]*sum2
+  lnL <- n*log(as.list(params)$GM_D0) + sum1 - as.list(params)$GM_D0*sum2
   #print(lnL)
   if(NegLnL == FALSE) {
     return(lnL)

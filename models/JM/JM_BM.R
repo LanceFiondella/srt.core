@@ -347,10 +347,10 @@ JM_lnL <- function(params,x,NegLnL){
   thirdTerm = 0
   
   for(i in 1:n){
-    secondTerm = secondTerm +log((params[1]-(i-1)))
-    thirdTerm = thirdTerm +((params[1]-(i-1))*x[i])#x=interFail
+    secondTerm = secondTerm +log((as.list(params)$JM_N0-(i-1)))
+    thirdTerm = thirdTerm +((as.list(params)$JM_N0-(i-1))*x[i])#x=interFail
   }
-  lnL <- n*log(params[2])+ secondTerm-(params[2]*thirdTerm)
+  lnL <- n*log(as.list(params)$JM_Phi)+ secondTerm-(as.list(params)$JM_Phi*thirdTerm)
   if(NegLnL == FALSE) {
     return(lnL)
   }

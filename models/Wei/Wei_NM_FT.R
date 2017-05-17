@@ -122,9 +122,9 @@ Wei_lnL <- function(params,x,NegLnL){
   tn <- x[n]
   sum1 <- 0
   for(i in 1:n){
-    sum1=sum1+ (log(params[2]*params[3]*exp(-params[2]*(x[i]^params[3]))*params[1]*(x[i]^(params[3]-1))))
+    sum1=sum1+ (log(as.list(params)$Wei_bMLE*as.list(params)$Wei_cMLE*exp(-as.list(params)$Wei_bMLE*(x[i]^as.list(params)$Wei_cMLE))*as.list(params)$Wei_aMLE*(x[i]^(as.list(params)$Wei_cMLE-1))))
   }
-  lnL <- ((-1+exp(-params[2]*(tn^params[3])))*params[1]) + sum1
+  lnL <- ((-1+exp(-as.list(params)$Wei_bMLE*(tn^as.list(params)$Wei_cMLE)))*as.list(params)$Wei_aMLE) + sum1
   if(NegLnL == FALSE) {
     return(lnL)
   }

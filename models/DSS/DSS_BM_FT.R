@@ -131,9 +131,9 @@ DSS_lnL <- function(params,x,NegLnL){ # ----> params should be the option to gen
   
   for(i in 1:n){
     firstSumTerm = firstSumTerm + log(x[i])
-    secondSumTerm = secondSumTerm + (-params[2]*x[i])
+    secondSumTerm = secondSumTerm + (-as.list(params)$DSS_bMLE*x[i])
   }
-  lnL <- -params[1]*(1-(1+params[2]*tn)*exp(-params[2]*tn))+ n*(log(params[1])) + 2*n*log(params[2]) +  firstSumTerm + secondSumTerm
+  lnL <- -as.list(params)$DSS_aMLE*(1-(1+as.list(params)$DSS_bMLE*tn)*exp(-as.list(params)$DSS_bMLE*tn))+ n*(log(as.list(params)$DSS_aMLE)) + 2*n*log(as.list(params)$DSS_bMLE) +  firstSumTerm + secondSumTerm
   if(NegLnL == FALSE) {
     return(lnL)
   }

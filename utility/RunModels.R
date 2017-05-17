@@ -83,7 +83,7 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          temp_lnL <- get(model_lnL)(temp_params,tVec,FALSE)
+          temp_lnL <- get(model_lnL)(as.list(temp_params),tVec,FALSE)
           if(!anyNA(temp_params)){
             lnL_value <- temp_lnL
             model_params <- temp_params
@@ -111,8 +111,7 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
               if(paramNum == 1) {
                 
                 # Test code
-                #print(model_sm_MLE)
-                #print(length(tVec))
+                print(unlist(c(model_sm_MLE, length(tVec))))
                 fit<-optim(model_params,x=tVec,NegLnL=TRUE,get(model_lnL),hessian=T,method="Nelder-Mead")
                 se<-sqrt(diag(solve(fit$hessian)))
                 CritValue<-qnorm(0.5+ParmConfInterval/2)
