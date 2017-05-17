@@ -406,7 +406,7 @@ JM_MVF_cont <- function(params,t){
   #============================================================================
   #print("---")
   #print(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
-  return(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
+  return(params$JM_N0*(1-exp(-params$JM_Phi*t)))
 }
 
 JM_R_delta <- function(params,cur_time,delta){

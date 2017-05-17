@@ -86,6 +86,7 @@ DSS_MVF <- function(param,d){
   #}
   MVF <- param$DSS_aMLE*(1-exp(-1*d$FT*param$DSS_bMLE)*(1+param$DSS_bMLE*d$FT))
   r <- data.frame(d$FT,MVF,rep("DSS",n))
+  print(d$FT)
   names(r) <- c("Time","Failure","Model")
   r
 }
@@ -191,8 +192,6 @@ DSS_Faults_Remain <- function(){
 
 DSS_MVF_cont <- function(param,t){
 
-
-#print(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
   return(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
 }
 

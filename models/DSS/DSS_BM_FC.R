@@ -3,7 +3,9 @@
 #kVec <- c(10,64,18,43,44,13,34,28,15,10)
 #tVec <- c(1,1.5,2,3,4.5,6,8,11,12,13)
 
-Wei_NM_FC <- function(tVec, kVec){
+DSS_BM_FC_MLE <- function(tVec, kVec){
+	print(tVec)
+	print(kVec)
 		k <- length(kVec)
 		K <- sum(kVec)
 
@@ -79,12 +81,16 @@ print(bMLE)
 	aMLE <- kSum/(1-(1+bMLE*tn)*exp(-bMLE*tn))
 	
 	 print(aMLE)
+	sol <- data.frame("DSS_aMLE"=aMLE,"DSS_bMLE"=bMLE)
+    # sol <- c(aMLE,bMLE)
+    sol
+
 
 }	 
 
 #Mean Value function 
 
-MVF <- aMLE*(1-(1+bMLE*tVec)*exp(-bMLE*tVec))
+#MVF <- aMLE*(1-(1+bMLE*tVec)*exp(-bMLE*tVec))
 
 
 

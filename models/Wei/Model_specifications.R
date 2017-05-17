@@ -1,5 +1,5 @@
 # Weibul model
-Wei_input <- c("FT")
+Wei_input <- c("FT", "FC")
 Wei_methods <- c("NM", "AEM")
 Wei_params <- c("aMLE","bMLE","cMLE")
 Wei_type <- c("Exp")

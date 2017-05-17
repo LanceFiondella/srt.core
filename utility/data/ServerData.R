@@ -54,7 +54,13 @@ getFileType <- function(inFile){
         # estimation range
         
         DataModelIntervalStart <<- 1
-        DataModelIntervalEnd <<- length(data_generated$FRate[,1])
+        if ("FRate" %in% names(data_generated) && !("FCount" %in% names(data_generated))) {
+            DataModelIntervalEnd <<- length(data_generated$FRate[,1])
+        } else {
+            DataModelIntervalEnd <<- length(data_generated$FRate[,1])
+            #DataModelIntervalEnd <<- length(data_generated$FCount[,1])
+        }
+
         if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
             output$InputFileError <- renderText({msgDataFileTooSmall})
         } else {
@@ -67,6 +73,7 @@ getFileType <- function(inFile){
         
         if("FCount" %in% names(data_generated) || "FRate" %in% names(data_generated)){
             print("FC data detected")
+            print(names(data_generated))
             
 
             # Add a column for test intervals.

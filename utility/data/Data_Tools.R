@@ -272,7 +272,7 @@ generateDataFrame <- function(raw_data){
             	FN 	<- 1:length(FT)
 			}
 			FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
-			FC <- data.frame("FC"=FC, "CFC"=CFC)
+			FC <- data.frame("T"=raw_data$T,"FC"=FC, "CFC"=CFC)
 			data_gen <- list(FR,FC)
 			names(data_gen) <- c("FRate","FCount")
 			currentDatasetType <<- "FCount"

@@ -11,7 +11,7 @@ run_models <- function(raw_data, input, tol_local) {
 
   if (("FRate" %in% (names(raw_data))) && !("FCount" %in% (names(raw_data)))) {
 
-    dataType = "FT"
+    dataType <- "FT"
 
       if(DataRange[1] == 1) {
           OffsetTime <- 0
@@ -21,19 +21,26 @@ run_models <- function(raw_data, input, tol_local) {
     ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ModeledData$FT <- ModeledData$FT - OffsetTime
     ParmInitIntvl <- length(ModeledData[,1])
-    results <- process_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
   
   
   } else if (("FRate" %in% (names(raw_data))) && ("FCount" %in% (names(raw_data)))) {
     # Need to complete for failure counts data
     #Runs all FC models if there are failed models in the results, only those are run using FR models
-    dataType = "FC"
-    ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    
+    dataType <- "FC"
+    if(DataRange[1] == 1) {
+          OffsetTime <- 0
+        } else {
+          OffsetTime <- tail(head(raw_data$FCount, DataRange[1]-1), 1)[["FT"]]
+        }
+    #ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ParmInitIntvl <- length(ModeledData[,1])
-    results <- process_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
     
     if (length(results[["FailedModels"]]) > 0){
-      dataType = "FT"
+      dataType <- "FT"
       if(DataRange[1] == 1) {
           OffsetTime <- 0
         } else {
@@ -42,7 +49,7 @@ run_models <- function(raw_data, input, tol_local) {
     ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ModeledData$FT <- ModeledData$FT - OffsetTime
     ParmInitIntvl <- length(ModeledData[,1])
-      results <- process_models(ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType)
+      results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType)
 
     }
   }
@@ -50,7 +57,7 @@ run_models <- function(raw_data, input, tol_local) {
 }
 
 
-process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType){
+process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType){
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   OffsetFailure <- DataStart-1
@@ -102,22 +109,17 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
         sel_method <- NA
         model_input <- paste(modelID,"input",sep="_")
         
-        
-
-        #This for loop selects one of the methods indicated in the Model_Specifications.R file.
-        
-        lnL_value <- Inf
         for (method in get(model_methods)){
+          
           model_sm_MLE <- paste(modelID, method, dataType, "MLE",sep="_")
           if(dataType == "FC" && dataType %in% get(model_input)){
-            tVec <- head(in_data$T, failure_num)
-            kVec <- head(in_data$FC, failure_num)
-            temp_params <- get(model_sm_MLE)(kVec, tVec)
+            tVec <- head(raw_data$FCount$T, failure_num)
+            kVec <- head(raw_data$FCount$FC, failure_num)
+            temp_params <- get(model_sm_MLE)(tVec, kVec)
           } else if (dataType == "FT" && dataType %in% get(model_input)){
             tVec <- head(in_data$FT, failure_num)
             temp_params <- get(model_sm_MLE)(tVec)
-          } else if (dataType == "FT" && "IF" %in% get(model_input)){
-            print(in_data$IF)
+          } else if ("IF" %in% get(model_input)){
             IF <- head(in_data$IF, failure_num)
             model_sm_MLE <- paste(modelID, method, "IF", "MLE",sep="_")
             temp_params <-get(model_sm_MLE)(IF)
@@ -139,6 +141,12 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
         
         print(paste0("Selected method for ",modelID))
         print(sel_method)
+
+        
+
+        #This for loop selects one of the methods indicated in the Model_Specifications.R file.
+        
+
         
         # Now put the parameter estimates into the results frame
         
@@ -146,7 +154,11 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
             #model_parm_num <- paste0(modelID, "_parm_", paramNum) 
             model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
             if(typeof(model_params)!="character") {
+              print(model_params)
               print("Type of param number : ")
+              print(modelID)
+              print(model_params_label)
+              print(paramNum)
               print(typeof(model_params[[paramNum]]))
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 
@@ -160,7 +172,10 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
 
       } # End for - we've estimated model parameters for the current model over the entire dataset.
       
+      in_data <- raw_data$FRate
+
       if(ParmEstimatesConverged) {
+        
         PlottableModels <- c(PlottableModels, modelID)
         
         # Here we compute the model estimates of MVF, IF, FI, and Reliability.
@@ -194,8 +209,7 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
             lower_pred_bound <- local_estim[length(local_estim)]+1
           } else {
             lower_pred_bound <- round(local_estim[length(local_estim)]+1)
-            print(modelID)
-            print(lower_pred_bound)
+            
           }
           
           if(PredAheadSteps < ExpectedTotalFailures-(DataEnd-DataStart+1)) {
@@ -234,7 +248,6 @@ process_models <- function(in_data, DataRange, ParmInitIntvl, OffsetTime, PredAh
 
         if(length(invMVFinput) > 0) {
           pred_input_data <- data.frame("FN" = invMVFinput)
-          
           local_results[[model_CumTime]] <- c(in_data[["FT"]]+OffsetTime, get(model_MVF_inv)(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
           local_results[[model_MVF]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
         } else {

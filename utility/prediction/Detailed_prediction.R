@@ -140,7 +140,13 @@ get_optimal_release_time_CC <- function(model, params, c1,c2,c3){
 
 #Get the cost at a specified time
 get_cost_at_time <- function(model, params, time, t_lifecycle, c1,c2,c3){
-    return(get(paste(model,"cost",sep="_"))(params,c1,c2,c3,time,t_lifecycle))
+	if(is.numeric(time)){
+		return(get(paste(model,"cost",sep="_"))(params,c1,c2,c3,time,t_lifecycle))
+	}
+	else{
+		return(0)
+	}
+    
 }
 
 get_rel_at_opt_release_time <- function(model, params, opt_release_time, delta){
