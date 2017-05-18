@@ -331,7 +331,7 @@ JM_MVF_r <- function(param,d){
 
 
 
-JM_lnL <- function(params,x,NegLnL){
+JM_lnL <- function(params,paramNames,negLnL,failData){
   #----------------------------------------------------------------------------
   # This computes Log-Likelihood for a given data x and parameters
   #----------------------------------------------------------------------------
@@ -342,16 +342,17 @@ JM_lnL <- function(params,x,NegLnL){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
-  n <- length(x)          
+  names(params)<-paramNames
+  n <- length(failData)          
   secondTerm=0
   thirdTerm = 0
   
   for(i in 1:n){
     secondTerm = secondTerm +log((as.list(params)$JM_N0-(i-1)))
-    thirdTerm = thirdTerm +((as.list(params)$JM_N0-(i-1))*x[i])#x=interFail
+    thirdTerm = thirdTerm +((as.list(params)$JM_N0-(i-1))*as.list(params)$JM_Phi*failData[i])#x=interFail
   }
-  lnL <- n*log(as.list(params)$JM_Phi)+ secondTerm-(as.list(params)$JM_Phi*thirdTerm)
-  if(NegLnL == FALSE) {
+  lnL <- n*log(as.list(params)$JM_Phi) + secondTerm - thirdTerm
+  if(negLnL == FALSE) {
     return(lnL)
   }
   else {

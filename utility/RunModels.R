@@ -1,4 +1,5 @@
 library(rootSolve)
+library(numDeriv)
 
 run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
   
@@ -83,7 +84,7 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          temp_lnL <- get(model_lnL)(as.list(temp_params),tVec,FALSE)
+          temp_lnL <- get(model_lnL)(temp_params,names(temp_params),FALSE,tVec)
           if(!anyNA(temp_params)){
             lnL_value <- temp_lnL
             model_params <- temp_params
@@ -110,15 +111,13 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
               
               if(paramNum == 1) {
                 
-                # Test code
                 print(unlist(c(model_sm_MLE, length(tVec))))
-                fit<-optim(model_params,x=tVec,NegLnL=TRUE,get(model_lnL),hessian=T,method="Nelder-Mead")
-                se<-sqrt(diag(solve(fit$hessian)))
+                #fit<-optim(model_params,x=tVec,NegLnL=TRUE,get(model_lnL),hessian=T,method="Nelder-Mead")
+                se<-sqrt(diag(solve(numDeriv::hessian(f=get(model_lnL),x=as.numeric(model_params),paramNames=names(model_params),negLnL=TRUE,failData=tVec,"complex"))))
                 CritValue<-qnorm(0.5+ParmConfInterval/2)
                 lowerConfBound<-model_params-CritValue*se
                 upperConfBound<-model_params+CritValue*se
-                print(unlist(c(model_sm_MLE,length(tVec),model_params-fit$par,lowerConfBound,model_params,upperConfBound),use.names=FALSE))
-                # End test code
+                print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
               }
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 

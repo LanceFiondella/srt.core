@@ -225,15 +225,16 @@ GO_R <- function(params,d){
 }
 
 
-GO_lnL <- function(params,x,NegLnL){
-  n <- length(x)
-  tn <- x[n]
+GO_lnL <- function(params,paramNames,negLnL,failData){
+  names(params)<-paramNames
+  n <- length(failData)
+  tn <- failData[n]
   firstSumTerm <- 0
   for(i in 1:n){
-    firstSumTerm = firstSumTerm + (-as.list(params)$GO_bMLE*x[i])
+    firstSumTerm = firstSumTerm + (-as.list(params)$GO_bMLE*failData[i])
   }
   lnL <- -(as.list(params)$GO_aMLE)*(1-exp(-as.list(params)$GO_bMLE*tn)) + n*(log(as.list(params)$GO_aMLE)) +n*log(as.list(params)$GO_bMLE) + firstSumTerm
-  if(NegLnL == FALSE) {
+  if(negLnL == FALSE) {
     return(lnL)
   }
   else {

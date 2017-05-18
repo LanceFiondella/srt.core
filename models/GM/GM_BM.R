@@ -167,24 +167,23 @@ GM_R <- function(param,d){
 }
 
 
-GM_lnL <-  function(params,x,NegLnL){
+GM_lnL<-function(params,paramNames,negLnL,failData){
   
   sum1=0
   sum2=0
-  #print(params)
-  n <- length(x)
+  names(params)<-paramNames
+  n<-length(failData)
   for(i in 1:n){
-    sum1=sum1+ ((i-1)*log(as.list(params)$GM_Phi)) 
-    sum2=sum2+ (as.list(params)$GM_Phi^(i-1) * x[i])
+    sum1=sum1+ ((i-1)*log(as.list(params)$GM_Phi))
+    sum2=sum2+ (as.list(params)$GM_Phi^(i-1) * failData[i])
   }
   lnL <- n*log(as.list(params)$GM_D0) + sum1 - as.list(params)$GM_D0*sum2
-  #print(lnL)
-  if(NegLnL == FALSE) {
-    return(lnL)
+  if(negLnL==TRUE){
+    return(-lnL)
   }
   else {
-    # This is the branch we take if we want to use the
-    # return value to compute the hessian.
+    # This is the branch we take if we want to compute the hessian on
+    # the way to estimating confidence intervals.
     return(-lnL)
   }
 }
