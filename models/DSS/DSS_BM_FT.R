@@ -122,19 +122,20 @@ DSS_MVF_inv <- function(param,d){
 
 # log-Likelihood
 
-DSS_lnL <- function(params,x,NegLnL){ # ----> params should be the option to generalize
-  #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
-  n <- length(x)
-  tn <- x[n]
+DSS_lnL <- function(params,paramNames,negLnL,failData){ # ----> params should be the option to generalize
+  #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(failData))-bMLE*sum(failData)
+  names(params)<-paramNames
+  n <- length(failData)
+  tn <- failData[n]
   firstSumTerm=0
   secondSumTerm = 0
   
   for(i in 1:n){
-    firstSumTerm = firstSumTerm + log(x[i])
-    secondSumTerm = secondSumTerm + (-as.list(params)$DSS_bMLE*x[i])
+    firstSumTerm = firstSumTerm + log(failData[i])
+    secondSumTerm = secondSumTerm + (-as.list(params)$DSS_bMLE*failData[i])
   }
   lnL <- -as.list(params)$DSS_aMLE*(1-(1+as.list(params)$DSS_bMLE*tn)*exp(-as.list(params)$DSS_bMLE*tn))+ n*(log(as.list(params)$DSS_aMLE)) + 2*n*log(as.list(params)$DSS_bMLE) +  firstSumTerm + secondSumTerm
-  if(NegLnL == FALSE) {
+  if(negLnL == FALSE) {
     return(lnL)
   }
   else {

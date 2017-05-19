@@ -1,5 +1,6 @@
 library(rootSolve)
 library(numDeriv)
+library(Matrix)
 
 run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
   
@@ -111,12 +112,31 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
               
               if(paramNum == 1) {
                 
-                print(unlist(c(model_sm_MLE, length(tVec))))
-                #fit<-optim(model_params,x=tVec,NegLnL=TRUE,get(model_lnL),hessian=T,method="Nelder-Mead")
-                se<-sqrt(diag(solve(numDeriv::hessian(f=get(model_lnL),x=as.numeric(model_params),paramNames=names(model_params),negLnL=TRUE,failData=tVec,"complex"))))
-                CritValue<-qnorm(0.5+ParmConfInterval/2)
-                lowerConfBound<-model_params-CritValue*se
-                upperConfBound<-model_params+CritValue*se
+                #print(unlist(c(model_sm_MLE, length(tVec))))
+                
+                # First set the lower and upper confidence bounds to NaN.  This will indicate
+                # that we're not able to compute the confidence bound values using the hessian
+                # and Fisher information.
+                
+                lowerConfBound <- rep(0/0,length(model_params))
+                upperConfBound <- lowerConfBound
+                
+                options(show.error.messages=FALSE)
+                modelHessian <- try(numDeriv::hessian(f=get(model_lnL),x=as.numeric(model_params),paramNames=names(model_params),negLnL=TRUE,failData=tVec,"complex"),silent=TRUE)
+                options(show.error.messages=TRUE)
+                if(is.numeric(modelHessian) && (is.nan(sum(modelHessian)) == FALSE) && (det(modelHessian) > 0)) {
+                  options(show.error.messages=FALSE)
+                  modelFisher <- try(Matrix::solve(modelHessian,diag(length(model_params))),silent=TRUE)
+                  options(show.error.messages=TRUE)
+                  if(is.numeric(modelFisher) && (is.nan(sum(modelFisher)) == FALSE)) {
+                    if ((all(diag(modelFisher)) > 0) == TRUE) {
+                      se <- sqrt(diag(modelFisher))
+                      CritValue<-qnorm(0.5+ParmConfInterval/2)
+                      lowerConfBound<-model_params-CritValue*se
+                      upperConfBound<-model_params+CritValue*se
+                    }
+                  }
+                }
                 print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
               }
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]

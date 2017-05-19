@@ -158,15 +158,34 @@ Wei_AEM_MLE <- function(tVec){
 #}
 #multiroot(Model, c(bMLE,c0))
 
-Wei_lnL <- function(params,x,NegLnL){
-  n <- length(x)
-  tn <- x[n]
+Wei_lnL_new <- function(params,paramNames,negLnL,failData){
+  names(params)<-paramNames
+  n <- length(failData)
+  tn <- failData[n]
+  lnL <- n*log(as.list(params)$Wei_bMLE) - n*as.list(params)$Wei_bMLE*log(as.list(params)$Wei_aMLE) + (as.list(params)$Wei_bMLE-1)*sum(log(failData-rep(as.list(params)$Wei_cMLE,n))) - sum((failData-rep(as.list(params)$Wei_cMLE,n))/rep(as.list(params)$Wei_aMLE,n))^as.list(params)$Wei_bMLE
+  if(negLnL == FALSE) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
+}
+
+
+
+Wei_lnL <- function(params,paramNames,negLnL,failData){
+  names(params)<-paramNames
+  n <- length(failData)
+  tn <- failData[n]
   sum1 <- 0
   for(i in 1:n){
-    sum1=sum1+ (log(as.list(params)$Wei_bMLE*as.list(params)$Wei_cMLE*exp(-as.list(params)$Wei_bMLE*(x[i]^as.list(params)$Wei_cMLE))*as.list(params)$Wei_aMLE*(x[i]^(as.list(params)$Wei_cMLE-1))))
+    # lnL <- n*log(bMLE) - n*bMLE*log(aMLE) + (bMLE-1)*sum(log(failData-rep(cMLE,n))) - sum((failData-rep(cMLE,n))/rep(aMLE,n))^bMLE
+    sum1=sum1+ (log(as.list(params)$Wei_bMLE*as.list(params)$Wei_cMLE*exp(-as.list(params)$Wei_bMLE*(failData[i]^as.list(params)$Wei_cMLE))*as.list(params)$Wei_aMLE*(failData[i]^(as.list(params)$Wei_cMLE-1))))
   }
   lnL <- ((-1+exp(-as.list(params)$Wei_bMLE*(tn^as.list(params)$Wei_cMLE)))*as.list(params)$Wei_aMLE) + sum1
-  if(NegLnL == FALSE) {
+  if(negLnL == FALSE) {
     return(lnL)
   }
   else {
