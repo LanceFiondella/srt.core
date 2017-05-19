@@ -22,6 +22,41 @@ run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, Off
   
 }
 
+# Estimate parameter confidence interval using the hessian and Fisher information.
+# This function can be used for both FT and FC types of models.
+
+estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_ParmConfInterval, in_fail_data){
+  # First set the lower and upper confidence bounds to NaN.  This will indicate
+  # that we're not able to compute the confidence bound values using the hessian
+  # and Fisher information.
+  
+  out_lowerConfBound <- rep(0/0,length(in_model_params))
+  out_upperConfBound <- out_lowerConfBound
+  
+  options(show.error.messages=FALSE)
+  modelHessian <- try(numDeriv::hessian(f=get(in_model_lnL),x=as.numeric(in_model_params),paramNames=names(in_model_params),negLnL=TRUE,failData=in_fail_data,"complex"),silent=TRUE)
+  options(show.error.messages=TRUE)
+  if(is.numeric(modelHessian) && (is.nan(sum(modelHessian)) == FALSE) && (det(modelHessian) != 0)) {
+    options(show.error.messages=FALSE)
+    modelFisher <- try(Matrix::solve(modelHessian,diag(length(in_model_params))),silent=TRUE)
+    options(show.error.messages=TRUE)
+    if(is.numeric(modelFisher) && (is.nan(sum(modelFisher)) == FALSE)) {
+      if (all(diag(modelFisher) > 0) == TRUE) {
+        se <- sqrt(diag(modelFisher))
+        CritValue<-qnorm(0.5+in_ParmConfInterval/2)
+        out_lowerConfBound<-in_model_params-CritValue*se
+        out_upperConfBound<-in_model_params+CritValue*se
+      }
+    }
+  }
+  ConfBoundsList <- c()
+  ConfBoundsList$LowerBoundsValues <- out_lowerConfBound
+  ConfBoundsList$UpperBoundsValues <- out_upperConfBound
+  return(ConfBoundsList)
+}
+
+
+
 run_FC_models <- function(){
 
   
@@ -85,8 +120,8 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
         for (method in get(model_methods)){
           model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
           temp_params <- get(model_sm_MLE)(tVec)
-          temp_lnL <- get(model_lnL)(temp_params,names(temp_params),FALSE,tVec)
           if(!anyNA(temp_params)){
+            temp_lnL <- get(model_lnL)(temp_params,names(temp_params),FALSE,tVec)
             lnL_value <- temp_lnL
             model_params <- temp_params
             sel_method <- method
@@ -99,9 +134,8 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
           ParmEstimatesConverged <- FALSE
         }
         
-        print("Selected method")
-        print(sel_method)
-        
+        print(unlist(c("Selected method:", sel_method)))
+
         # Now put the parameter estimates into the results frame
         
         for (paramNum in 1:length(get(model_params_label))) {
@@ -114,29 +148,10 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
                 
                 #print(unlist(c(model_sm_MLE, length(tVec))))
                 
-                # First set the lower and upper confidence bounds to NaN.  This will indicate
-                # that we're not able to compute the confidence bound values using the hessian
-                # and Fisher information.
+                ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ParmConfInterval, tVec)
+                lowerConfBound <- ConfBounds$LowerBoundsValues
+                upperConfBound <- ConfBounds$UpperBoundsValues
                 
-                lowerConfBound <- rep(0/0,length(model_params))
-                upperConfBound <- lowerConfBound
-                
-                options(show.error.messages=FALSE)
-                modelHessian <- try(numDeriv::hessian(f=get(model_lnL),x=as.numeric(model_params),paramNames=names(model_params),negLnL=TRUE,failData=tVec,"complex"),silent=TRUE)
-                options(show.error.messages=TRUE)
-                if(is.numeric(modelHessian) && (is.nan(sum(modelHessian)) == FALSE) && (det(modelHessian) > 0)) {
-                  options(show.error.messages=FALSE)
-                  modelFisher <- try(Matrix::solve(modelHessian,diag(length(model_params))),silent=TRUE)
-                  options(show.error.messages=TRUE)
-                  if(is.numeric(modelFisher) && (is.nan(sum(modelFisher)) == FALSE)) {
-                    if ((all(diag(modelFisher)) > 0) == TRUE) {
-                      se <- sqrt(diag(modelFisher))
-                      CritValue<-qnorm(0.5+ParmConfInterval/2)
-                      lowerConfBound<-model_params-CritValue*se
-                      upperConfBound<-model_params+CritValue*se
-                    }
-                  }
-                }
                 print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
               }
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]

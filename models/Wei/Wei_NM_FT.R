@@ -117,32 +117,12 @@ Wei_NM_MLE <- function(tVec){
         params
 }
 
-Wei_lnL_new <- function(params,paramNames,negLnL,failData){
-  names(params)<-paramNames
-  n <- length(failData)
-  tn <- failData[n]
-  lnL <- n*log(as.list(params)$Wei_aMLE) - n*as.list(params)$Wei_aMLE*log(as.list(params)$Wei_bMLE) + (as.list(params)$Wei_aMLE-1)*sum(log(failData-rep(as.list(params)$Wei_cMLE,n))) - sum((failData-rep(as.list(params)$Wei_cMLE,n))/rep(as.list(params)$Wei_bMLE,n))^as.list(params)$Wei_aMLE
-  if(negLnL == FALSE) {
-    return(lnL)
-  }
-  else {
-    # This is the branch we take if we want to use the
-    # return value to compute the hessian.
-    return(-lnL)
-  }
-}
-
-
-
 Wei_lnL <- function(params,paramNames,negLnL,failData){
   names(params)<-paramNames
   n <- length(failData)
   tn <- failData[n]
-  sum1 <- 0
-  for(i in 1:n){
-    sum1=sum1+ (log(as.list(params)$Wei_bMLE*as.list(params)$Wei_cMLE*exp(-as.list(params)$Wei_bMLE*(failData[i]^as.list(params)$Wei_cMLE))*as.list(params)$Wei_aMLE*(failData[i]^(as.list(params)$Wei_cMLE-1))))
-  }
-  lnL <- ((-1+exp(-as.list(params)$Wei_bMLE*(tn^as.list(params)$Wei_cMLE)))*as.list(params)$Wei_aMLE) + sum1
+  lnL_part1 <- n*(log(as.list(params)$Wei_aMLE) + log(as.list(params)$Wei_bMLE) + log(as.list(params)$Wei_cMLE)) - (as.list(params)$Wei_bMLE)*(sum(failData^as.list(params)$Wei_cMLE)) + (as.list(params)$Wei_cMLE-1)*sum(log(failData))
+  lnL <- ((-1+exp(-as.list(params)$Wei_bMLE*(tn^as.list(params)$Wei_cMLE)))*as.list(params)$Wei_aMLE) + lnL_part1
   if(negLnL == FALSE) {
     return(lnL)
   }
@@ -152,6 +132,27 @@ Wei_lnL <- function(params,paramNames,negLnL,failData){
     return(-lnL)
   }
 }
+
+
+
+# Wei_lnL_bak <- function(params,paramNames,negLnL,failData){
+#   names(params)<-paramNames
+#   n <- length(failData)
+#   tn <- failData[n]
+#   sum1 <- 0
+#   for(i in 1:n){
+#     sum1=sum1+ (log(as.list(params)$Wei_bMLE*as.list(params)$Wei_cMLE*exp(-as.list(params)$Wei_bMLE*(failData[i]^as.list(params)$Wei_cMLE))*as.list(params)$Wei_aMLE*(failData[i]^(as.list(params)$Wei_cMLE-1))))
+#   }
+#   lnL <- ((-1+exp(-as.list(params)$Wei_bMLE*(tn^as.list(params)$Wei_cMLE)))*as.list(params)$Wei_aMLE) + sum1
+#   if(negLnL == FALSE) {
+#     return(lnL)
+#   }
+#   else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+#     return(-lnL)
+#   }
+# }
 
 # This is the original lnL function.  It's been rewritten
 # (see above) and renamed.  The rewrite was done so it can
@@ -159,15 +160,15 @@ Wei_lnL <- function(params,paramNames,negLnL,failData){
 # Fisher information, then confidence intervals for the
 # parameter estimates.
 
-Wei_lnL_orig <- function(x,params){
-  n <- length(x)
-  tn <- x[n]
-  sum1 <- 0
-  for(i in 1:n){
-    sum1=sum1+ (log(params$Wei_bMLE*params$Wei_cMLE*exp(-params$Wei_bMLE*(x[i]^params$Wei_cMLE))*params$Wei_aMLE*(x[i]^(params$Wei_cMLE-1))))
-  }
-  return(((-1+exp(-params$Wei_bMLE*(tn^params$Wei_cMLE)))*params$Wei_aMLE) + sum1)
-}
+# Wei_lnL_orig <- function(x,params){
+#   n <- length(x)
+#   tn <- x[n]
+#   sum1 <- 0
+#   for(i in 1:n){
+#     sum1=sum1+ (log(params$Wei_bMLE*params$Wei_cMLE*exp(-params$Wei_bMLE*(x[i]^params$Wei_cMLE))*params$Wei_aMLE*(x[i]^(params$Wei_cMLE-1))))
+#   }
+#   return(((-1+exp(-params$Wei_bMLE*(tn^params$Wei_cMLE)))*params$Wei_aMLE) + sum1)
+# }
 
 
 Wei_MVF <- function(param,d){
