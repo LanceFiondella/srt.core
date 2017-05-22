@@ -330,7 +330,45 @@ JM_MVF_r <- function(param,d){
 }
 
 
-JM_lnL <- function(x,params){
+
+JM_lnL <- function(params,paramNames,negLnL,failData){
+  #----------------------------------------------------------------------------
+  # This computes Log-Likelihood for a given data x and parameters
+  #----------------------------------------------------------------------------
+  # @params     (data.frame)    Data.frame of parameters
+  # @d          (data.frame)    Data.frame of data FT,FC,FN,CFC,IF
+  
+  # @returns    (numeric)       Numeric value of lnL
+  #----------------------------------------------------------------------------
+  # TODO:
+  #============================================================================
+  names(params)<-paramNames
+  n <- length(failData)          
+  secondTerm=0
+  thirdTerm = 0
+  
+  for(i in 1:n){
+    secondTerm = secondTerm +log((as.list(params)$JM_N0-(i-1)))
+    thirdTerm = thirdTerm +((as.list(params)$JM_N0-(i-1))*as.list(params)$JM_Phi*failData[i])#x=interFail
+  }
+  lnL <- n*log(as.list(params)$JM_Phi) + secondTerm - thirdTerm
+  if(negLnL == FALSE) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
+}
+
+# This is the original lnL function.  It's been rewritten
+# (see above) and renamed.  The rewrite was done so it can
+# be used as input to "optim" to compute the hessian, then
+# Fisher information, then confidence intervals for the
+# parameter estimates.
+
+JM_lnL_orig <- function(x,params){
   #----------------------------------------------------------------------------
   # This computes Log-Likelihood for a given data x and parameters
   #----------------------------------------------------------------------------

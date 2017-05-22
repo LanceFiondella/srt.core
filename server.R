@@ -66,12 +66,121 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
 
   source("utility/plots/ServerPlots.R", local=TRUE)
 
+<<<<<<< HEAD
   source("utility/tables/ServerTables.R", local=TRUE)
+=======
+      data_set_global <<- data_set
+
+      if(dataType(names(data_set))=="FR"){
+        data_intermediate <- generate_dataFrame(data_set)
+        data_generated <- data_intermediate
+        #data_generated
+      }
+      else if(dataType(names(data_set))=="FC"){
+        data_intermediate <<- generate_dataFrame(data_set)
+        #data_generated <- data_intermediate$FRate
+        data_generated <- data_intermediate$FCount
+        
+      }
+      
+      # Set up the initial values for modeling data range and the initial parameter
+      # estimation range
+      
+      # Set up the initial values for modeling data range and the initial parameter
+      # estimation range
+      
+      DataModelIntervalStart <<- 1
+      DataModelIntervalEnd <<- length(data_generated[,1])
+      if((DataModelIntervalEnd - DataModelIntervalStart + 1) < K_minDataModelIntervalWidth){
+        output$InputFileError <- renderText({msgDataFileTooSmall})
+      } else {
+        output$InputFileError <- renderText({""})
+      }
+      
+      # Complete all columns for FT/IF data, including failure number.
+      # This information will be used later for subsetting the data.
+      
+      if(dataType(names(data_generated))=="FR") {
+        data_set_global_type <<- "IFTimes"
+
+        # Update the selection list for the models that can be run.
+        
+        updateSelectInput(session, "modelsToRun", choices = K_IF_ModelsList, selected = K_IF_ModelsList)
+        
+        # Update failure data view choices for IF/FT data and model result views.
+        
+        updateSelectInput(session, "dataPlotChoice",
+                          choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                        "Failure Intensity" = "FI"), selected = "CF")
+        # updateSelectInput(session, "modelPlotChoice",
+        #                  choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+        #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+        updateSelectInput(session, "modelPlotChoice",
+                          choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "MVF",
+                                        "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
+        
+
+        # Update the default mission time for computing reliability
+        # on both Tab 2 and Tab 3.  Also update the default time on
+        # Tab 3 for which we want to know how many failures we'll
+        # observe in the future.  We choose the most recent IF time
+        # that is greater than 0.
+        
+        for (dataIndex in length(data_generated$IF):1) {
+          if(data_generated$IF[dataIndex] > 0) {break}
+        }
+        updateSliderInput(session, "modelRelMissionTime",
+                          min=0, value=data_generated$IF[length(data_generated$IF)])
+        updateSliderInput(session, "modelDetailPredTime",
+                          min=0, value=data_generated$IF[length(data_generated$IF)])
+        updateSliderInput(session, "modelRelMissionTime2",
+                          min=0, value=data_generated$IF[length(data_generated$IF)])
+
+      } else if(dataType(names(data_generated))=="FC") {
+        print("FC data detected")
+        data_set_global_type <<- "FailureCounts"
+
+        # Add a column for test intervals.
+        
+        data_generated$TI <- c(1:length(data$FC))
+        
+        FC_to_IF_data <<- FCFrame_to_IFFrame(data$T, data$FC)
+        
+        # Update the selection list for the models that can be run.
+        
+        updateSelectInput(session, "modelsToRun", choices = K_FC_ModelsList, selected = K_FC_ModelsList)
+        
+        # Update failure data view choices for CFC/FC data/model views.
+        # Includes a "failure counts" view which IF/FT data does not.
+        
+        updateSelectInput(session, "dataPlotChoice",
+                          choices = list("Failure Counts" = "FC", "Cumulative Failures" = "CF",
+                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+        # updateSelectInput(session, "modelPlotChoice",
+        #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+        #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
+        updateSelectInput(session, "modelPlotChoice",
+                          choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
+                                        "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability Growth"="R_growth"), selected = "MVF")
+        
+        
+      }
+      
+      updateSliderInput(session, "modelDataRange",
+                        min = DataModelIntervalStart, value = c(DataModelIntervalStart, DataModelIntervalEnd),
+                        max = DataModelIntervalEnd)
+
+      # Finally, output data set
+      
+      data_generated
+  }) 
+>>>>>>> develop_private
 
     # This slider that controls the end of the initial parameter estimation interval
     # is dynamically created to ensure that its value is always in sync with those of
     # the start and end points of the current data range.
     
+<<<<<<< HEAD
   #  output$ParameterInterval <- renderUI({
   #    intervalStart <- input$modelDataRange[1]
   #    intervalEnd <- input$modelDataRange[2]
@@ -79,6 +188,82 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   #    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
   #                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
   #  })
+=======
+     output$ParameterInterval <- renderUI({
+       intervalStart <- input$modelDataRange[1]
+       intervalEnd <- input$modelDataRange[2]
+       initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
+       sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+                  min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
+    })
+
+    # A reactive data item that is used to control the height of the raw data and trend
+    # plot.  The height is computed based on the width - it the plot is not as high
+    # as it is wide, and if the width exceeds a minimum, then the height catches up with
+    # the width to make a square plot.
+    
+    DTP_height <- reactive({
+      Width <- session$clientData$output_DataAndTrendPlot_width
+      Height <- session$clientData$output_DataAndTrendPlot_height
+      if((Width > Height) && (Width > 400)) {
+        Height <- Width*0.75
+      }
+      Height
+    })
+    
+    # Read the position of the mouse for the data and trend plot
+    
+    DTPranges <- reactiveValues(x = NULL, y = NULL)
+    
+    # Event observer for double-click on data and trend plot.
+    # Double click and brush zooms in and out.
+    
+    observeEvent(input$DTPdblclick, {
+      DTPbrush <- input$DTP_brush
+      if (!is.null(DTPbrush)) {
+        DTPranges$x <- c(DTPbrush$xmin, DTPbrush$xmax)
+        DTPranges$y <- c(DTPbrush$ymin, DTPbrush$ymax)
+        
+      } else {
+        DTPranges$x <- NULL
+        DTPranges$y <- NULL
+      }
+    })
+
+    # A reactive data item that is used to control the height of the model results
+    # plot.  The height is computed based on the width - it the plot is not as high
+    # as it is wide, and if the width exceeds a minimum, then the height catches up with
+    # the width to make a square plot.
+
+    MP_height <- reactive({
+      Width <- session$clientData$output_ModelPlot_width
+      Height <- session$clientData$output_ModelPlot_height
+      if((Width > Height) && (Width > 400)) {
+        Height <- Width*0.75
+      }
+      Height
+    })
+
+    # Read the position of the mouse for the model results plot
+    
+    MPranges <- reactiveValues(x = NULL, y = NULL)
+    
+    # Event observer for double-click on model results plot.
+    # Double click and brush zooms in and out.
+    
+    observeEvent(input$MPdblclick, {
+      MPbrush <- input$MP_brush
+      if (!is.null(MPbrush)) {
+        MPranges$x <- c(MPbrush$xmin, MPbrush$xmax)
+        MPranges$y <- c(MPbrush$ymin, MPbrush$ymax)
+        
+      } else {
+        MPranges$x <- NULL
+        MPranges$y <- NULL
+      }
+    })
+    
+>>>>>>> develop_private
     
     LPTestStatistic <- reactive({
       if(input$trendPlotChoice=="LP") {
@@ -135,9 +320,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         
         updateSliderInput(session, "modelDataRange", value = c(DataModelIntervalStart, DataModelIntervalEnd))
       }  
-      # updateSliderInput(session, "parmEstIntvl",
-      #                  min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
-      #                  max = DataModelIntervalEnd-1)    
+      updateSliderInput(session, "parmEstIntvl",
+                       min = DataModelIntervalStart, value = ceiling(DataModelIntervalStart + (DataModelIntervalEnd - DataModelIntervalStart - 1)/2),
+                       max = DataModelIntervalEnd-1)    
       
       outputMessage
     }
@@ -171,9 +356,19 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         raw_data <<- data_global()
         ModeledDataName <<- data_set_global
         
+<<<<<<< HEAD
         
         tempResultsList <- run_models(raw_data, input, K_tol)
         #print(tempResultsList[["Results"]])
+=======
+        if(input$modelDataRange[1] == 1) {
+          TimeOffset <- 0
+        } else {
+          TimeOffset <- tail(head(data_global(), input$modelDataRange[1]-1), 1)[["FT"]]
+        }
+        tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmConfInterval, input$parmEstIntvl, TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+        # tempResultsList <- run_models(ModeledData, input$modelDataRange, input$parmConfInterval, length(ModeledData[,1]), TimeOffset, input$modelNumPredSteps, input$modelsToRun, input$modelRelMissionTime, K_tol)
+>>>>>>> develop_private
         ModelResults <<- tempResultsList[["Results"]]
         #print("----------------------------------")
         #print("model results")
@@ -230,6 +425,444 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   #  output$UnsuccessfulModels <- renderText({
   #    UnsuccessfulModelsMessage
   #  })
+<<<<<<< HEAD
+=======
+  
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ----------------- Display the input data or selected trend test in tabular form  ---------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+
+    
+    output$dataAndTrendTable <- DT::renderDataTable({
+      OutputTable <- data.frame(x=FailureDataTable())
+      if(length(OutputTable) > 1) {
+        DataColNames <- names(OutputTable)
+        names(OutputTable) <- gsub("x.", "", DataColNames)
+      } else {
+        OutputTable <- data.frame()
+      }
+      OutputTable
+    }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+
+
+    
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # --------------------------- Display selected model results in tabular form  --------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+    
+      output$ModelResultTable <- DT::renderDataTable({
+        MR_Table <- NULL
+
+        # Check if modelResultChoice is None and return NULL if true
+        if(length(input$modelResultChoice)==0){
+          return(MR_Table)
+        }
+        if(input$modelResultChoice[1]=="None"){
+          return(MR_Table)
+        }
+        if(is.null(ModelResults)){
+          return
+        }
+        else if(!is.null(ModelResults)) {
+          if(length(input$AllModelsRun) > 0) {
+            
+            # User has selected at one model to display as a table.
+            
+            MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
+          }
+        }
+        
+        
+        if (length(MR_Table) <= 1) {
+          MR_Table <- data.frame()
+        } else {
+          # Set column names for the model results table
+          
+          MR_Table_Names <- c("Failure")
+          for (modelName in input$AllModelsRun) {
+            for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+              MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
+            }
+            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
+            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
+            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
+            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
+            #MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
+            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
+            names(MR_Table) <- MR_Table_Names
+            
+          }
+        }
+        #MR_Table = round_table(MR_Table, 6)
+        MR_Table
+      }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))))
+    
+    
+
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ----------------------------------------   Model Plot   ----------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+
+
+    output$ModelPlot <- renderPlot({
+      MRPlot <- NULL
+      if((length(input$modelResultChoice) > 0) && (input$modelResultChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+        MRPlot <- plot_model_results(ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width, input$modelCurveAdditionalTime)
+        if(!is.null(MRPlot)) {
+          MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
+        }
+      }
+      MRPlot
+    }, height=MP_height)
+
+    output$ModelPredictionPlot <- renderPlot({
+      MRPlot <- NULL
+      if((length(input$modelDetailChoice) > 0) && (input$modelDetailChoice[1] != "None") && (!is.null(ModelResults)) && (!is.null(ModeledData))) {
+
+        MRPlot <- plot_model_prediction_results(input$modelDetailChoice, input$queryResultsPlotType, data_global(), input$C0, input$C1, input$C2, input$T)
+      #   if(!is.null(MRPlot)) {
+      #     MRPlot <- MRPlot + coord_cartesian(xlim = MPranges$x, ylim = MPranges$y)
+      #   }
+      }
+      MRPlot
+    }, height=MP_height)
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ----------------------------------------   TAB3 Table   ----------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+
+
+  tab3_table1_construct <- function(model,data,input){
+    if(dataType(names(data))=="FR"){
+      model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+      # ----> ! #print("Table1 construct: ")
+      # ----> ! #print(model_params)
+      # ----> ! #print(data)
+      # ----> ! #print(count)
+    
+      if(typeof(model_params)!="character"){
+        number_fails <- get_prediction_k( model,
+                                          model_params, 
+                                          input$modelDetailPredTime, 
+                                          data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                          length(get("data")[[get(paste(model,"input",sep="_"))]]))
+        
+        time_fails <- get_prediction_t( model,
+                                        model_params, 
+                                        input$modelDetailPredFailures,
+                                        data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                        length(get("data")[[get(paste(model,"input",sep="_"))]]))
+        rel_time <- get_reliability_t(model,
+                                      model_params, 
+                                      input$modelTargetReliability, input$modelRelMissionTime2, 
+                                      data$FT[length(get("data")[[get(paste(model,"input",sep="_"))]])],
+                                      length(get("data")[[get(paste(model,"input",sep="_"))]]))
+
+        opt_release_time <- get_optimal_release_time_CC(model, model_params, input$C0, input$C1, input$C2)
+        cost_at_rel_time <- get_cost_at_time(model,model_params, rel_time, input$T, input$C0, input$C1, input$C2)
+        reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, input$modelRelMissionTime)
+        cost_at_opt_release_time <- get_cost_at_time(model,model_params, opt_release_time, input$T, input$C0, input$C1, input$C2)
+        
+
+        # opt_release_time <- input$C0 + input$C1 + input$C2
+        #print(time_fails)
+        #print(number_fails)
+        #print(rel_time)
+        #print(opt_release_time)
+
+      
+
+        ExpectedNumFailuresExceeded <- FALSE
+        for( i in 1:length(time_fails)){
+          if(!ExpectedNumFailuresExceeded){
+            count <<- count+1
+            
+            if(i == 1) {
+              tab3_table1[count,1]<<- get(paste0(model, "_fullname"))
+              tab3_table1[count,2]<<- as.character(rel_time)
+              tab3_table1[count,3]<<- number_fails
+              
+            } else {
+              tab3_table1[count,2]<<- " "
+              tab3_table1[count,3]<<- " "
+            }
+            tab3_table1[count,4]<<- i
+            tab3_table1[count,5]<<- time_fails[i]
+            
+            if(i==1) {
+              tab3_table1[count,6]<<- opt_release_time
+              tab3_table1[count,7]<<- cost_at_rel_time
+              tab3_table1[count,8]<<- reliability_at_opt_release_time
+              tab3_table1[count,9]<<- cost_at_opt_release_time
+            }
+
+            #  Create Row of NA only once logic
+            if(time_fails[i]=="NA"){
+              ExpectedNumFailuresExceeded <- TRUE
+              break
+            }
+          }
+        }
+      }
+      else if(typeof(model_params)=="character"){
+        if(length(grep("not found",model_params))){
+          count<<-count+1
+          tab3_table1[count,1] <<- model
+          tab3_table1[count,2] <<- "Given-model not defined"
+          tab3_table1[count,3] <<- "Given-model not defined"
+          tab3_table1[count,4] <<- "Given-model not defined"
+          tab3_table1[count,5] <<- "Given-model not defined"
+          tab3_table1[count,6] <<- "Given-model not defined"
+          tab3_table1[count,7] <<- "Given-model not defined"
+          tab3_table1[count,8] <<- "Given-model not defined"
+          tab3_table1[count,9] <<- "Given-model not defined"
+        }
+        else{
+          count<<-count+1
+          tab3_table1[count,1] <<- model
+          tab3_table1[count,2] <<- "NON-CONVERGENCE"
+          tab3_table1[count,3] <<- "NON-CONVERGENCE"
+          tab3_table1[count,4] <<- "NON-CONVERGENCE"
+          tab3_table1[count,5] <<- "NON-CONVERGENCE"
+          tab3_table1[count,6] <<- "NON-CONVERGENCE"
+          tab3_table1[count,7] <<- "NON-CONVERGENCE"
+          tab3_table1[count,8] <<- "NON-CONVERGENCE"
+          tab3_table1[count,9] <<- "NON-CONVERGENCE"
+        }
+      }
+    }
+    else{
+      # ----> FC data should be handled here
+    }
+  }
+
+  output$downloadData <- downloadHandler(
+      filename <- function() {
+        if (input$saveModelDetailsType == "PDF") {
+          paste(paste0(ModeledDataName, "_Model_Queries"), "pdf", sep=".")
+        } else {
+          paste(paste0(ModeledDataName, "_Model_Queries"), "csv", sep=".")
+        }
+      },
+      content <- function(filename) {
+        tab3_table1_2_save <<- subset(tab3_table1, tab3_table1$Model != "<NA>")
+
+        if (input$saveModelDetailsType == "PDF") {
+          names(tab3_table1_2_save) <- c("Model", paste0("Time to R=", as.character(input$modelTargetReliability)), paste("Num failures in", as.character(input$modelDetailPredTime)), paste0("Failure"), paste0("Times to failures"))
+          out_put = knit2pdf('./utility/tables/Tab3ReportTemplate.Rnw', clean = TRUE)
+          file.copy(out_put, filename) # move pdf to file for downloading
+        } else {
+          write.csv(tab3_table1_2_save, filename)
+        }
+      }
+      
+  )
+    
+  output$mytable1 <- DT::renderDataTable({
+
+      inFile <- input$file
+      table_t <- data.frame()
+      
+
+      if(is.null(inFile)){
+        return("Please upload a file")
+      }
+
+      # Use the subset of data to which models were applied
+      # to do the model evaluation.
+      
+      in_data_tab3 <- ModeledData
+      timeOffset <- ModeledData$FT[1] - ModeledData$IF[1]
+      in_data_tab3$FT <- in_data_tab3$FT - timeOffset
+      
+      ModelsToQuery <- input$modelDetailChoice
+      if(length(ModelsToQuery)<=0) {
+        return
+      }
+      
+        ###################################################
+        if(!is.numeric(input$modelDetailPredTime)){
+          return(data)
+        }
+        if(!is.numeric(input$modelDetailPredFailures)){
+          return(data)
+        }
+        ###################################################
+        #input$modelDetailChoice <- track_models()
+        if(length(ModelsToQuery)>0){
+          source("utility/prediction/Detailed_prediction.R")
+
+          count <<- 0
+          tab3_table1<<- data.frame()
+          for(i in ModelsToQuery){
+            count <<- count
+            tab3_table1_construct(i,in_data_tab3,input)
+          }
+
+        tab3_table1 <<- data.frame(tab3_table1[1],tab3_table1[2],tab3_table1[3], tab3_table1[4], tab3_table1[5], tab3_table1[6], tab3_table1[7], tab3_table1[8], tab3_table1[9])
+        names(tab3_table1) <<- c("Model",paste("Time to achieve R =", as.character(input$modelTargetReliability), "for mission of length", as.character(input$modelRelMissionTime2)) ,paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), paste0("Nth failure"), paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"), "Optimal release time","Cost to achieve tR*", "Reliability at Optimal Release Time", "Cost to achieve tC*")
+        
+        tab3_table1 = round_table(tab3_table1, 6) #Rounding values in the table to 6 decimal places
+
+      tab3_table1
+    }
+  }, filter="top", options = list(scrollX=TRUE, lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All')),
+                                  rowCallback = JS("
+                                      //This callback function is meant to display only 6 decimals of precision. col_list keeps an array of columns which will be affected. 
+                                      function( row, data, index) {
+                                          var col_list = [2,3,5,6,7,8,9]
+                                          for (var i =0; i < col_list.length; i++) {
+                                              if(parseFloat(data[col_list[i]]))
+                                                  $('td:eq('+ col_list[i].toString() +')',row).html(parseFloat(data[col_list[i]]).toFixed(6));
+                                      }
+                                      
+                                  }
+                                  ")))
+
+  tracked_models <- reactive({
+    input$modelDetailChoice
+  })
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ----------------------------------------   TAB4 Table   ----------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+  # ------------------------------------------------------------------------------------------------------
+
+
+  tab4_table1_construct <- function(model,data,input){
+    if(dataType(names(data))=="FR"){
+      model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+
+      
+      if(typeof(model_params)!="character"){
+        # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
+        max_lnL <- try(get(paste(model,"lnL",sep="_"))(model_params,names(model_params),FALSE,get("data")[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+        # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
+      
+        if(length(grep("not found",max_lnL))) {
+          count<<-count+1
+          tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
+          tab4_table1[count,2] <<- "Given model lnL not defined to compute AIC"
+          tab4_table1[count,3] <<- "Given model lnL not defined to compute AIC" 
+        }
+        else if(typeof(max_lnL)!='double') {
+          count<<-count+1
+          tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
+          tab4_table1[count,2] <<- "Non numeral value. Something is not right"
+          tab4_table1[count,3] <<- "Non numeral value. Something is not right" 
+        }
+        else {
+          AIC <- aic(length(get(paste(model,"params",sep="_"))),max_lnL)
+          PSSE <- psse(model,data$FT,model_params,input$percentData)
+        
+          count <<- count+1
+          tab4_table1[count,1]<<- get(paste0(model, "_fullname"))
+          tab4_table1[count,2]<<- AIC
+          tab4_table1[count,3]<<- PSSE
+        }
+      }
+      else if(typeof(model_params)=="character"){
+        if(length(grep("not found",model_params))) {
+          count<<-count+1
+          tab4_table1[count,1] <<- model
+          tab4_table1[count,2] <<- "Given-model not defined"
+          tab4_table1[count,3] <<- "Given-model not defined" 
+        }
+        else {
+          count<<-count + 1
+          tab4_table1[count,1] <<- get(paste0(model, "_fullname"))
+          tab4_table1[count,2] <<- "NON-CONV"
+          tab4_table1[count,3] <<- "NON-CONV"
+        }
+      }
+    }
+    else{
+      # -----> FC data should be handled here
+    }
+  }
+
+  # Download handler for saving model result evaluation tables.
+
+  output$saveModelEvals <- downloadHandler(
+    filename = function() {
+      if(input$saveModelEvalType == "PDF") {
+        paste(paste0(ModeledDataName, "_Model_Evals"), "pdf", sep=".")
+      } else {
+        paste(paste0(ModeledDataName, "_Model_Evals"), "csv", sep=".")
+      }
+    },
+    content = function(filespec) {
+      tab4_table1_2_save <- tab4_table1
+      
+      # Turn OutputTable to character representations to avoid
+      # difficulties with NA, Inf, and NaN.
+      
+      TableNames <- names(tab4_table1_2_save)
+      for (nameIndex in TableNames) {
+        tab4_table1_2_save[[nameIndex]] <- as.character(tab4_table1_2_save[[nameIndex]])
+      }
+      names(tab4_table1_2_save) <- c("Model", "AIC", "PSSE")
+      
+      if(length(tab4_table1_2_save) <= 1) {
+        tab4_table1_2_save <- data.frame()
+      }
+      
+      if(input$saveModelEvalType == "PDF") {
+        out_put = knit2pdf('Tab4ReportTemplate.Rnw', clean = TRUE)
+        file.rename(out_put, filespec) # move pdf to file for downloading
+      } else {
+        utils::write.csv(tab4_table1_2_save, file=filespec, quote=TRUE, na="NA")
+      }
+    }
+  )
+
+
+  output$mytable2 <- DT::renderDataTable({
+      source("utility/metrics/GOF.R")
+      inFile <- input$file
+      if(is.null(inFile)){
+        return("Please upload a file")
+      }
+      
+      ModelsToEval <- input$modelResultsForEval
+
+      if(length(ModelsToEval)<=0) {
+          return
+      }
+      
+      tab4_table1 <<- data.frame()
+      
+      # Use the subset of data to which models were applied
+      # to do the model evaluation.
+      
+      in_data_tab4 <- ModeledData
+      timeOffset <- ModeledData$FT[1] - ModeledData$IF[1]
+      in_data_tab4$FT <- in_data_tab4$FT - timeOffset
+      
+        if(length(ModelsToEval)>0){
+          count <<- 0
+          
+          for(i in ModelsToEval){
+            tab4_table1_construct(i,in_data_tab4,input)
+          }
+
+        tab4_table1 <<- data.frame(tab4_table1[1],tab4_table1[2],tab4_table1[3])
+        names(tab4_table1) <<- c("Model","AIC","PSSE")
+      }
+      tab4_table1 = round_table(tab4_table1, 6)
+>>>>>>> develop_private
 
 
 })

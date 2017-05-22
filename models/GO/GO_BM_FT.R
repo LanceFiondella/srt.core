@@ -152,6 +152,44 @@ GO_R <- function(params,d){
 }
 
 
+<<<<<<< HEAD
+=======
+GO_lnL <- function(params,paramNames,negLnL,failData){
+  names(params)<-paramNames
+  n <- length(failData)
+  tn <- failData[n]
+  firstSumTerm <- 0
+  for(i in 1:n){
+    firstSumTerm = firstSumTerm + (-as.list(params)$GO_bMLE*failData[i])
+  }
+  lnL <- -(as.list(params)$GO_aMLE)*(1-exp(-as.list(params)$GO_bMLE*tn)) + n*(log(as.list(params)$GO_aMLE)) +n*log(as.list(params)$GO_bMLE) + firstSumTerm
+  if(negLnL == FALSE) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
+}
+
+# This is the original lnL function.  It's been rewritten
+# (see above) and renamed.  The rewrite was done so it can
+# be used as input to "optim" to compute the hessian, then
+# Fisher information, then confidence intervals for the
+# parameter estimates.
+
+GO_lnL_orig <- function(x,params){
+  n <- length(x)
+  tn <- x[n]
+  firstSumTerm <- 0
+  for(i in 1:n){
+    firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
+  }
+  lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
+  lnL
+}
+>>>>>>> develop_private
 
 GO_MVF_cont <- function(params,t){
   return(params$GO_aMLE*(1-exp(-params$GO_bMLE*t)))
