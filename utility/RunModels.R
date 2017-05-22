@@ -1,8 +1,5 @@
 library(rootSolve)
-library(numDeriv)
-library(Matrix)
 
-<<<<<<< HEAD
 #run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
 run_models <- function(raw_data, input, tol_local) {
   print(names(raw_data))
@@ -25,18 +22,6 @@ run_models <- function(raw_data, input, tol_local) {
     ModeledData$FT <- ModeledData$FT - OffsetTime
     ParmInitIntvl <- length(ModeledData[,1])
     results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
-=======
-run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
-  
-  in_data <- raw_data
-  if (dataType(names(in_data)) == "FR") {
-    in_data$FT <- in_data$FT - OffsetTime
-    results <- run_FR_models(in_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
-  } else if (dataType(names(in_data))=="FC") {
-    # Need to complete for failure counts data
-    results <- run_FC_models()
-  }
->>>>>>> develop_private
   
   
   } else if (("FRate" %in% (names(raw_data))) && ("FCount" %in% (names(raw_data)))) {
@@ -71,52 +56,8 @@ run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, Off
   return(results)
 }
 
-<<<<<<< HEAD
 
 process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType){
-=======
-# Estimate parameter confidence interval using the hessian and Fisher information.
-# This function can be used for both FT and FC types of models.
-
-estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_ParmConfInterval, in_fail_data){
-  # First set the lower and upper confidence bounds to NaN.  This will indicate
-  # that we're not able to compute the confidence bound values using the hessian
-  # and Fisher information.
-  
-  out_lowerConfBound <- rep(0/0,length(in_model_params))
-  out_upperConfBound <- out_lowerConfBound
-  
-  options(show.error.messages=FALSE)
-  modelHessian <- try(numDeriv::hessian(f=get(in_model_lnL),x=as.numeric(in_model_params),paramNames=names(in_model_params),negLnL=TRUE,failData=in_fail_data,"complex"),silent=TRUE)
-  options(show.error.messages=TRUE)
-  if(is.numeric(modelHessian) && (is.nan(sum(modelHessian)) == FALSE) && (det(modelHessian) != 0)) {
-    options(show.error.messages=FALSE)
-    modelFisher <- try(Matrix::solve(modelHessian,diag(length(in_model_params))),silent=TRUE)
-    options(show.error.messages=TRUE)
-    if(is.numeric(modelFisher) && (is.nan(sum(modelFisher)) == FALSE)) {
-      if (all(diag(modelFisher) > 0) == TRUE) {
-        se <- sqrt(diag(modelFisher))
-        CritValue<-qnorm(0.5+in_ParmConfInterval/2)
-        out_lowerConfBound<-in_model_params-CritValue*se
-        out_upperConfBound<-in_model_params+CritValue*se
-      }
-    }
-  }
-  ConfBoundsList <- c()
-  ConfBoundsList$LowerBoundsValues <- out_lowerConfBound
-  ConfBoundsList$UpperBoundsValues <- out_upperConfBound
-  return(ConfBoundsList)
-}
-
-
-
-run_FC_models <- function(){
-
-  
-}
-
-run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local){
->>>>>>> develop_private
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   OffsetFailure <- DataStart-1
@@ -169,7 +110,6 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
         model_input <- paste(modelID,"input",sep="_")
         
         for (method in get(model_methods)){
-<<<<<<< HEAD
           
           model_sm_MLE <- paste(modelID, method, dataType, "MLE",sep="_")
           if(dataType == "FC" && dataType %in% get(model_input)){
@@ -188,25 +128,17 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
           #temp_lnL <- get(model_lnL)(tVec,temp_params)
           if(!anyNA(temp_params)){
             #lnL_value <- temp_lnL
-=======
-          model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
-          temp_params <- get(model_sm_MLE)(tVec)
-          if(!anyNA(temp_params)){
-            temp_lnL <- get(model_lnL)(temp_params,names(temp_params),FALSE,tVec)
-            lnL_value <- temp_lnL
->>>>>>> develop_private
             model_params <- temp_params
             sel_method <- method
             break
           }
         }
-        
+
         if(is.na(sel_method)){
           print("None of the algorithms work")
           ParmEstimatesConverged <- FALSE
         }
         
-<<<<<<< HEAD
         print(paste0("Selected method for ",modelID))
         print(sel_method)
 
@@ -228,28 +160,6 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
               print(model_params_label)
               print(paramNum)
               print(typeof(model_params[[paramNum]]))
-=======
-        print(unlist(c("Selected method:", sel_method)))
-
-        # Now put the parameter estimates into the results frame
-        
-        for (paramNum in 1:length(get(model_params_label))) {
-            model_parm_num <- paste0(modelID, "_parm_", paramNum) 
-            if(typeof(model_params)!="character") {
-              
-              # Now we estimate confidence bounds for the model parameters.
-              
-              if(paramNum == 1) {
-                
-                #print(unlist(c(model_sm_MLE, length(tVec))))
-                
-                ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ParmConfInterval, tVec)
-                lowerConfBound <- ConfBounds$LowerBoundsValues
-                upperConfBound <- ConfBounds$UpperBoundsValues
-                
-                print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
-              }
->>>>>>> develop_private
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 
             else {

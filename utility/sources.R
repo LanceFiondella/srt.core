@@ -52,5 +52,5 @@ source("utility/tables/DataAndTrendTables.R")
 source("utility/tables/ModelResultTable.R")
 
 # Other utilities
-debugSource("utility/RunModels.R")      # Models run flow
+source("utility/RunModels.R")      # Models run flow
 source("utility/ErrorMessages.R")
