@@ -72,16 +72,49 @@ GO_BM_FT_MLE <- function(x){
     sol
 }
 
-GO_FT_lnL <- function(params, x){
-  n <- length(x)
-  tn <- x[n]
+
+GO_FT_lnL <- function(params,paramNames,negLnL,failData){
+  names(params)<-paramNames
+  n <- length(failData)
+  tn <- failData[n]
   firstSumTerm <- 0
   for(i in 1:n){
-    firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
+    firstSumTerm = firstSumTerm + (-as.list(params)$GO_bMLE*failData[i])
   }
-  lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
-  lnL
+  lnL <- -(as.list(params)$GO_aMLE)*(1-exp(-as.list(params)$GO_bMLE*tn)) + n*(log(as.list(params)$GO_aMLE)) +n*log(as.list(params)$GO_bMLE) + firstSumTerm
+  if(negLnL == FALSE) {
+    return(lnL)
+  }
+  else {
+    # This is the branch we take if we want to use the
+    # return value to compute the hessian.
+    return(-lnL)
+  }
 }
+
+
+# This is the original lnL function.  It's been rewritten
+# (see above) so it can be used as input to "optim" to 
+# compute the hessian, then Fisher information, then
+# confidence intervals for the parameter estimates.
+
+
+#GO_FT_lnL <- function(params, x){
+#  n <- length(x)
+#  tn <- x[n]
+#  firstSumTerm <- 0
+#  for(i in 1:n){
+#    firstSumTerm = firstSumTerm + (-params$GO_bMLE*x[i])
+#  }
+#  lnL <- -(params$GO_aMLE)*(1-exp(-params$GO_bMLE*tn)) + n*(log(params$GO_aMLE)) +n*log(params$GO_bMLE) + firstSumTerm
+#  lnL
+#}
+
+# This is the original lnL function.  It's been rewritten
+# (see above) so it can be used as input to "optim" to 
+# compute the hessian, then Fisher information, then
+# confidence intervals for the parameter estimates.
+
 
 GO_MVF <- function(param,d) {
   n <- length(d$FT)

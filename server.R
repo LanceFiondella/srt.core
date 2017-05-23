@@ -71,15 +71,15 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
     # This slider that controls the end of the initial parameter estimation interval
     # is dynamically created to ensure that its value is always in sync with those of
     # the start and end points of the current data range.
-    
-  #  output$ParameterInterval <- renderUI({
-  #    intervalStart <- input$modelDataRange[1]
-  #    intervalEnd <- input$modelDataRange[2]
-  #    initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
-  #    sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
-  #                min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
-  #  })
-    
+
+    output$ParameterInterval <- renderUI({
+      intervalStart <- input$modelDataRange[1]
+      intervalEnd <- input$modelDataRange[2]
+      initParmIntervalEnd <- ceiling(intervalStart + (intervalEnd - intervalStart - 1)/2)
+      sliderInput("parmEstIntvl", h6("Specify the last data point for the initial parameter estimation interval."),
+                  min=intervalStart, max=intervalEnd-1, value=initParmIntervalEnd, step=1)
+    })
+  
     LPTestStatistic <- reactive({
       if(input$trendPlotChoice=="LP") {
         testStat <- qnorm(1-input$confidenceLP)
