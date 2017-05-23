@@ -331,7 +331,8 @@
       if(typeof(model_params)!="character"){
         # number_fails <- get_prediction_n(model_params,input$modelDetailPredTime,length(get("data")[[get(paste(model,"input",sep="_"))]]))
         #max_lnL <- try(get(paste(model,"lnL",sep="_"))(get("data")[[get(paste(model,"input",sep="_"))]],model_params),silent=TRUE)
-        max_lnL <- try(get(paste(model,"lnL",sep="_"))(ModelResults[1:last_row,1],model_params),silent=TRUE)
+        #max_lnL <- try(get(paste(model,"lnL",sep="_"))(ModelResults[1:last_row,1],model_params),silent=TRUE)
+        max_lnL <- try(get(paste(model,"lnL",sep="_"))(model_params,names(model_params),FALSE,get("data")[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
         # time_fails <- get_prediction_t(model_params, input$modelDetailPredFailures, length(get("data")[[get(paste(model,"input",sep="_"))]]))
       
         if(length(grep("not found",max_lnL))) {

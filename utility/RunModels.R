@@ -1,4 +1,5 @@
 library(rootSolve)
+library(numDeriv)
 
 #run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
 run_models <- function(raw_data, input, tol_local) {
@@ -7,6 +8,7 @@ run_models <- function(raw_data, input, tol_local) {
   PredAheadSteps <<- input$modelNumPredSteps
   Models2Run <- input$modelsToRun
   RelMissionTime <- input$modelRelMissionTime
+  ParmConfIntvl <- input$parmConfInterval
   
 
   if (("FRate" %in% (names(raw_data))) && !("FCount" %in% (names(raw_data)))) {
@@ -20,10 +22,10 @@ run_models <- function(raw_data, input, tol_local) {
         }
     ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ModeledData$FT <- ModeledData$FT - OffsetTime
-    ParmInitIntvl <- length(ModeledData[,1])
-    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
-  
-  
+    #ParmInitIntvl <- length(ModeledData[,1])
+    ParmInitIntvl <- input$parmEstIntvl
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType, ParmConfIntvl)
+
   } else if (("FRate" %in% (names(raw_data))) && ("FCount" %in% (names(raw_data)))) {
     # Need to complete for failure counts data
     #Runs all FC models if there are failed models in the results, only those are run using FR models
@@ -36,8 +38,9 @@ run_models <- function(raw_data, input, tol_local) {
         }
     #ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
-    ParmInitIntvl <- length(ModeledData[,1])
-    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
+    #ParmInitIntvl <- length(ModeledData[,1])
+    ParmInitIntvl <- input$parmEstIntvl
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType, ParmConfIntvl)
     
     if (length(results[["FailedModels"]]) > 0){
       dataType <- "FT"
@@ -48,8 +51,9 @@ run_models <- function(raw_data, input, tol_local) {
         }
     ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
     ModeledData$FT <- ModeledData$FT - OffsetTime
-    ParmInitIntvl <- length(ModeledData[,1])
-      results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType)
+    #ParmInitIntvl <- length(ModeledData[,1])
+    ParmInitIntvl <- input$parmEstIntvl
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType, ParmConfIntvl)
 
     }
   }
@@ -57,7 +61,44 @@ run_models <- function(raw_data, input, tol_local) {
 }
 
 
-process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType){
+
+# Estimate parameter confidence interval using the hessian and Fisher information.
+# This function can be used for both FT and FC types of models.
+
+estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_ParmConfIntvl, in_fail_data){
+  # First set the lower and upper confidence bounds to NaN.  This will indicate
+  # that we're not able to compute the confidence bound values using the hessian
+  # and Fisher information.
+  
+  out_lowerConfBound <- rep(0/0,length(in_model_params))
+  out_upperConfBound <- out_lowerConfBound
+  
+  options(show.error.messages=FALSE)
+  modelHessian <- try(numDeriv::hessian(f=get(in_model_lnL),x=as.numeric(in_model_params),paramNames=names(in_model_params),negLnL=TRUE,failData=in_fail_data,"complex"),silent=TRUE)
+  options(show.error.messages=TRUE)
+  if(is.numeric(modelHessian) && (is.nan(sum(modelHessian)) == FALSE) && (det(modelHessian) != 0)) {
+    options(show.error.messages=FALSE)
+    modelFisher <- try(Matrix::solve(modelHessian,diag(length(in_model_params))),silent=TRUE)
+    options(show.error.messages=TRUE)
+    if(is.numeric(modelFisher) && (is.nan(sum(modelFisher)) == FALSE)) {
+      if (all(diag(modelFisher) > 0) == TRUE) {
+        se <- sqrt(diag(modelFisher))
+        CritValue<-qnorm(0.5+in_ParmConfIntvl/2)
+        out_lowerConfBound<-in_model_params-CritValue*se
+        out_upperConfBound<-in_model_params+CritValue*se
+      }
+    }
+  }
+  ConfBoundsList <- c()
+  ConfBoundsList$LowerBoundsValues <- out_lowerConfBound
+  ConfBoundsList$UpperBoundsValues <- out_upperConfBound
+  return(ConfBoundsList)
+}
+
+
+
+
+process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType, ConfInterval){
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   OffsetFailure <- DataStart-1
@@ -154,6 +195,25 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
             #model_parm_num <- paste0(modelID, "_parm_", paramNum) 
             model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
             if(typeof(model_params)!="character") {
+              
+              # Now we estimate confidence bounds for the model parameters.
+              
+              if(paramNum == 1) {
+                
+                #print(unlist(c(model_sm_MLE, length(tVec))))
+                
+                if (dataType == "FT" && dataType %in% get(model_input)) {
+                  ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, tVec)
+                  lowerConfBound <- ConfBounds$LowerBoundsValues
+                  upperConfBound <- ConfBounds$UpperBoundsValues
+                  print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+                } else if ("IF" %in% get(model_input)) {
+                  ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, IF)
+                  lowerConfBound <- ConfBounds$LowerBoundsValues
+                  upperConfBound <- ConfBounds$UpperBoundsValues
+                  print(unlist(c(model_sm_MLE,length(IF),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+                }
+              }
               print(model_params)
               print("Type of param number : ")
               print(modelID)

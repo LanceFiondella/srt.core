@@ -166,21 +166,46 @@ GM_R <- function(param,d){
   
 }
 
-
-GM_lnL <-  function(x,params){
-
+GM_FT_lnL<-function(params,paramNames,negLnL,failData){
+  
   sum1=0
   sum2=0
-  #print(params)
-  n <- length(x)
+  names(params)<-paramNames
+  n<-length(failData)
   for(i in 1:n){
-    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
-    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
+    sum1=sum1+ ((i-1)*log(as.list(params)$GM_Phi))
+    sum2=sum2+ (as.list(params)$GM_Phi^(i-1) * failData[i])
   }
-  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
-  #print(lnL)
-  return(lnL)
+  lnL <- n*log(as.list(params)$GM_D0) + sum1 - as.list(params)$GM_D0*sum2
+  if(negLnL==TRUE){
+    return(-lnL)
+  }
+  else {
+    # This is the branch we take if we want to compute the hessian on
+    # the way to estimating confidence intervals.
+    return(-lnL)
+  }
 }
+
+# This is the original lnL function.  It's been rewritten
+# (see above) so it can be used as input to "optim" to
+# compute the hessian, then Fisher information, then
+# confidence intervals for the parameter estimates.
+
+#GM_lnL <-  function(x,params){
+#
+#  sum1=0
+#  sum2=0
+#  #print(params)
+#  n <- length(x)
+#  for(i in 1:n){
+#    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
+#    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
+#  }
+#  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
+#  #print(lnL)
+#  return(lnL)
+#}
 
 
 GM_MVF_cont <- function(params,t){
