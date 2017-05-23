@@ -38,6 +38,7 @@ source("trend_tests/RA_Test.R")
 source("trend_tests/Laplace_trend_test.R")
 
 # Plots utility function
+
 source("utility/plots/Plot_Raw_Data.R")
 source("utility/plots/Plot_Trend_Tests.R")
 source("utility/plots/PlotModelResults.R")

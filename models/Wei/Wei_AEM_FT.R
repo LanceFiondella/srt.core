@@ -5,7 +5,7 @@ library(rootSolve)
 #tVec <- c(39,49,53,89,93,98,102,193,242,243,268,269,273,303,345,354,403,447,479,482,560,561,591,796,801,930,1033,1257,1443,1496,1510,1519,1521,1531,1532,1566,1736,1865,1869,1873,1908,1913,1918,1940,1976,2011,2132,2155,2188,2236,2268,2289,2293,2316,2325,2338,2503,2517,2539,2580,2592,2730,2825,2874,2936,2938,2973,3062,3152,3221,3243,3258,3277,3319,3333,3344,3385,3595,3611,3641,3678,3744,3753,3769,3783,3807,3819,3978,4067,4185,4214,4235,4253,4255,4369,4406,4452,4469,4470,4620,5002,5162,5228,5434,5443,5469,5531,5770,5783,5787,5872,5957,6197,6375,6409,6511,6520,6666,6725,6773,6798,6823,6934,6939,6970,7021,7027,7220,7247,7272,7368,7394,7424,7454,7471,7791,7869,7908,7921,7934,7953,8081,8115,8199,8239,8416,8765,9039,9121,9179,9210,9324,9363,9451,9535,9767,9875,9913,9999,10006,10028,10108,10347,10350,10389,10452,10604,10667,10747,10992,11188,11234,11386,11488,11497,11725,11945,12153,12231,12234,12317,12323,12535,12626,12629,12639,12811,12832,13005,13376,13416,13464,13590,13680,13829,13859,14176,14676,15349,15781,15847,16015,16081,16147,16275,16324,16656)
 
 
-Wei_AEM_MLE <- function(tVec){
+Wei_AEM_FT_MLE <- function(tVec){
 
 
       #Define n, tn and sumT
@@ -158,23 +158,7 @@ Wei_AEM_MLE <- function(tVec){
 #}
 #multiroot(Model, c(bMLE,c0))
 
-Wei_lnL_new <- function(params,paramNames,negLnL,failData){
-  names(params)<-paramNames
-  n <- length(failData)
-  tn <- failData[n]
-  lnL <- n*log(as.list(params)$Wei_bMLE) - n*as.list(params)$Wei_bMLE*log(as.list(params)$Wei_aMLE) + (as.list(params)$Wei_bMLE-1)*sum(log(failData-rep(as.list(params)$Wei_cMLE,n))) - sum((failData-rep(as.list(params)$Wei_cMLE,n))/rep(as.list(params)$Wei_aMLE,n))^as.list(params)$Wei_bMLE
-  if(negLnL == FALSE) {
-    return(lnL)
-  }
-  else {
-    # This is the branch we take if we want to use the
-    # return value to compute the hessian.
-    return(-lnL)
-  }
-}
-
-
-Wei_lnL <- function(params,paramNames,negLnL,failData){
+Wei_FT_lnL <- function(params,paramNames,negLnL,failData){
   names(params)<-paramNames
   n <- length(failData)
   tn <- failData[n]
@@ -192,41 +176,20 @@ Wei_lnL <- function(params,paramNames,negLnL,failData){
 
 
 
-# Wei_lnL_bak <- function(params,paramNames,negLnL,failData){
-#   names(params)<-paramNames
-#   n <- length(failData)
-#   tn <- failData[n]
-#   sum1 <- 0
-#   for(i in 1:n){
-    # lnL <- n*log(bMLE) - n*bMLE*log(aMLE) + (bMLE-1)*sum(log(failData-rep(cMLE,n))) - sum((failData-rep(cMLE,n))/rep(aMLE,n))^bMLE
-#     sum1=sum1+ (log(as.list(params)$Wei_bMLE*as.list(params)$Wei_cMLE*exp(-as.list(params)$Wei_bMLE*(failData[i]^as.list(params)$Wei_cMLE))*as.list(params)$Wei_aMLE*(failData[i]^(as.list(params)$Wei_cMLE-1))))
-#   }
-#   lnL <- ((-1+exp(-as.list(params)$Wei_bMLE*(tn^as.list(params)$Wei_cMLE)))*as.list(params)$Wei_aMLE) + sum1
-#   if(negLnL == FALSE) {
-#     return(lnL)
-#   }
-#   else {
-    # This is the branch we take if we want to use the
-    # return value to compute the hessian.
-#     return(-lnL)
-#   }
-# }
-
 # This is the original lnL function.  It's been rewritten
-# (see above) and renamed.  The rewrite was done so it can
-# be used as input to "optim" to compute the hessian, then
-# Fisher information, then confidence intervals for the
-# parameter estimates.
+# (see above) so it can be used as input to "optim" to
+# compute the hessian, then Fisher information, then
+# confidence intervals for the parameter estimates.
 
-# Wei_lnL_orig <- function(x,params){
-#   n <- length(x)
-#   tn <- x[n]
-#   sum1 <- 0
-#   for(i in 1:n){
-#     sum1=sum1+ (log(params$Wei_bMLE*params$Wei_cMLE*exp(-params$Wei_bMLE*(x[i]^params$Wei_cMLE))*params$Wei_aMLE*(x[i]^(params$Wei_cMLE-1))))
-#   }
-#   return(((-1+exp(-params$Wei_bMLE*(tn^params$Wei_cMLE)))*params$Wei_aMLE) + sum1)
-# }
+#Wei_lnL <- function(x,params){
+#  n <- length(x)
+#  tn <- x[n]
+#  sum1 <- 0
+#  for(i in 1:n){
+#    sum1=sum1+ (log(params$Wei_bMLE*params$Wei_cMLE*exp(-params$Wei_bMLE*(x[i]^params$Wei_cMLE))*params$Wei_aMLE*(x[i]^(params$Wei_cMLE-1))))
+#  }
+#  return(((-1+exp(-params$Wei_bMLE*(tn^params$Wei_cMLE)))*params$Wei_aMLE) + sum1)
+#}
 
 
 Wei_MVF <- function(param,d){

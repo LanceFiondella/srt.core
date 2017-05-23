@@ -1,31 +1,71 @@
 library(rootSolve)
 library(numDeriv)
-library(Matrix)
 
-run_models <- function(raw_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
+#run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
+run_models <- function(raw_data, input, tol_local) {
+  print(names(raw_data))
+  DataRange <- input$modelDataRange
+  PredAheadSteps <<- input$modelNumPredSteps
+  Models2Run <- input$modelsToRun
+  RelMissionTime <- input$modelRelMissionTime
+  ParmConfIntvl <- input$parmConfInterval
   
-  in_data <- raw_data
-  if (dataType(names(in_data)) == "FR") {
-    in_data$FT <- in_data$FT - OffsetTime
-    results <- run_FR_models(in_data, DataRange, parmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local)
-  } else if (dataType(names(in_data))=="FC") {
+
+  if (("FRate" %in% (names(raw_data))) && !("FCount" %in% (names(raw_data)))) {
+
+    dataType <- "FT"
+
+      if(DataRange[1] == 1) {
+          OffsetTime <- 0
+        } else {
+          OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
+        }
+    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ModeledData$FT <- ModeledData$FT - OffsetTime
+    #ParmInitIntvl <- length(ModeledData[,1])
+    ParmInitIntvl <- input$parmEstIntvl
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType, ParmConfIntvl)
+
+  } else if (("FRate" %in% (names(raw_data))) && ("FCount" %in% (names(raw_data)))) {
     # Need to complete for failure counts data
-    results <- run_FC_models()
+    #Runs all FC models if there are failed models in the results, only those are run using FR models
+    
+    dataType <- "FC"
+    if(DataRange[1] == 1) {
+          OffsetTime <- 0
+        } else {
+          OffsetTime <- tail(head(raw_data$FCount, DataRange[1]-1), 1)[["FT"]]
+        }
+    #ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    #ParmInitIntvl <- length(ModeledData[,1])
+    ParmInitIntvl <- input$parmEstIntvl
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType, ParmConfIntvl)
+    
+    if (length(results[["FailedModels"]]) > 0){
+      dataType <- "FT"
+      if(DataRange[1] == 1) {
+          OffsetTime <- 0
+        } else {
+          OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
+        }
+    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+    ModeledData$FT <- ModeledData$FT - OffsetTime
+    #ParmInitIntvl <- length(ModeledData[,1])
+    ParmInitIntvl <- input$parmEstIntvl
+    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType, ParmConfIntvl)
+
+    }
   }
-  
-  # Return model results here, as well as the
-  # vectors of plottable and unplottable models.
-  # This is all packaged up in a list.
-  
-  #return(list("Results"=local_results, "SuccessfulModels"=PlottableModels, "FailedModels"=UnplottableModels))
   return(results)
-  
 }
+
+
 
 # Estimate parameter confidence interval using the hessian and Fisher information.
 # This function can be used for both FT and FC types of models.
 
-estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_ParmConfInterval, in_fail_data){
+estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_ParmConfIntvl, in_fail_data){
   # First set the lower and upper confidence bounds to NaN.  This will indicate
   # that we're not able to compute the confidence bound values using the hessian
   # and Fisher information.
@@ -43,7 +83,7 @@ estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_Par
     if(is.numeric(modelFisher) && (is.nan(sum(modelFisher)) == FALSE)) {
       if (all(diag(modelFisher) > 0) == TRUE) {
         se <- sqrt(diag(modelFisher))
-        CritValue<-qnorm(0.5+in_ParmConfInterval/2)
+        CritValue<-qnorm(0.5+in_ParmConfIntvl/2)
         out_lowerConfBound<-in_model_params-CritValue*se
         out_upperConfBound<-in_model_params+CritValue*se
       }
@@ -57,17 +97,14 @@ estim_conf_int <- function(in_model_lnL, in_model_params, in_param_names, in_Par
 
 
 
-run_FC_models <- function(){
 
-  
-}
-
-run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local){
+process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType, ConfInterval){
   DataStart <- DataRange[1]
   DataEnd <- DataRange[2]
   OffsetFailure <- DataStart-1
   localEstIntvlEnd <- ParmInitIntvl-DataStart+1
   
+
   # Set up two local vectors to hold the names of models that completed
   # successfully and those that did not.
   
@@ -94,10 +131,11 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
       model_MVF_inv <- paste(modelID,"MVF_inv",sep="_")
       model_R_growth <- paste0(modelID, "_R_growth")
       model_MTTF <- paste(modelID,"MTTF",sep="_")
-      model_lnL <- paste(modelID,"lnL",sep="_")
+      model_lnL <- paste(modelID,dataType,"lnL",sep="_")
 
       for (paramNum in 1:length(get(model_params_label))) {
-        model_parm_num = paste0(modelID, "_parm_", paramNum)
+        #model_parm_num <- paste0(modelID, "_parm_", paramNum)
+        model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
         local_results[[model_parm_num]] <- naFill
       }
       local_results[[model_CumTime]] <- NaNFill
@@ -112,34 +150,50 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
         sel_method <- NA
         model_input <- paste(modelID,"input",sep="_")
         
-        tVec <- head(in_data[[get(model_input)]], failure_num)
-
-        #This for loop selects one of the methods indicated in the Model_Specifications.R file.
-        
-        lnL_value <- Inf
         for (method in get(model_methods)){
-          model_sm_MLE <- paste(modelID,method,"MLE",sep="_")    
-          temp_params <- get(model_sm_MLE)(tVec)
+          
+          model_sm_MLE <- paste(modelID, method, dataType, "MLE",sep="_")
+          if(dataType == "FC" && dataType %in% get(model_input)){
+            tVec <- head(raw_data$FCount$T, failure_num)
+            kVec <- head(raw_data$FCount$FC, failure_num)
+            temp_params <- get(model_sm_MLE)(tVec, kVec)
+          } else if (dataType == "FT" && dataType %in% get(model_input)){
+            tVec <- head(in_data$FT, failure_num)
+            temp_params <- get(model_sm_MLE)(tVec)
+          } else if ("IF" %in% get(model_input)){
+            IF <- head(in_data$IF, failure_num)
+            model_sm_MLE <- paste(modelID, method, "IF", "MLE",sep="_")
+            temp_params <-get(model_sm_MLE)(IF)
+          }
+          
+          #temp_lnL <- get(model_lnL)(tVec,temp_params)
           if(!anyNA(temp_params)){
-            temp_lnL <- get(model_lnL)(temp_params,names(temp_params),FALSE,tVec)
-            lnL_value <- temp_lnL
+            #lnL_value <- temp_lnL
             model_params <- temp_params
             sel_method <- method
             break
           }
         }
-        
+
         if(is.na(sel_method)){
           print("None of the algorithms work")
           ParmEstimatesConverged <- FALSE
         }
         
-        print(unlist(c("Selected method:", sel_method)))
+        print(paste0("Selected method for ",modelID))
+        print(sel_method)
 
+        
+
+        #This for loop selects one of the methods indicated in the Model_Specifications.R file.
+        
+
+        
         # Now put the parameter estimates into the results frame
         
         for (paramNum in 1:length(get(model_params_label))) {
-            model_parm_num <- paste0(modelID, "_parm_", paramNum) 
+            #model_parm_num <- paste0(modelID, "_parm_", paramNum) 
+            model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
             if(typeof(model_params)!="character") {
               
               # Now we estimate confidence bounds for the model parameters.
@@ -148,27 +202,40 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
                 
                 #print(unlist(c(model_sm_MLE, length(tVec))))
                 
-                ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ParmConfInterval, tVec)
-                lowerConfBound <- ConfBounds$LowerBoundsValues
-                upperConfBound <- ConfBounds$UpperBoundsValues
-                
-                print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+                if (dataType == "FT" && dataType %in% get(model_input)) {
+                  ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, tVec)
+                  lowerConfBound <- ConfBounds$LowerBoundsValues
+                  upperConfBound <- ConfBounds$UpperBoundsValues
+                  print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+                } else if ("IF" %in% get(model_input)) {
+                  ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, IF)
+                  lowerConfBound <- ConfBounds$LowerBoundsValues
+                  upperConfBound <- ConfBounds$UpperBoundsValues
+                  print(unlist(c(model_sm_MLE,length(IF),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+                }
               }
+              print(model_params)
+              print("Type of param number : ")
+              print(modelID)
+              print(model_params_label)
+              print(paramNum)
+              print(typeof(model_params[[paramNum]]))
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 
             else {
               # The model results didn't converge.  Use NaN to indicate nonconvergence.
               local_results[[model_parm_num]][failure_num] <- NaN
               # Also indicate that this is a model that won't be displayed on the plot.
-              #print("Models that didnt converge")
-              #print(modelID)
               ParmEstimatesConverged <- FALSE
             }
         } # End for - we've estimated the parameters for the current model for the current failure.
 
       } # End for - we've estimated model parameters for the current model over the entire dataset.
       
+      in_data <- raw_data$FRate
+
       if(ParmEstimatesConverged) {
+        
         PlottableModels <- c(PlottableModels, modelID)
         
         # Here we compute the model estimates of MVF, IF, FI, and Reliability.
@@ -202,8 +269,7 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
             lower_pred_bound <- local_estim[length(local_estim)]+1
           } else {
             lower_pred_bound <- round(local_estim[length(local_estim)]+1)
-            print(modelID)
-            print(lower_pred_bound)
+            
           }
           
           if(PredAheadSteps < ExpectedTotalFailures-(DataEnd-DataStart+1)) {
@@ -242,7 +308,6 @@ run_FR_models <- function(in_data, DataRange, ParmConfInterval, ParmInitIntvl, O
 
         if(length(invMVFinput) > 0) {
           pred_input_data <- data.frame("FN" = invMVFinput)
-          
           local_results[[model_CumTime]] <- c(in_data[["FT"]]+OffsetTime, get(model_MVF_inv)(model_params, pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
           local_results[[model_MVF]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
         } else {

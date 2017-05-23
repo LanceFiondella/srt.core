@@ -1,7 +1,7 @@
 # require("Rmpfr") # This was our option if precision is a problem. It stays here as long we are not sure.
 require("utils") # depends on utils library
 
-JM_BM_MLE<-function(interFail){
+JM_BM_IF_MLE<-function(interFail){
   # ---------------------------------------------------------------------------------
   # Maximumum likelihood estimation method is used to estimate the parameters 
   # 'N0' and 'Phi'. The initial estimate leftinterval and right interval are expanded
@@ -329,9 +329,7 @@ JM_MVF_r <- function(param,d){
   r
 }
 
-
-
-JM_lnL <- function(params,paramNames,negLnL,failData){
+JM_FT_lnL <- function(params,paramNames,negLnL,failData){
   #----------------------------------------------------------------------------
   # This computes Log-Likelihood for a given data x and parameters
   #----------------------------------------------------------------------------
@@ -363,12 +361,11 @@ JM_lnL <- function(params,paramNames,negLnL,failData){
 }
 
 # This is the original lnL function.  It's been rewritten
-# (see above) and renamed.  The rewrite was done so it can
-# be used as input to "optim" to compute the hessian, then
-# Fisher information, then confidence intervals for the
-# parameter estimates.
+# (see above) so it can be used as input to "optim" to
+# compute the hessian, then Fisher information, then
+# confidence intervals for the parameter estimates.
 
-JM_lnL_orig <- function(x,params){
+#JM_lnL <- function(x,params){
   #----------------------------------------------------------------------------
   # This computes Log-Likelihood for a given data x and parameters
   #----------------------------------------------------------------------------
@@ -379,17 +376,17 @@ JM_lnL_orig <- function(x,params){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
-  n <- length(x)          
-  secondTerm=0
-  thirdTerm = 0
-
-  for(i in 1:n){
-    secondTerm = secondTerm +log((params$JM_N0-(i-1)))
-    thirdTerm = thirdTerm +((params$JM_N0-(i-1))*x[i])#x=interFail
-  }
-  lnL <- n*log(params$JM_Phi)+ secondTerm-(params$JM_Phi*thirdTerm)
-  return(lnL)
-}
+#  n <- length(x)          
+#  secondTerm=0
+#  thirdTerm = 0
+#
+#  for(i in 1:n){
+#    secondTerm = secondTerm +log((params$JM_N0-(i-1)))
+#    thirdTerm = thirdTerm +((params$JM_N0-(i-1))*x[i])#x=interFail
+#  }
+#  lnL <- n*log(params$JM_Phi)+ secondTerm-(params$JM_Phi*thirdTerm)
+#  return(lnL)
+#}
  
  #Faults Remaining
  
@@ -442,6 +439,8 @@ JM_MVF_cont <- function(params,t){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
+  #print("---")
+  #print(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
   return(params$JM_N0*(1-exp(-params$JM_Phi*t)))
 }
 

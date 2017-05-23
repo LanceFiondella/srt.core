@@ -1,9 +1,18 @@
 # Plot model results (and raw data, if specified)
 
-plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, PlotDataEnd, RelMissionTime, plotWidthRange, plotHeightRange, plotPixels, AdditionalCurveLength) {
-  
+#plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayModels, DataView, PlotView, PlotData, PlotDataEnd, RelMissionTime, plotWidthRange, plotHeightRange, plotPixels, AdditionalCurveLength) {
+#plot_model_results          (ModelResults, ModeledData, ModeledDataName, input$modelResultChoice, input$modelPlotChoice, input$ModelDataPlotType, input$checkboxDataOnPlot, input$checkboxDataEndOnPlot, input$modelRelMissionTime, MPranges$x, MPranges$y, session$clientData$output_ModelPlot_width, input$modelCurveAdditionalTime)
+plot_model_results <- function(ModResults, DataModeled, DataSetName, input, plotWidthRange, plotHeightRange, plotPixels) {
   require(ggplot2)
   
+  DataModeled <- DataModeled$FRate
+  DisplayModels <- input$modelResultChoice
+  DataView <- input$modelPlotChoice
+  PlotView <- input$ModelDataPlotType
+  PlotData <- input$checkboxDataOnPlot
+  PlotDataEnd <- input$checkboxDataEndOnPlot
+  RelMissionTime <- input$modelRelMissionTime
+  AdditionalCurveLength <- input$modelCurveAdditionalTime
   PlotFault <- FALSE
   
   # Initialize the model results plot
@@ -67,8 +76,14 @@ plot_model_results <- function(ModResults, DataModeled, DataSetName, DisplayMode
     # Get the model parameters.
     
     model_params <- c()
-    for (parmIndex in 1:length(get(paste0(modelIndex, "_params")))) {
-      model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
+    model_params_label <- paste(modelIndex,"params",sep="_")
+    for (parmIndex in 1:length(get(model_params_label))) {
+      
+      #model_params <- c(model_params, ModResults[[paste0(modelIndex, "_parm_", parmIndex)]][length(DataModeled[[1]])])
+      
+      model_parm_num <- paste0(modelIndex, "_", get(model_params_label)[parmIndex])
+      model_params <- c(model_params, ModResults[[model_parm_num]][length(DataModeled[[1]])])
+      
     }
     names(model_params) <- paste(modelIndex, get(paste0(modelIndex, "_params")), sep="_")
     

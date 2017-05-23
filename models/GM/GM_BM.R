@@ -3,7 +3,7 @@
 
 
 
-GM_BM_MLE <- function(interFail){
+GM_BM_IF_MLE <- function(interFail){
   # TODO :
       # ----> as numeric is prefered if data contain large values Should consider its propagation effect through out
       # ----> should also check its effects on precision.
@@ -166,8 +166,7 @@ GM_R <- function(param,d){
   
 }
 
-
-GM_lnL<-function(params,paramNames,negLnL,failData){
+GM_FT_lnL<-function(params,paramNames,negLnL,failData){
   
   sum1=0
   sum2=0
@@ -189,25 +188,24 @@ GM_lnL<-function(params,paramNames,negLnL,failData){
 }
 
 # This is the original lnL function.  It's been rewritten
-# (see above) and renamed.  The rewrite was done so it can
-# be used as input to "optim" to compute the hessian, then
-# Fisher information, then confidence intervals for the
-# parameter estimates.
+# (see above) so it can be used as input to "optim" to
+# compute the hessian, then Fisher information, then
+# confidence intervals for the parameter estimates.
 
-GM_lnL_orig <-  function(x,params){
-
-  sum1=0
-  sum2=0
-  #print(params)
-  n <- length(x)
-  for(i in 1:n){
-    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
-    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
-  }
-  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
-  #print(lnL)
-  return(lnL)
-}
+#GM_lnL <-  function(x,params){
+#
+#  sum1=0
+#  sum2=0
+#  #print(params)
+#  n <- length(x)
+#  for(i in 1:n){
+#    sum1=sum1+ ((i-1)*log(params$GM_Phi)) 
+#    sum2=sum2+ (params$GM_Phi^(i-1) * x[i])
+#  }
+#  lnL <- n*log(params$GM_D0) + sum1 - params$GM_D0*sum2
+#  #print(lnL)
+#  return(lnL)
+#}
 
 
 GM_MVF_cont <- function(params,t){
