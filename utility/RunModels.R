@@ -2,7 +2,7 @@ library(rootSolve)
 
 #run_models <- function(raw_data, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local) {
 run_models <- function(raw_data, input, tol_local) {
-  print(names(raw_data))
+  #print(names(raw_data))
   DataRange <- input$modelDataRange
   PredAheadSteps <<- input$modelNumPredSteps
   Models2Run <- input$modelsToRun
@@ -25,32 +25,31 @@ run_models <- function(raw_data, input, tol_local) {
   
   
   } else if (("FRate" %in% (names(raw_data))) && ("FCount" %in% (names(raw_data)))) {
-    # Need to complete for failure counts data
-    #Runs all FC models if there are failed models in the results, only those are run using FR models
     
-    dataType <- "FC"
-    if(DataRange[1] == 1) {
-          OffsetTime <- 0
-        } else {
-          OffsetTime <- tail(head(raw_data$FCount, DataRange[1]-1), 1)[["FT"]]
-        }
-    #ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
-    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
-    ParmInitIntvl <- length(ModeledData[,1])
-    results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
+    #Runs all FT models if there are failed models in the results, only those are run using FC models
+
+    dataType <- "FT"
+        if(DataRange[1] == 1) {
+            OffsetTime <- 0
+          } else {
+            OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
+          }
+        ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+        ModeledData$FT <- ModeledData$FT - OffsetTime
+        ParmInitIntvl <- length(ModeledData[,1])
+        results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, Models2Run, RelMissionTime, tol_local, dataType)
     
     if (length(results[["FailedModels"]]) > 0){
-      dataType <- "FT"
+      dataType <- "FC"
       if(DataRange[1] == 1) {
           OffsetTime <- 0
-        } else {
-          OffsetTime <- tail(head(raw_data$FRate, DataRange[1]-1), 1)[["FT"]]
-        }
-    ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
-    ModeledData$FT <- ModeledData$FT - OffsetTime
-    ParmInitIntvl <- length(ModeledData[,1])
-      results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType)
-
+      } else {
+          OffsetTime <- tail(head(raw_data$FCount, DataRange[1]-1), 1)[["FT"]]
+      }
+      #ModeledData <<- tail(head(raw_data$FCount, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+      ModeledData <<- tail(head(raw_data$FRate, DataRange[2]), (DataRange[2]-DataRange[1]+1))
+      ParmInitIntvl <- length(ModeledData[,1])
+      results <- process_models(raw_data, ModeledData, DataRange, ParmInitIntvl, OffsetTime, PredAheadSteps, results[["FailedModels"]], RelMissionTime, tol_local, dataType)    
     }
   }
   return(results)
@@ -139,8 +138,8 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
           ParmEstimatesConverged <- FALSE
         }
         
-        print(paste0("Selected method for ",modelID))
-        print(sel_method)
+        #print(paste0("Selected method for ",modelID))
+        #print(sel_method)
 
         
 
@@ -154,12 +153,12 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
             #model_parm_num <- paste0(modelID, "_parm_", paramNum) 
             model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
             if(typeof(model_params)!="character") {
-              print(model_params)
-              print("Type of param number : ")
-              print(modelID)
-              print(model_params_label)
-              print(paramNum)
-              print(typeof(model_params[[paramNum]]))
+              #print(model_params)
+              #print("Type of param number : ")
+              #print(modelID)
+              #print(model_params_label)
+              #print(paramNum)
+              #print(typeof(model_params[[paramNum]]))
               local_results[[model_parm_num]][failure_num] <- model_params[paramNum]
             } 
             else {

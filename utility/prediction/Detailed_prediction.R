@@ -2,13 +2,8 @@
 
 
 get_prediction_k <- function(model,params, t_offset,tn,n){
-	print(">>>>>>>>>")
+	est_faults <- get(paste(model,"MVF_cont",sep="_"))(params,tn+t_offset) - get(paste(model,"MVF_cont",sep="_"))(params,tn)
 	
-	est_faults <- get(paste(model,"MVF_cont",sep="_"))(params,tn)
-	
-	
-  # return(floor(est_faults))
-  
   # est_faults is an expected value, so it may not be a
   # whole number.  Nevertheless, we return the unaltered
   # value.

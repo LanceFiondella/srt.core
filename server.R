@@ -61,12 +61,10 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
   # Start main program ------------------------------------
 
   openFileDatapath <- ""
-
-  source("utility/data/ServerData.R", local=TRUE)
-
-  source("utility/plots/ServerPlots.R", local=TRUE)
-
-  source("utility/tables/ServerTables.R", local=TRUE)
+  source("serverTab1.R", local=TRUE)
+  source("serverTab2.R", local=TRUE)
+  source("serverTab3.R", local=TRUE)
+  source("serverTab4.R", local=TRUE)
 
     # This slider that controls the end of the initial parameter estimation interval
     # is dynamically created to ensure that its value is always in sync with those of
@@ -209,27 +207,5 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         tempResultsList <- list()
       }
     })
-
-    
-  #   #If one or more of the models didn't complete successfully, display a message
-  #   #notifying the user of that fact.
-    
-  #  UnsuccessfulModelsMessage <- reactive({
-  #    outputMessage <- ""
-  #    if((length(input$modelsToRun) > 0) && (input$ModelsToRun[1] != "None") && (length(FailedModels) > 0)) {
-  #      outputMessage <- paste0(msgUnsuccessfulModels, get(paste0(FailedModels[1], "_fullname")))
-  #      if (length(FailedModels) > 1) {
-  #        for (FailedModelsIndex in 2:length(FailedModels)) {
-  #          outputMessage <- paste0(outputMessage, paste0(", ", get(paste0(FailedModels[FailedModelsIndex], "_fullname"))))
-  #        }
-  #      }
-  #    }
-  #    outputMessage
-  #  })
-    
-  #  output$UnsuccessfulModels <- renderText({
-  #    UnsuccessfulModelsMessage
-  #  })
-
 
 })

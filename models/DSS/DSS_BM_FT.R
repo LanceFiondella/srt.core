@@ -86,7 +86,6 @@ DSS_MVF <- function(param,d){
   #}
   MVF <- param$DSS_aMLE*(1-exp(-1*d$FT*param$DSS_bMLE)*(1+param$DSS_bMLE*d$FT))
   r <- data.frame(d$FT,MVF,rep("DSS",n))
-  print(d$FT)
   names(r) <- c("Time","Failure","Model")
   r
 }
@@ -128,12 +127,14 @@ DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
   #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
   n <- length(x)
   tn <- x[n]
-  firstSumTerm=0
-  secondSumTerm = 0
+  firstSumTerm <- 0
+  secondSumTerm <- 0
   
+  
+
   for(i in 1:n){
-    firstSumTerm = firstSumTerm + log(x[i])
-    secondSumTerm = secondSumTerm + (-params$DSS_bMLE*x[i])
+    firstSumTerm <- firstSumTerm + log(x[i])
+    secondSumTerm <- secondSumTerm + (-params$DSS_bMLE*x[i])
   }
   lnL <- -params$DSS_aMLE*(1-(1+params$DSS_bMLE*tn)*exp(-params$DSS_bMLE*tn))+ n*(log(params$DSS_aMLE)) + 2*n*log(params$DSS_bMLE) +  firstSumTerm + secondSumTerm
   return(lnL)
@@ -217,7 +218,7 @@ DSS_Target_T <- function(params,cur_time,delta, reliability){
   }
   
   current_rel <- DSS_R_delta(params,cur_time,delta)
-  print(current_rel)
+  #print(current_rel)
   #print(params)
   if(current_rel < reliability){
     # Bound the estimation interval

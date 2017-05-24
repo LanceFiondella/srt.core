@@ -4,8 +4,6 @@
 #tVec <- c(1,1.5,2,3,4.5,6,8,11,12,13)
 
 DSS_BM_FC_MLE <- function(tVec, kVec){
-	print(tVec)
-	print(kVec)
 		k <- length(kVec)
 		K <- sum(kVec)
 
