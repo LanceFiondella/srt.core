@@ -182,6 +182,9 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         FailedModels <<- tempResultsList[["FailedModels"]]
         print("Failed Models")
         print(FailedModels)
+        
+        # Here we compute prequential likelihood and model bias for the models.
+        
         # Update the model results selection pull-downs with the names of the
         # models that have been successfully run.
         
