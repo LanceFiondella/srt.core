@@ -8,7 +8,7 @@ Lance Fiondella, University of Massachusetts Dartmouth
 Allen Nikora, Jet propulsion laboratory/ California Institute of technology
 
 
-Dependancies
+Dependencies
 -------
 Using `source("install_script.R")` located in this repository will resolve the dependancies for SRT
  
