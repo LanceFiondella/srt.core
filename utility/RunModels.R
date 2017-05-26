@@ -184,10 +184,33 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
         print(sel_method)
 
         
+        # Now we estimate confidence bounds for the model parameters.
 
+        ConfBounds <- NULL
+        lowerConfBound <- rep(0/0,length(model_params))
+        upperConfBound <- lowerConfBound
+        
+        if(typeof(model_params)!="character") {
+            if(dataType == "FC" && dataType %in% get(model_input)){
+              ConfBounds <- NULL
+              lowerConfBound <- rep(0/0,length(model_params))
+              upperConfBound <- lowerConfBound
+            } else if (dataType == "FT" && dataType %in% get(model_input)){
+              ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, tVec)
+              lowerConfBound <- ConfBounds$LowerBoundsValues
+              upperConfBound <- ConfBounds$UpperBoundsValues
+              print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+            } else if ("IF" %in% get(model_input)) {
+              model_lnL <- paste(modelID, "FT", "lnL", sep="_")
+              ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, IF)
+              lowerConfBound <- ConfBounds$LowerBoundsValues
+              upperConfBound <- ConfBounds$UpperBoundsValues
+              print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
+            }
+        }
+        
         #This for loop selects one of the methods indicated in the Model_Specifications.R file.
         
-
         
         # Now put the parameter estimates into the results frame
         
@@ -195,25 +218,6 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
             #model_parm_num <- paste0(modelID, "_parm_", paramNum) 
             model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum])
             if(typeof(model_params)!="character") {
-              
-              # Now we estimate confidence bounds for the model parameters.
-              
-              if(paramNum == 1) {
-                
-                #print(unlist(c(model_sm_MLE, length(tVec))))
-                
-                if (dataType == "FT" && dataType %in% get(model_input)) {
-                  ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, tVec)
-                  lowerConfBound <- ConfBounds$LowerBoundsValues
-                  upperConfBound <- ConfBounds$UpperBoundsValues
-                  print(unlist(c(model_sm_MLE,length(tVec),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
-                } else if ("IF" %in% get(model_input)) {
-                  ConfBounds <- estim_conf_int(model_lnL, model_params, param_names, ConfInterval, IF)
-                  lowerConfBound <- ConfBounds$LowerBoundsValues
-                  upperConfBound <- ConfBounds$UpperBoundsValues
-                  print(unlist(c(model_sm_MLE,length(IF),lowerConfBound,model_params,upperConfBound),use.names=FALSE))
-                }
-              }
               print(model_params)
               print("Type of param number : ")
               print(modelID)
