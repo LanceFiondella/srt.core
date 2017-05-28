@@ -109,11 +109,19 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
   
   ConfIntSuffixes <- c("Low", "MLE", "High")
 
-  # Set up two local vectors to hold the names of models that completed
-  # successfully and those that did not.
+  # Set up local vectors to hold the names of models that completed
+  # successfully and those that did not.  There are vectors to hold
+  # this information for MLEs as well as high and low confidence bounds.
   
   PlottableModels <- c()
+  PlottableModelsLow <- c()
+  PlottableModelsMLE <- c()
+  PlottableModelsHigh <- c()
+
   UnplottableModels <- c()
+  UnplottableModelsLow <- c()
+  UnplottableModelsMLE <- c()
+  UnplottableModelsHigh <- c()
   
   local_results <- data.frame("Failure"=c((DataStart:DataEnd), rep(NA,PredAheadSteps)))
   
@@ -141,7 +149,7 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
         
         for (paramNum in 1:length(get(model_params_label))) {
           #model_parm_num <- paste0(modelID, "_parm_", paramNum)
-          model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum], SuffixTag)
+          model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum], "_", SuffixTag)
           local_results[[model_parm_num]] <- naFill
         }
         local_results[[model_CumTime]] <- NaNFill
@@ -249,6 +257,8 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
         if(any(is.nan(as.vector(unlist(model_params[[SuffixTag]]))))) {
           # Indicate that this is a model that won't be displayed on the plot.
           ParmEstimatesConverged[[SuffixTag]] <- FALSE
+        } else {
+          ParmEstimatesConverged[[SuffixTag]] <- TRUE
         }
       }
         
@@ -256,8 +266,8 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
       
       model_FI <- paste0(modelID, "_FI")
       model_MTTF <- paste0(modelID, "_MTTF")
-      model_MVF  <- paste0(modelID, "_MVF", "_", SuffixTag)
-      model_MVF_inv <- paste0(modelID,"_", "MVF_inv", "_", SuffixTag)
+      model_MVF  <- paste0(modelID, "_MVF")
+      model_MVF_inv <- paste0(modelID,"_", "MVF_inv")
       model_R_growth <- paste0(modelID, "_R_growth")
       
       for(SuffixTag in ConfIntSuffixes) {
@@ -267,8 +277,16 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
         
         if(ParmEstimatesConverged[[SuffixTag]]) {
           
-          PlottableModels <- c(PlottableModels, modelID)
+          get(paste0("PlottableModels", SuffixTag))
           
+          if (SuffixTag == "Low") {
+            PlottableModelsLow <- c(PlottableModelsLow, modelID)
+          } else if (SuffixTag == "MLE") {
+            PlottableModelsMLE <- c(PlottableModelsMLE, modelID)
+          } else if (SuffixTag == "High") {
+            PlottableModelsHigh <- c(PlottableModelsHigh, modelID)
+          }
+
           # Here we compute the model estimates of MVF, IF, FI, and Reliability.
           # First we create empty fill vectors into which we may need to add
           # values for finite-failures models.  See below.
@@ -326,6 +344,8 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
               } else {
                 invMVFinput <- c()
               }
+              
+              debugVar <- 1
               ModelPredsNA <- rep(NA, PredAheadSteps-length(invMVFinput))
               ModelPredsNaN <- rep(NaN, PredAheadSteps-length(invMVFinput))
               ModelPredsInf <- rep(Inf, PredAheadSteps-length(invMVFinput))
@@ -346,7 +366,7 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
             local_results[[paste0(model_MVF, "_", SuffixTag)]] <- c(local_estim+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), PredAheadSteps))
           }
           
-          pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime"))), select=get(paste0(modelID, "_CumTime")))-OffsetTime)
+          pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime","_", SuffixTag))), select=get(paste0(modelID, "_CumTime", "_", SuffixTag)))-OffsetTime)
           names(pred_input_data) <- c("FT")
           
           if(any(sapply(model_params[[SuffixTag]],is.finite) )== TRUE){
@@ -362,9 +382,17 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
           pred_input_data <- NULL
           
         } else {
-          UnplottableModels <- c(UnplottableModels, modelID)
+          if (SuffixTag == "Low") {
+            UnplottableModelsLow <- c(UnplottableModelsLow, modelID)
+          } else if (SuffixTag == "MLE") {
+            UnplottableModelsMLE <- c(UnplottableModelsMLE, modelID)
+          } else if (SuffixTag == "High") {
+            UnplottableModelsHigh <- c(UnplottableModelsHigh, modelID)
+          }
         }
       } # End for - make model predicdtions for MLEs and confidence bounds.
     } # End for - we've applied all of the selected models to the entire dataset.
+    PlottableModels <- list("Low"=PlottableModelsLow, "MLE"=PlottableModelsMLE, "High"=PlottableModelsHigh)
+    UnplottableModels <- list("Low"=UnplottableModelsLow, "MLE"=UnplottableModelsMLE, "High"=UnplottableModelsHigh)
     return(list("Results"=local_results, "SuccessfulModels"=PlottableModels, "FailedModels"=UnplottableModels))
 }
