@@ -269,14 +269,12 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
       model_MVF  <- paste0(modelID, "_MVF")
       model_MVF_inv <- paste0(modelID,"_", "MVF_inv")
       model_R_growth <- paste0(modelID, "_R_growth")
+      model_CumTime <- paste0(modelID, "_CumTime") 
+      model_IF <- paste0(modelID, "_IF")
+      model_Rel <- paste0(modelID, "_Rel")
       
       for(SuffixTag in ConfIntSuffixes) {
-        model_CumTime <- paste0(modelID, "_CumTime", "_", SuffixTag) 
-        model_IF <- paste0(modelID, "_IF", "_", SuffixTag)
-        model_Rel <- paste0(modelID, "_Rel", "_", SuffixTag)
-        
         if(ParmEstimatesConverged[[SuffixTag]]) {
-          
           get(paste0("PlottableModels", SuffixTag))
           
           if (SuffixTag == "Low") {
@@ -286,113 +284,200 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
           } else if (SuffixTag == "High") {
             PlottableModelsHigh <- c(PlottableModelsHigh, modelID)
           }
-
-          # Here we compute the model estimates of MVF, IF, FI, and Reliability.
-          # First we create empty fill vectors into which we may need to add
-          # values for finite-failures models.  See below.
-          
-          ModelPredsNA <- c()
-          ModelPredsNaN <- c()
-          ModelPredsInf <- c()
-          ModelPredsZero <- c()
-          ModelPredsOnes <- c()
-          FillData <- rep(NA, PredAheadSteps)
-          
-          # Compute the MVF, IF, FI, Reliability, and Reliability Growth functions for the model.
-          
-          pred_input_data <- data.frame("IF" = in_data[["IF"]], "FT" = in_data[["FT"]])
-          
-          # First estimate MVF, then forecast.
-          local_estim <- get(model_MVF)(model_params[[SuffixTag]], pred_input_data)[["Failure"]]
-          
-          # The next thing we do is determine whether this is a finite-failures
-          # model.  If it is, we may have to add some fill onto the end of the
-          # predictions vector we get, because we may have asked the model to
-          # make predictions for more future failures than the model thinks
-          # there actually are.
-          
-          if (get(paste(modelID,"Finite",sep="_"))) {
-            ExpectedTotalFailures <- model_params[[SuffixTag]][get(paste(modelID,"numfailsparm",sep="_"))[1]]
-            
-            if(abs(local_estim[length(local_estim)]-round(local_estim[length(local_estim)])) < tol_local) {
-              lower_pred_bound <- local_estim[length(local_estim)]+1
-            } else {
-              lower_pred_bound <- round(local_estim[length(local_estim)]+1)
-              
-            }
-            
-            if(PredAheadSteps < ExpectedTotalFailures-(DataEnd-DataStart+1)) {
-              invMVFinput <- c(lower_pred_bound:(lower_pred_bound+PredAheadSteps-1))
-              FillData <- c()
-            } else {
-              # Here we take care of the situation in which we're asking for
-              # predictions further ahead than the model thinks there are
-              # failures left to discover.
-              
-              if(lower_pred_bound < ExpectedTotalFailures) {
-                if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < tol_local) {
-                  
-                  # The model's expected number of failures is a whole number
-                  invMVFinput <- c(lower_pred_bound:(floor(ExpectedTotalFailures)-1))
-                  
-                } else {
-                  # The model's expected number of failures is not a whole number
-                  
-                  invMVFinput <- c(lower_pred_bound:as.integer(ExpectedTotalFailures))
-                  
-                }
-              } else {
-                invMVFinput <- c()
-              }
-              
-              debugVar <- 1
-              ModelPredsNA <- rep(NA, PredAheadSteps-length(invMVFinput))
-              ModelPredsNaN <- rep(NaN, PredAheadSteps-length(invMVFinput))
-              ModelPredsInf <- rep(Inf, PredAheadSteps-length(invMVFinput))
-              ModelPredsZero <- rep(0, PredAheadSteps-length(invMVFinput))
-              ModelPredsOnes <- rep(1, PredAheadSteps-length(invMVFinput))
-            }
-          } else {
-            ExpectedTotalFailures <- 0
-            invMVFinput <- c((floor(local_estim[length(local_estim)])+1):(floor(local_estim[length(local_estim)])+PredAheadSteps))
-          } # Endif - are we working with a finite or infinite failures model?
-          
-          if(length(invMVFinput) > 0) {
-            pred_input_data <- data.frame("FN" = invMVFinput)
-            local_results[[model_CumTime]] <- c(in_data[["FT"]]+OffsetTime, get(model_MVF_inv)(model_params[[SuffixTag]], pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
-            local_results[[paste0(model_MVF, "_", SuffixTag)]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
-          } else {
-            local_results[[model_CumTime]] <- c(in_data[["FT"]]+OffsetTime, ModelPredsInf)
-            local_results[[paste0(model_MVF, "_", SuffixTag)]] <- c(local_estim+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), PredAheadSteps))
-          }
-          
-          pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime","_", SuffixTag))), select=get(paste0(modelID, "_CumTime", "_", SuffixTag)))-OffsetTime)
-          names(pred_input_data) <- c("FT")
-          
-          if(any(sapply(model_params[[SuffixTag]],is.finite) )== TRUE){
-            
-            local_results[[paste0(model_FI, "_", SuffixTag)]] <- try(c(get(model_FI)(model_params[[SuffixTag]], pred_input_data)[["Failure_Rate"]], ModelPredsZero),silent=TRUE)
-            
-            local_results[[model_IF]] <- try(c(get(model_MTTF)(model_params[[SuffixTag]], pred_input_data)[["MTTF"]], ModelPredsInf),silent=TRUE)
-            
-            local_results[[paste0(model_R_growth, "_", SuffixTag)]] <- try(c(get(model_R_growth)(model_params[[SuffixTag]], pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes), silent=TRUE)
-            
-          }
-          
-          pred_input_data <- NULL
-          
-        } else {
-          if (SuffixTag == "Low") {
-            UnplottableModelsLow <- c(UnplottableModelsLow, modelID)
-          } else if (SuffixTag == "MLE") {
-            UnplottableModelsMLE <- c(UnplottableModelsMLE, modelID)
-          } else if (SuffixTag == "High") {
-            UnplottableModelsHigh <- c(UnplottableModelsHigh, modelID)
-          }
         }
-      } # End for - make model predicdtions for MLEs and confidence bounds.
-    } # End for - we've applied all of the selected models to the entire dataset.
-    PlottableModels <- list("Low"=PlottableModelsLow, "MLE"=PlottableModelsMLE, "High"=PlottableModelsHigh)
-    UnplottableModels <- list("Low"=UnplottableModelsLow, "MLE"=UnplottableModelsMLE, "High"=UnplottableModelsHigh)
-    return(list("Results"=local_results, "SuccessfulModels"=PlottableModels, "FailedModels"=UnplottableModels))
+      } # End for - add to the lists of plottable models.
+      
+      
+      if(ParmEstimatesConverged[[SuffixTag]]) {
+        
+        # Here we compute the model estimates of MVF, IF, FI, and Reliability.
+        # First we create empty fill vectors into which we may need to add
+        # values for finite-failures models.  See below.
+        
+        ModelPredsNA <- c()
+        ModelPredsNaN <- c()
+        ModelPredsInf <- c()
+        ModelPredsZero <- c()
+        ModelPredsOnes <- c()
+        FillData <- rep(NA, PredAheadSteps)
+        
+        # Compute the MVF, IF, FI, Reliability, and Reliability Growth functions for the model.
+        
+        pred_input_data <- data.frame("IF" = in_data[["IF"]], "FT" = in_data[["FT"]])
+        
+        # First estimate MVF, then forecast.
+        
+        local_estim <- get(model_MVF)(model_params[["MLE"]], pred_input_data)[["Failure"]]
+        local_estim_Low <- get(model_MVF)(model_params[["Low"]], pred_input_data)[["Failure"]]
+        local_estim_High <- get(model_MVF)(model_params[["High"]], pred_input_data)[["Failure"]]
+        
+        # The next thing we do is determine whether this is a finite-failures
+        # model.  If it is, we may have to add some fill onto the end of the
+        # predictions vector we get, because we may have asked the model to
+        # make predictions for more future failures than the model thinks
+        # there actually are.
+        
+        if (get(paste(modelID,"Finite",sep="_"))) {
+          ExpectedTotalFailures <- model_params[["MLE"]][get(paste(modelID,"numfailsparm",sep="_"))[1]]
+          ExpectedTotalFailuresLow <- model_params[["Low"]][get(paste(modelID,"numfailsparm",sep="_"))[1]]
+          ExpectedTotalFailuresHigh <- model_params[["High"]][get(paste(modelID,"numfailsparm",sep="_"))[1]]
+          
+          if(abs(local_estim[length(local_estim)]-round(local_estim[length(local_estim)])) < tol_local) {
+            lower_pred_bound <- local_estim[length(local_estim)]+1
+          } else {
+            lower_pred_bound <- round(local_estim[length(local_estim)]+1)
+          }
+          
+          if(abs(local_estim_Low[length(local_estim_Low)]-round(local_estim_Low[length(local_estim_Low)])) < tol_local) {
+            lower_pred_bound_Low <- local_estim_Low[length(local_estim_Low)]+1
+          } else {
+            lower_pred_bound_Low <- round(local_estim_Low[length(local_estim_Low)]+1)
+          }
+          
+          if(abs(local_estim_High[length(local_estim_High)]-round(local_estim_High[length(local_estim_High)])) < tol_local) {
+            lower_pred_bound_High <- local_estim_High[length(local_estim_High)]+1
+          } else {
+            lower_pred_bound_High <- round(local_estim_High[length(local_estim_High)]+1)
+          }
+          
+          if(PredAheadSteps < ExpectedTotalFailures-(DataEnd-DataStart+1)) {
+            invMVFinput <- c(lower_pred_bound:(lower_pred_bound+PredAheadSteps-1))
+            FillData <- c()
+          } else {
+            
+            # Here we take care of the situation in which we're asking for
+            # predictions further ahead than the model thinks there are
+            # failures left to discover.
+            
+            if(lower_pred_bound < ExpectedTotalFailures) {
+              if(abs(ExpectedTotalFailures-round(ExpectedTotalFailures)) < tol_local) {
+                
+                # The model's expected number of failures is a whole number
+                invMVFinput <- c(lower_pred_bound:(floor(ExpectedTotalFailures)-1))
+              } else {
+                # The model's expected number of failures is not a whole number
+                invMVFinput <- c(lower_pred_bound:as.integer(ExpectedTotalFailures))
+              }
+            } else {
+              invMVFinput <- c()
+            }
+            
+            if(lower_pred_bound_Low < ExpectedTotalFailuresLow) {
+              if(abs(ExpectedTotalFailuresLow-round(ExpectedTotalFailuresLow)) < tol_local) {
+                
+                # The model's expected number of failures is a whole number
+                invMVFinputLow <- c(lower_pred_bound_Low:(floor(ExpectedTotalFailuresLow)-1))
+              } else {
+                # The model's expected number of failures is not a whole number
+                invMVFinputLow <- c(lower_pred_bound_Low:as.integer(ExpectedTotalFailuresLow))
+              }
+            } else {
+              invMVFinputLow <- c()
+            }
+            
+            if(lower_pred_bound_High < ExpectedTotalFailuresHigh) {
+              if(abs(ExpectedTotalFailuresHigh-round(ExpectedTotalFailuresHigh)) < tol_local) {
+                
+                # The model's expected number of failures is a whole number
+                invMVFinputHigh <- c(lower_pred_bound_High:(floor(ExpectedTotalFailuresHigh)-1))
+              } else {
+                # The model's expected number of failures is not a whole number
+                invMVFinputHigh <- c(lower_pred_bound_High:as.integer(ExpectedTotalFailuresHigh))
+              }
+            } else {
+              invMVFinputHigh <- c()
+            }
+            
+            ModelPredsNA <- rep(NA, PredAheadSteps-length(invMVFinput))
+            ModelPredsNaN <- rep(NaN, PredAheadSteps-length(invMVFinput))
+            ModelPredsInf <- rep(Inf, PredAheadSteps-length(invMVFinput))
+            ModelPredsZero <- rep(0, PredAheadSteps-length(invMVFinput))
+            ModelPredsOnes <- rep(1, PredAheadSteps-length(invMVFinput))
+            
+            ModelPredsNALow <- rep(NA, PredAheadSteps-length(invMVFinputLow))
+            ModelPredsNaNLow <- rep(NaN, PredAheadSteps-length(invMVFinputLow))
+            ModelPredsInfLow <- rep(Inf, PredAheadSteps-length(invMVFinputLow))
+            ModelPredsZeroLow <- rep(0, PredAheadSteps-length(invMVFinputLow))
+            ModelPredsOnesLow <- rep(1, PredAheadSteps-length(invMVFinputLow))
+            
+            ModelPredsNAHigh <- rep(NA, PredAheadSteps-length(invMVFinputHigh))
+            ModelPredsNaNHigh <- rep(NaN, PredAheadSteps-length(invMVFinputHigh))
+            ModelPredsInfHigh <- rep(Inf, PredAheadSteps-length(invMVFinputHigh))
+            ModelPredsZeroHigh <- rep(0, PredAheadSteps-length(invMVFinputHigh))
+            ModelPredsOnesHigh <- rep(1, PredAheadSteps-length(invMVFinputHigh))
+          }
+        } else {
+          ExpectedTotalFailures <- 0
+          ExpectedTotalFailuresLow <- 0
+          ExpectedTotalFailuresHigh <- 0
+          
+          invMVFinput <- c((floor(local_estim[length(local_estim)])+1):(floor(local_estim[length(local_estim)])+PredAheadSteps))
+          invMVFinputLow <- c((floor(local_estim_Low[length(local_estim_Low)])+1):(floor(local_estim_Low[length(local_estim_Low)])+PredAheadSteps))
+          invMVFinputHigh <- c((floor(local_estim_High[length(local_estim_High)])+1):(floor(local_estim_High[length(local_estim_High)])+PredAheadSteps))
+        } # Endif - are we working with a finite or infinite failures model?
+        
+        if(length(invMVFinput) > 0) {
+          pred_input_data <- data.frame("FN" = invMVFinput)
+          local_results[[paste0(model_CumTime, "_MLE")]] <- c(in_data[["FT"]]+OffsetTime, get(model_MVF_inv)(model_params[["MLE"]], pred_input_data)[["Time"]]+OffsetTime, ModelPredsInf)
+          local_results[[paste0(model_MVF, "_MLE")]] <- c(local_estim+OffsetFailure, invMVFinput+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), length(ModelPredsNA)))
+          
+          pred_input_data <- data.frame("FN" = invMVFinputLow)
+          local_results[[paste0(model_CumTime, "_Low")]] <- c(in_data[["FT"]]+OffsetTime, get(model_MVF_inv)(model_params[["Low"]], pred_input_data)[["Time"]]+OffsetTime, ModelPredsInfLow)
+          local_results[[paste0(model_MVF, "_Low")]] <- c(local_estim_Low+OffsetFailure, invMVFinputLow+OffsetFailure, rep(as.numeric(ExpectedTotalFailuresLow+OffsetFailure), length(ModelPredsNALow)))
+          
+          pred_input_data <- data.frame("FN" = invMVFinputHigh)
+          local_results[[paste0(model_CumTime, "_High")]] <- c(in_data[["FT"]]+OffsetTime, get(model_MVF_inv)(model_params[["High"]], pred_input_data)[["Time"]]+OffsetTime, ModelPredsInfHigh)
+          local_results[[paste0(model_MVF, "_High")]] <- c(local_estim_High+OffsetFailure, invMVFinputHigh+OffsetFailure, rep(as.numeric(ExpectedTotalFailuresHigh+OffsetFailure), length(ModelPredsNAHigh)))
+        } else {
+          local_results[[paste0(model_CumTime, "_MLE")]] <- c(in_data[["FT"]]+OffsetTime, ModelPredsInf)
+          local_results[[paste0(model_MVF, "_MLE")]] <- c(local_estim+OffsetFailure, rep(as.numeric(ExpectedTotalFailures+OffsetFailure), PredAheadSteps))
+          
+          local_results[[paste0(model_CumTime, "_Low")]] <- c(in_data[["FT"]]+OffsetTime, ModelPredsInfLow)
+          local_results[[paste0(model_MVF, "_Low")]] <- c(local_estim_Low+OffsetFailure, rep(as.numeric(ExpectedTotalFailuresLow+OffsetFailure), PredAheadSteps))
+          
+          local_results[[paste0(model_CumTime, "_High")]] <- c(in_data[["FT"]]+OffsetTime, ModelPredsInfHigh)
+          local_results[[paste0(model_MVF, "_High")]] <- c(local_estim_High+OffsetFailure, rep(as.numeric(ExpectedTotalFailuresHigh+OffsetFailure), PredAheadSteps))
+        }
+        
+        pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime","_MLE"))), select=get(paste0(modelID, "_CumTime", "_MLE")))-OffsetTime)
+        names(pred_input_data) <- c("FT")
+        if(any(sapply(model_params[["MLE"]],is.finite)) == TRUE){
+          local_results[[paste0(model_FI, "_MLE")]] <- try(c(get(model_FI)(model_params[["MLE"]], pred_input_data)[["Failure_Rate"]], ModelPredsZero),silent=TRUE)
+          local_results[[paste0(model_IF, "_MLE")]] <- try(c(get(model_MTTF)(model_params[["MLE"]], pred_input_data)[["MTTF"]], ModelPredsInf),silent=TRUE)
+          local_results[[paste0(model_R_growth, "_MLE")]] <- try(c(get(model_R_growth)(model_params[["MLE"]], pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes), silent=TRUE)
+        }
+        
+        pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime","_Low"))), select=get(paste0(modelID, "_CumTime", "_Low")))-OffsetTime)
+        names(pred_input_data) <- c("FT")
+        if(any(sapply(model_params[["Low"]],is.finite)) == TRUE){
+          local_results[[paste0(model_FI, "_Low")]] <- try(c(get(model_FI)(model_params[["Low"]], pred_input_data)[["Failure_Rate"]], ModelPredsZero),silent=TRUE)
+          local_results[[paste0(model_IF, "_Low")]] <- try(c(get(model_MTTF)(model_params[["Low"]], pred_input_data)[["MTTF"]], ModelPredsInf),silent=TRUE)
+          local_results[[paste0(model_R_growth, "_Low")]] <- try(c(get(model_R_growth)(model_params[["Low"]], pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes), silent=TRUE)
+        }
+        
+        pred_input_data <- data.frame("FT" = subset(local_results, !is.infinite(get(paste0(modelID, "_CumTime","_High"))), select=get(paste0(modelID, "_CumTime", "_High")))-OffsetTime)
+        names(pred_input_data) <- c("FT")
+        if(any(sapply(model_params[["High"]],is.finite)) == TRUE){
+          local_results[[paste0(model_FI, "_High")]] <- try(c(get(model_FI)(model_params[["High"]], pred_input_data)[["Failure_Rate"]], ModelPredsZero),silent=TRUE)
+          local_results[[paste0(model_IF, "_High")]] <- try(c(get(model_MTTF)(model_params[["High"]], pred_input_data)[["MTTF"]], ModelPredsInf),silent=TRUE)
+          local_results[[paste0(model_R_growth, "_High")]] <- try(c(get(model_R_growth)(model_params[["High"]], pred_input_data, RelMissionTime)[["Reliability_Growth"]], ModelPredsOnes), silent=TRUE)
+        }
+        
+        pred_input_data <- NULL
+        
+    } else {
+      for (SuffixTag in ConfIntSuffixes) {
+        if (SuffixTag == "Low") {
+          UnplottableModelsLow <- c(UnplottableModelsLow, modelID)
+        } else if (SuffixTag == "MLE") {
+          UnplottableModelsMLE <- c(UnplottableModelsMLE, modelID)
+        } else if (SuffixTag == "High") {
+          UnplottableModelsHigh <- c(UnplottableModelsHigh, modelID)
+        }
+      }
+    }
+  } # End for - we've applied all of the selected models to the entire dataset.
+  PlottableModels <- list("Low"=PlottableModelsLow, "MLE"=PlottableModelsMLE, "High"=PlottableModelsHigh)
+  UnplottableModels <- list("Low"=UnplottableModelsLow, "MLE"=UnplottableModelsMLE, "High"=UnplottableModelsHigh)
+  return(list("Results"=local_results, "SuccessfulModels"=PlottableModels, "FailedModels"=UnplottableModels))
 }
