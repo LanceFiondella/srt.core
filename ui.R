@@ -238,7 +238,24 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                               
                               mainPanel(
                                 tabsetPanel(
-                                  tabPanel("Model Result Plot", textOutput("ModelConfigError"), textOutput("UnsuccessfulModels"), plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
+                                  tabPanel("Model Result Plot", 
+                                           textOutput("ModelConfigError"),
+                                           textOutput("UnsuccessfulModels"),
+                                           fluidRow (
+                                             column(6,
+                                                    h6("Show most likely parameter values or confidence bounds.")
+                                             ),
+                                             column(1,
+                                                    checkboxInput("LowConfOnRsltPlot", label = "Low", value = FALSE)
+                                             ),
+                                             column(3,
+                                                    checkboxInput("MLEOnRsltPlot", label = "Most Likely", value = TRUE)
+                                             ),
+                                             column(2,
+                                                    checkboxInput("HighConfOnRsltPlot", label = "High", value = FALSE)
+                                             )
+                                           ),
+                                           plotOutput("ModelPlot", dblclick="MPdblclick", brush=brushOpts(id="MP_brush", resetOnNew=TRUE))), 
                                   tabPanel("Model Result Table",
                                            fluidRow (
                                              column(6,
