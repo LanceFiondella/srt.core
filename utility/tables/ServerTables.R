@@ -40,6 +40,9 @@
   # ------------------------------------------------------------------------------------------------------
     
       output$ModelResultTable <- DT::renderDataTable({
+        SuffixConfInt <- c("Low", "MLE", "High")
+        ModelResultType <- c("CumTime", "MVF", "IF", "FI", "R_growth")
+        
         MR_Table <- NULL
 
         # Check if modelResultChoice is None and return NULL if true
@@ -56,9 +59,8 @@
           if(length(input$AllModelsRun) > 0) {
             
             # User has selected at one model to display as a table.
-            
-            #MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
-            MR_Table <- model_result_table(ModelResults, length(ModelResults), input$AllModelsRun, input$modelRelMissionTime)
+            MR_Table <- model_result_table(ModelResults, length(ModeledData[[1]][,1]), input, input$AllModelsRun, input$modelRelMissionTime)
+            #MR_Table <- model_result_table(ModelResults, length(ModelResults), input, input$AllModelsRun, input$modelRelMissionTime)
           }
         }
         
@@ -68,20 +70,34 @@
         } else {
           # Set column names for the model results table
           
+          TableModelParms <- NULL
+          TableModelParms[["Low"]] <- input$LowConfOnTable
+          TableModelParms[["MLE"]] <- input$MLEOnTable
+          TableModelParms[["High"]] <- input$HighConfOnTable
+          
           MR_Table_Names <- c("Failure")
           for (modelName in input$AllModelsRun) {
-            for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
-              MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
-            }
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
-            #MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
-            names(MR_Table) <- MR_Table_Names
             
+            for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+              for (SuffixTag in SuffixConfInt) {
+                if (TableModelParms[[SuffixTag]]) {
+                  MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], SuffixTag, sep="_"))
+                }
+              }
+            }
+            
+            for (ResultType in ModelResultType) {
+              for (SuffixTag in SuffixConfInt) {
+                if (TableModelParms[[SuffixTag]]) {
+                  MR_Table_Names <- c(MR_Table_Names, paste(modelName, ResultType, SuffixTag, sep="_"))
+                }
+              }
+            }
           }
+          print(names(MR_Table))
+          print(MR_Table_Names)
+          names(MR_Table) <- MR_Table_Names
+          
         }
         #MR_Table = round_table(MR_Table, 6)
         MR_Table

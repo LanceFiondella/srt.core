@@ -263,7 +263,7 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
         }
       }
         
-      in_data <- raw_data$FRate
+      #in_data <- raw_data$FRate
       
       model_FI <- paste0(modelID, "_FI")
       model_MTTF <- paste0(modelID, "_MTTF")

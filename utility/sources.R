@@ -49,7 +49,7 @@ sys.source("utility/data/Data_Tools.R")
 
 # Tables utility functions
 source("utility/tables/DataAndTrendTables.R")
-source("utility/tables/ModelResultTable.R")
+debugSource("utility/tables/ModelResultTable.R")
 
 # Other utilities
 debugSource("utility/RunModels.R")      # Models run flow
