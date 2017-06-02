@@ -94,8 +94,6 @@
               }
             }
           }
-          print(names(MR_Table))
-          print(MR_Table_Names)
           names(MR_Table) <- MR_Table_Names
           
         }
