@@ -3,9 +3,9 @@
 plot_model_prediction_results <- function(modelchoicelist,plotType,data,C1,C2,C3,lifecycle) {
   #print(data)
   localResultsPlot <- ggplot()
-  n <- length(data$FT)
+  n <- length(data[[1]]$FT)
   #Change to T
-  tn <- 2*data$FT[n]
+  tn <- 2*data[[1]]$FT[n]
   t_opt <- 0
   predictionPlotdataframe <- data.frame("time"=double(),"cost"=double())
   names(predictionPlotdataframe) <- c("time","cost")
@@ -14,7 +14,8 @@ plot_model_prediction_results <- function(modelchoicelist,plotType,data,C1,C2,C3
   print("___printing model choice list")
   print(modelchoicelist)
   for (model in modelchoicelist){
-    model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+    #model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(get(paste("data"))[[get(paste(model,"input",sep="_"))]]),silent=TRUE)
+    model_params <- try(get(paste(model,get(paste(model,"methods",sep="_"))[1],"MLE",sep="_"))(data[[1]][[get(paste(model,"input",sep="_"))[1]]]),silent=TRUE)
     print(model_params)
     print(c(C1,C2,C3))
     print(paste(model,"OR_CC",sep="_"))
