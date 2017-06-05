@@ -108,6 +108,7 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
   # and parameter names in the table of model results.
   
   ConfIntSuffixes <- c("Low", "MLE", "High")
+  ModelResultType <- c("CumTime", "MVF", "IF", "FI", "R_growth", "Rel")
 
   # Set up local vectors to hold the names of models that completed
   # successfully and those that did not.  There are vectors to hold
@@ -135,33 +136,34 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
     model_lnL <- paste(modelID,dataType,"lnL",sep="_")
     ParmEstimatesConverged <- NULL
     
-      for(SuffixTag in ConfIntSuffixes){
+      #for(SuffixTag in ConfIntSuffixes){
         # First set up the columns in the results data frame that will hold parameters estimates and predictions.
         
         #Setup labels
-        model_CumTime <- paste0(modelID, "_CumTime", "_", SuffixTag) 
-        model_MVF  <- paste0(modelID, "_MVF", "_", SuffixTag)
-        model_IF <- paste0(modelID, "_IF", "_", SuffixTag)
-        model_FI <- paste0(modelID, "_FI", "_", SuffixTag)
-        model_Rel <- paste0(modelID, "_Rel", "_", SuffixTag)
-        model_MVF_inv <- paste0(modelID, "_", "MVF_inv",  "_", SuffixTag)
-        model_R_growth <- paste0(modelID, "_R_growth", "_", SuffixTag)
-        model_MTTF <- paste0(modelID, "_", "MTTF", "_", SuffixTag)
-        
+        #model_CumTime <- paste0(modelID, "_CumTime", "_", SuffixTag) 
+        #model_MVF  <- paste0(modelID, "_MVF", "_", SuffixTag)
+        #model_IF <- paste0(modelID, "_IF", "_", SuffixTag)
+        #model_FI <- paste0(modelID, "_FI", "_", SuffixTag)
+        #model_Rel <- paste0(modelID, "_Rel", "_", SuffixTag)
+        #model_MVF_inv <- paste0(modelID, "_", "MVF_inv",  "_", SuffixTag)
+        #model_R_growth <- paste0(modelID, "_R_growth", "_", SuffixTag)
+        #model_MTTF <- paste0(modelID, "_", "MTTF", "_", SuffixTag)
+      #} # End for - for MLE, low confidence, and high confidence bounds.
+      
+      for (SuffixTag in ConfIntSuffixes) {
         for (paramNum in 1:length(get(model_params_label))) {
           #model_parm_num <- paste0(modelID, "_parm_", paramNum)
           model_parm_num <- paste0(modelID, "_", get(model_params_label)[paramNum], "_", SuffixTag)
           local_results[[model_parm_num]] <- naFill
         }
-        local_results[[model_CumTime]] <- NaNFill
-        local_results[[model_MVF]] <- NaNFill
-        local_results[[model_IF]] <- NaNFill
-        local_results[[model_FI]] <- NaNFill
-        local_results[[model_Rel]] <- NaNFill
-        
         ParmEstimatesConverged[[SuffixTag]] <- TRUE
-      } # End for - for MLE, low confidence, and high confidence bounds.
-      
+      }
+    
+      for (ResultType in ModelResultType) {
+        for (SuffixTag in ConfIntSuffixes) {
+          local_results[[paste(modelID, ResultType, SuffixTag, sep="_")]] <- naFill
+        }
+      }
       for (failure_num in c(localEstIntvlEnd:length(in_data[[1]]))) {
         model_methods <- paste(modelID,"methods",sep="_")
         sel_method <- NA
@@ -263,7 +265,7 @@ process_models <- function(raw_data, in_data, DataRange, ParmInitIntvl, OffsetTi
         }
       }
         
-      in_data <- raw_data$FRate
+      #in_data <- raw_data$FRate
       
       model_FI <- paste0(modelID, "_FI")
       model_MTTF <- paste0(modelID, "_MTTF")

@@ -40,6 +40,9 @@
   # ------------------------------------------------------------------------------------------------------
     
       output$ModelResultTable <- DT::renderDataTable({
+        SuffixConfInt <- c("Low", "MLE", "High")
+        ModelResultType <- c("CumTime", "MVF", "IF", "FI", "R_growth")
+        
         MR_Table <- NULL
 
         # Check if modelResultChoice is None and return NULL if true
@@ -56,9 +59,8 @@
           if(length(input$AllModelsRun) > 0) {
             
             # User has selected at one model to display as a table.
-            
-            #MR_Table <- model_result_table(ModelResults, length(ModeledData[,1]), input$AllModelsRun, input$modelRelMissionTime)
-            MR_Table <- model_result_table(ModelResults, length(ModelResults), input$AllModelsRun, input$modelRelMissionTime)
+            MR_Table <- model_result_table(ModelResults, length(ModeledData[[1]][,1]), input, input$AllModelsRun, input$modelRelMissionTime)
+            #MR_Table <- model_result_table(ModelResults, length(ModelResults), input, input$AllModelsRun, input$modelRelMissionTime)
           }
         }
         
@@ -68,20 +70,32 @@
         } else {
           # Set column names for the model results table
           
+          TableModelParms <- NULL
+          TableModelParms[["Low"]] <- input$LowConfOnTable
+          TableModelParms[["MLE"]] <- input$MLEOnTable
+          TableModelParms[["High"]] <- input$HighConfOnTable
+          
           MR_Table_Names <- c("Failure")
           for (modelName in input$AllModelsRun) {
-            for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
-              MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], sep="_"))
-            }
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Time"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Cum_Fails"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_IF_Times"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Fail_Intensity"))
-            #MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Reliability"))
-            MR_Table_Names <- c(MR_Table_Names, paste0(modelName, "_Rel_Growth"))
-            names(MR_Table) <- MR_Table_Names
             
+            for (modelParmNum in 1:length(get(paste0(modelName, "_params")))) {
+              for (SuffixTag in SuffixConfInt) {
+                if (TableModelParms[[SuffixTag]]) {
+                  MR_Table_Names <- c(MR_Table_Names, paste(modelName, get(paste0(modelName, "_params"))[modelParmNum], SuffixTag, sep="_"))
+                }
+              }
+            }
+            
+            for (ResultType in ModelResultType) {
+              for (SuffixTag in SuffixConfInt) {
+                if (TableModelParms[[SuffixTag]]) {
+                  MR_Table_Names <- c(MR_Table_Names, paste(modelName, ResultType, SuffixTag, sep="_"))
+                }
+              }
+            }
           }
+          names(MR_Table) <- MR_Table_Names
+          
         }
         #MR_Table = round_table(MR_Table, 6)
         MR_Table
@@ -99,18 +113,40 @@
     if(dataType(names(data))=="FR"){
       print("Constructing table 3")
       last_row <- length(ModelResults[,1]) - PredAheadSteps
-      model_params <- as.data.frame(matrix(0, ncol=length(ModelResults[1,]), nrow = 1))
-      colnames(model_params) <- colnames(ModelResults)
+      #model_params <- as.data.frame(matrix(0, ncol=length(ModelResults[1,]), nrow = 1))
+      #colnames(model_params) <- colnames(ModelResults)
+      model_params_label <- paste(model,"params",sep="_")
+      model_params <- as.data.frame(matrix(0, ncol=length(get(model_params_label)), nrow = 1))
       
       #Generating model_params from ModelResults. If the column is a list, it is converted to numeric
-      for(i in 1:length(model_params[1,])){
-        if (typeof(model_params[1,i]) == "list"){
-            model_params[1, i] <- as.numeric(model_params[1,i][[1]])
-        }
-        else{
-            model_params[1, i] <- ModelResults[last_row, i]
-        }
+      #for(i in 1:length(model_params[1,])){
+      #  if (typeof(model_params[1,i]) == "list"){
+      #      model_params[1, i] <- as.numeric(model_params[1,i][[1]])
+      #  }
+      #  else{
+      #      model_params[1, i] <- ModelResults[last_row, i]
+      #  }
+      #}
+      
+      parmNames <- c()
+      for (paramNum in 1:length(get(model_params_label))) {
+        model_parm_num <- paste0(model, "_", get(model_params_label)[paramNum], "_MLE")
+        parmNames <- c(parmNames, model_parm_num)
+        model_params[1,paramNum] <- ModelResults[[model_parm_num]][last_row]
       }
+      colnames(model_params) <- parmNames
+      
+      # Debug code
+      #print("Data type")
+      #print(dataType(names(data)))
+      #print("ModelResults last row")
+      #print(ModelResults[last_row,])
+      #print("Model parameters")
+      #print(model_params)
+      #print("Length of model_params")
+      #print(length(ModelResults[1,]))
+      #print("Number of steps ahead to predict")
+      #print(PredAheadSteps)
       
       
       if(typeof(model_params)!="character"){
