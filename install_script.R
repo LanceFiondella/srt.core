@@ -37,5 +37,6 @@ if(!require(knitr)) {install.packages("knitr", repos="http://cran.rstudio.com/")
 if(!require(gdata)) {install.packages("gdata", repos="http://cran.rstudio.com/");library(gdata)} #gdata is used for manipulating the data out of an excel sheet
 if(!require(ggplot2)) {install.packages("ggplot2", repos="http://cran.rstudio.com/");library(ggplot2)} #ggplot2 is used for crerating various plots
 if(!require(rootSolve)) {install.packages("rootSolve", repos="http://cran.rstudio.com/");library(rootSolve)} #rootSolve is used for finding a root of an equation
+if(!require(numDeriv)) {install.packages("numDeriv", repos="http://cran.rstudio.com/");library(numDeriv)} #numDeriv is used to build the Hessian for computing confidence intervals 
 if(!require(emdbook)) {install.packages("emdbook", repos="http://cran.rstudio.com/", dep = TRUE);library(emdbook)}
 
