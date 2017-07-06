@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-
+source('tests/tests.R')
 source("tests/needed.R")
 source('tests/generic_tests.R')
 source('tests/test_functions.R')
@@ -19,7 +19,8 @@ for(directory in model_directories){
 		cat(paste("|sourcing --> ",current_directory,"/Model_specifications.R","\n",sep=""))
 		source(paste(current_directory,"/","Model_specifications.R",sep=""))
 		current_model_input <<- paste(directory,"_input",sep="")
-		modelspecifications_test(directory,file)
+		model_specifications_test(directory, file)
+		
 	}
 	else{
 		cat("Model Specification must be specified in 'Model_specifications.R' file\n")

@@ -1,5 +1,6 @@
 # DSS model
-DSS_input <- c("FT", "FC")
+#DSS_input <- c("FT", "FC")
+DSS_input <- TRUE
 DSS_methods <- c("BM")
 DSS_params <- c("aMLE","bMLE")
 DSS_type <- c("")
