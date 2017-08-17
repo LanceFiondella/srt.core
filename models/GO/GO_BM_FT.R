@@ -72,7 +72,7 @@ GO_BM_FT_MLE <- function(x){
     sol
 }
 
-GO_FT_lnL <- function(params, x){
+GO_lnL <- function(x, params){
   n <- length(x)
   tn <- x[n]
   firstSumTerm <- 0
