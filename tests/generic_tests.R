@@ -1,39 +1,23 @@
-model_specifications_test <- function(directory, model_file){
-  test_results <- data.frame()
-  #names(test_results) <- c("Test Name", "Passed", "Reason")
-
-  #Check model input
-  curr_model_finite <- get(paste(directory,"_Finite",sep=""))
-  test_results <- rbind(test_results, test_finite(curr_model_finite))
-  
+modelspecifications_test <- function(directory,model_file){
+  # TODO:
+  #  @model_file -> ?
   curr_model_input <- get(paste(directory,"_input",sep=""))
-  test_results <- rbind(test_results, test_input(curr_model_input))
+  needed_input(curr_model_input)
   
   curr_model_methods <- get(paste(directory,"_methods",sep=""))
-  test_results <- rbind(test_results, test_methods(curr_model_methods))
+  needed_methods(curr_model_methods)
   
   curr_model_fullname <- get(paste(directory,"_fullname",sep=""))
-  test_results <- rbind(test_results, test_fullname(curr_model_fullname))
-    
-  curr_model_plotcolor <- get(paste(directory,"_plotcolor",sep=""))
-  test_results <- rbind(test_results, test_plotcolor(curr_model_plotcolor))
+  needed_fullname(curr_model_fullname)
   
-  #print(all(isTRUE(test_results[,"Result"])))
-  if (FALSE %in% test_results[,"Passed"]){
-    cat('Model Specifications Test : FAILED\n')
-    cat('The results of the test are shown below : \n')
-    print(test_results)
-    quit("no",status = -1)
-  }
-  else{
-    cat('Model Specifications Test : PASSED\n')
-    
-  }
-
-  #if(!ret) quit("no",status = -1)
+  curr_model_plotcolor <- get(paste(directory,"_plotcolor",sep=""))
+  needed_plotcolor(curr_model_plotcolor)
+  
+  curr_model_Finite <- get(paste(directory,"_Finite",sep=""))
+  needed_Finite(curr_model_Finite)
+  cat("|TEST     --> |PASSED \n")
+   
 }
-
-
 
 model_functions_test <- function(directory,model_file){
    # TODO:
