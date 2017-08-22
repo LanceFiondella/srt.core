@@ -145,6 +145,7 @@ get_cost_at_time <- function(model, params, time, t_lifecycle, c1,c2,c3){
 }
 
 get_rel_at_opt_release_time <- function(model, params, opt_release_time, delta){
+  print(delta)
     return(get(paste(model,"R_delta",sep="_"))(params,opt_release_time,delta))
 }
 

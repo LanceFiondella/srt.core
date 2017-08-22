@@ -158,6 +158,8 @@ GO_MVF_cont <- function(params,t){
 }
 
 GO_R_delta <- function(params,cur_time,delta){
+  #print(paste0("GO MODEL ",cur_time, " ", delta ))
+  
   return(exp(-(GO_MVF_cont(params,(cur_time+delta)) -GO_MVF_cont(params,cur_time))))
 }
 

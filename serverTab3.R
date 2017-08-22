@@ -54,7 +54,8 @@
         opt_release_time <- get_optimal_release_time_CC(model, model_params, input$C0, input$C1, input$C2)
         cost_at_rel_time <- get_cost_at_time(model,model_params, rel_time, input$T, input$C0, input$C1, input$C2)
         #cost_at_rel_time <- 0
-        reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time, input$modelRelMissionTime)
+
+        reliability_at_opt_release_time <- get_rel_at_opt_release_time(model, model_params, opt_release_time+data$FRate$FT[last_row], input$modelRelMissionTime2)
         cost_at_opt_release_time <- get_cost_at_time(model,model_params, opt_release_time, input$T, input$C0, input$C1, input$C2)
         
 
@@ -86,10 +87,12 @@
             tab3_table1[count,5]<<- time_fails[i]
             
             if(i==1) {
-              tab3_table1[count,6]<<- opt_release_time
-              tab3_table1[count,7]<<- cost_at_rel_time
+              tab3_table1[count,6]<<- cost_at_opt_release_time
+              tab3_table1[count,7]<<- opt_release_time
               tab3_table1[count,8]<<- reliability_at_opt_release_time
-              tab3_table1[count,9]<<- cost_at_opt_release_time
+              tab3_table1[count,9]<<- cost_at_rel_time
+              
+              
             }
 
             #  Create Row of NA only once logic
@@ -206,10 +209,10 @@
                                 paste("Expected # of failures for next", as.character(input$modelDetailPredTime) ,"time units"), 
                                 "Nth failure", 
                                 paste("Expected times to next", as.character(input$modelDetailPredFailures),"failures"),
-                                "Optimal release time",
-                                "Cost to achieve tR*",
-                                "Reliability at Optimal Release Time",
-                                "Cost to achieve tC*")
+                                paste0("Cost to achieve R = ",input$modelTargetReliability, " for mission of length ", input$modelRelMissionTime2),
+                                "Optimal release time (t*)",
+                                "Reliability at Optimal Release Time (t*)",
+                                paste0("Cost to achieve t* for software lifecycle of ", input$T))
         
         tab3_table1 <<- round_table(tab3_table1, 6) #Rounding values in the table to 6 decimal places
 
