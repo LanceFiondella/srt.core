@@ -3,6 +3,7 @@ library(DT)
 library(gdata) 
 library(ggplot2)
 library(knitr)
+library(Rsrat)
 
 source("utility/sources.R")
 # Contributors guide step - 1
