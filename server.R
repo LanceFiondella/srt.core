@@ -11,7 +11,13 @@ library(knitr)
 
 
 shinyServer(function(input, output, clientData, session) {#reactive shiny function
-  
+    dictionary <<- read.csv("dictionary.csv")
+    rownames(dictionary) <- dictionary$variable
+translate <- function(text){
+    dictionary[text, input$language]
+}
+
+
   fileType <- NA
   openFileDatapath <- ""
   data_set_global <- ""
@@ -207,5 +213,6 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
         tempResultsList <- list()
       }
     })
+
 
 })

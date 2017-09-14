@@ -3,6 +3,106 @@
 ###############################################################################
 #Tab1 Data Section
 ###############################################################################
+output$languageChoice <- renderUI({
+fluidRow(
+    h4("Select Language"),
+    radioButtons(inputId = "language", label = "",
+                choices = c("English" = "en", "Japanese" = "jp"),
+    selected = "en")
+
+)
+
+})
+
+##########
+    #UI Elements
+    ##########
+    
+output$tab1UI <- renderUI({
+                     
+fluidRow(
+    h4(translate("select")),
+        column(8, 
+        h5(translate("upload")),
+        fileInput("file", label = h5("Select a failure data file"),
+                            accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx'))),
+    
+        column(10,
+            uiOutput("sheetChoice")                                                   
+        ),
+    
+    
+    
+        column(11, 
+            h5("Choose a view of the failure data."),
+            
+            selectInput("dataPlotChoice", label = "", 
+                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
+                                        "Failure Intensity" = "FI"), selected = "CF")
+        ),
+    
+    
+    
+        column(11, 
+            radioButtons("DataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                            choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                            inline=TRUE,
+                            selected = "points_and_lines")
+        ),
+    
+        column(10,
+            radioButtons("PlotDataOrTrend", label = h6("Plot Data or Trend Test?"),
+                            choices = list("Data" = 1, "Trend test" = 2), inline = TRUE,
+                            selected = 1)
+        ),
+    
+    
+    
+        column(11, 
+            h5("Does data show reliability growth?"),
+            selectInput("trendPlotChoice", label = "", 
+                        choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
+        ),
+        column(11,
+            conditionalPanel(
+                condition = "input.trendPlotChoice == 'LP'",
+                numericInput("confidenceLP", 
+                            label = h6("Specify the confidence level for the Laplace Test"),
+                            min = 0, max=1, value = 0.9, step=0.01)
+            )
+        ),
+        column(8, textOutput("trendMessage")),
+    
+    
+    
+        column(12, 
+            radioButtons("saveDataFileType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
+                            choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                            selected = "JPG")
+        ),
+        column(8, downloadButton('saveDataOrTrend', 'Save Display')),
+    
+    
+        column(8,
+            uiOutput("message")
+        ),
+    
+    
+    
+        br(),
+        column(9, h5("Subset the failure data by data range")),
+        #     column(9,
+        #            sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
+        #                        min = 1, max = 5, value = c(1, 5), step = 1)),
+        column(9,
+            sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
+                        min = 1, max = 5, value = c(1, 5), step = 1))
+    )
+    
+    })
+
+
+
 output$sheetChoice <- renderUI({ 
       inFile <- input$file
       fileType <- getFileType(inFile)
@@ -264,3 +364,6 @@ getFileType <- function(inFile){
         }
       }
     )
+    
+    
+    

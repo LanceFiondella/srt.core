@@ -1,0 +1,4 @@
+variable, en, jp
+lang_sel, Select Language, ルビ ンツア
+select, "Select, Analyze, and Subset Failure Data", "ウェブア ふべからず セシビリテ"
+upload, "Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)", "どら トモデル プロファイル とセマンティック めよう"
