@@ -1,4 +1,106 @@
 variable, en, jp
-lang_sel, Select Language, ルビ ンツア
-select, "Select, Analyze, and Subset Failure Data", "ウェブア ふべからず セシビリテ"
-upload, "Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)", "どら トモデル プロファイル とセマンティック めよう"
+str_title, "Software Reliability Assessment in R", ""
+str_tab1, "Select, Analyze, and Filter Data
+str_lang_sel, Select Language, ルビ ンツア
+str_select, "Select, Analyze, and Subset Failure Data", "ウェブア ふべからず セシビリテ"
+str_upload, "Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)", "どら トモデル プロファイル とセマンティック めよう"
+str_failure, “Select a failure data file”, “”
+x_browse, “Browse…”, “”
+x_nofile, “No file”, “”
+x_upload, "Upload complete", ""
+str_sheet, "Choose Sheet", ""
+x_selectbox, "", ""
+str_please, “Please upload an excel or cvs file”, “”
+str_choose, “Choose a view of the failure data”, “”
+x_selectbox2, “”, “”
+str_draw, “Draw the plot with data points and lines, points only, or lines only”, “”
+x_radio, “”, “”
+str_trend, “Plot Data or Trend Test?”, “”
+x_radio2, “”, “”
+str_growth, “Does data show reliability growth?”, “”
+x_selectbox3, “”, “”
+str_conflevel, “Specify the confidence level for the Laplace Test”, “”
+x_numberbox, “”, “”
+str_filetype, “Choose the type of file to save plots. Tables are saved as CSV files.”, “”
+x_radio3, “”, “”
+x_savedisplay, “”, “”
+str_subset, “Subset the failure data by data range”, “”
+str_specify, “Specify the data range to which models will be applied.”, “”
+x_slider, “”, “”
+str_plottab, "Plot", ""
+x_graph, "", ""
+str_trendtab, "Data and Trend Test Table", ""
+x_trendtable, "", ""
+str_tab2, "Set Up and Apply Models", ""
+str_configure, "Configure and Apply Models", ""
+str_specfail, "Specify the number of failures for which the models will make predictions", ""
+str_howmany, "Specify for how many failures into the future the models will predict", ""
+x_numberbox, "", ""
+str_choosemodels, "Choose one or more models to run, or exclude one or more models", ""
+x_selectbox4, "", ""
+x_runmodels, "Run Selected Models", ""
+str_display, "Display Model Results", ""
+str_chooseresult, "Choose one or more sets of model results to display.", ""
+x_selectbox5, "", ""
+str_chooseplot, "Choose the type of plot for model results.", ""
+str_plottype, "Choose a plot type", ""
+x_selectbox6, "", ""
+str_duration, "Enter the duration for which the model results curves should extend beyond the last prediction point.", ""
+x_numberbox, "", ""
+chk_showdata, "Show data on plot", ""
+chk_showend, "Show end of data on plot", ""
+str_draw, “Draw the plot with data points and lines, points only, or lines only”, “”
+x_radio, “”, “”
+str_filetype, “Choose the type of file to save plots. Tables are saved as CSV files.”, “”
+x_radio3, “”, “”
+x_savedisplay, “”, “”
+str_rplottab, "Model Result Plot", ""
+str_rtabletab, "Model Result Table", ""
+x_graph, "", ""
+x_rtable, "", ""
+str_tab3, "Query Model Results", ""
+str_predict, "Make Detailed Predictions From Model Results", ""
+str_chooseresult, "Choose one or more sets of model results to display.", ""
+x_selectbox5, "", ""
+str_time, "How much time will be required to observe the next N failures", ""
+str_numfail, "Specify the number of failures that are to be observed.", ""
+x_numberbox, "", ""
+str_obsfail, "How many failures will be observed over the next N time units?", ""
+str_addtime, "Specify the amount of additional time for which the sopftware will run.", ""
+x_numberbox, "", ""
+str_testtime, "How much more test time to achieve a specified reliability?", ""
+str_reliability, "Specify the desired reliability.", ""
+x_numberbox, "", ""
+str_interval, "Specify the length of the interval for which reliability will be computed", ""
+x_numberbox, "", ""
+str_optimal, "Optimal Release Time Input", ""
+str_lifecycle, "Software lifecycle", ""
+x_numberbox, "", ""
+str_cost, "Expected cost of removing fault during testing.", ""
+x_numberbox, "", ""
+str_softtest, "Expected cost per unit time of software testing.", ""
+x_numberbox, "", ""
+str_draw, “Draw the plot with data points and lines, points only, or lines only”, “”
+x_radio, “”, “”
+str_filetype, “Choose the type of file to save plots. Tables are saved as CSV files.”, “”
+x_radio3, “”, “”
+x_savedisplay, “”, “”
+str_detailed, "Save detailed model results as PDF or CSV?", ""
+x_radio4, "", ""
+x_savemodel, "", ""
+x_predicttab, "Prediction table", ""
+x_predicttable, "", ""
+str_resultplottab, "Model Prediction Result Plot", ""
+x_resultplot, "", ""
+str_tab4, "Evaluate Models", ""
+str_fitness, "Evaluate Model goodness of fit and Applicability", ""
+str_chooseeval, "Choose one or more models for which the results will be evaluated.", ""
+str_sets, "Choose one or more sets of model results", ""
+x_selectbox7, "", ""
+str_percent, "Specify the Percent Data for PSSE", ""
+x_numberbox, "", ""
+str_eval, "Save model evaluations as PDF or CSV?", ""
+x_radio4, "", ""
+x_saveeval, "Save Model Evaluations", ""
+str_tabletab, "Table", ""
+x_evaluatetable, "", ""
