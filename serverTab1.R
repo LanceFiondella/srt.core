@@ -5,7 +5,7 @@
 ###############################################################################
 output$languageChoice <- renderUI({
 fluidRow(
-    h4("Select Language"),
+    h4(" Select Language"),
     radioButtons(inputId = "language", label = "",
                 choices = c("English" = "en", "Japanese" = "jp"),
     selected = "en")
@@ -21,10 +21,10 @@ fluidRow(
 output$tab1UI <- renderUI({
                      
 fluidRow(
-    h4(translate("select")),
+    h4(translate("str_select")),
         column(8, 
-        h5(translate("upload")),
-        fileInput("file", label = h5("Select a failure data file"),
+        h5(translate("str_upload")),
+        fileInput("file", label = h5(translate("str_failure")),
                             accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx'))),
     
         column(10,
@@ -34,7 +34,7 @@ fluidRow(
     
     
         column(11, 
-            h5("Choose a view of the failure data."),
+            h5(translate("str_choose")),
             
             selectInput("dataPlotChoice", label = "", 
                         choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
@@ -44,14 +44,14 @@ fluidRow(
     
     
         column(11, 
-            radioButtons("DataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+            radioButtons("DataPlotType", label = h6(translate("str_draw")),
                             choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
                             inline=TRUE,
                             selected = "points_and_lines")
         ),
     
         column(10,
-            radioButtons("PlotDataOrTrend", label = h6("Plot Data or Trend Test?"),
+            radioButtons("PlotDataOrTrend", label = h6(translate("str_trend")),
                             choices = list("Data" = 1, "Trend test" = 2), inline = TRUE,
                             selected = 1)
         ),
@@ -59,7 +59,7 @@ fluidRow(
     
     
         column(11, 
-            h5("Does data show reliability growth?"),
+            h5(translate("str_growth")),
             selectInput("trendPlotChoice", label = "", 
                         choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
         ),
@@ -67,7 +67,7 @@ fluidRow(
             conditionalPanel(
                 condition = "input.trendPlotChoice == 'LP'",
                 numericInput("confidenceLP", 
-                            label = h6("Specify the confidence level for the Laplace Test"),
+                            label = h6(translate("str_conflevel")),
                             min = 0, max=1, value = 0.9, step=0.01)
             )
         ),
@@ -76,7 +76,7 @@ fluidRow(
     
     
         column(12, 
-            radioButtons("saveDataFileType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
+            radioButtons("saveDataFileType", label = h6(translate("str_filetype")),
                             choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                             selected = "JPG")
         ),
@@ -90,12 +90,12 @@ fluidRow(
     
     
         br(),
-        column(9, h5("Subset the failure data by data range")),
+        column(9, h5(translate("str_subset"))),
         #     column(9,
         #            sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
         #                        min = 1, max = 5, value = c(1, 5), step = 1)),
         column(9,
-            sliderInput("modelDataRange", h6("Specify the data range to which models will be applied."),
+            sliderInput("modelDataRange", h6(translate("str_specify")),
                         min = 1, max = 5, value = c(1, 5), step = 1))
     )
     
@@ -107,11 +107,11 @@ output$sheetChoice <- renderUI({
       inFile <- input$file
       fileType <- getFileType(inFile)
       if(is.na(fileType)){
-        return("Please upload an excel or csv file")
+        return("Please upload an excel or cvs file")
       } else 
       if(fileType == "xls"){
         sheets_present <- sheetNames(xls=inFile$datapath)
-        selectInput("dataSheetChoice","Choose Sheet", c(NULL,sheets_present))
+        selectInput("dataSheetChoice",translate("str_sheet"), c(NULL,sheets_present))
       }
       else {
         return("This file does not have multiple sheets")
