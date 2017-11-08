@@ -80,7 +80,7 @@ fluidRow(
                             choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
                             selected = "JPG")
         ),
-        column(8, downloadButton('saveDataOrTrend', 'Save Display')),
+        column(8, downloadButton('saveDataOrTrend', translate("b_savedisplay"))),
     
     
         column(8,

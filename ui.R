@@ -25,121 +25,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    tabPanel("Set Up and Apply Models",
                             
                             sidebarLayout(
-                              sidebarPanel(h4("Configure and Apply Models"),
-                                           h5("Specify the number of failures for which the models will make predictions"),
-                                           
-                                           fluidRow(
-                                             # column(12,
-                                             #       uiOutput("ParameterInterval")
-                                             # ),
-                                             
-                                             column(12,
-                                                    numericInput("modelNumPredSteps", 
-                                                                 label = h6("Specify for how many failures into the future the models will predict"),
-                                                                 min = 1, value = 1)
-                                             ),
-
-                                             column(12, 
-                                                    selectInput(
-                                                      "modelsToRun", label = h6("Choose one or more models to run, or exclude one or more models."), 
-                                                      choices=list("Open a data set to run models"="None"),
-                                                      multiple=TRUE, selected="None"
-                                                    )
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12,
-                                                    actionButton("runModels", label = "Run Selected Models")
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             br(),
-                                             h4("Display Model Results")
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    #<<<<<<< HEAD
-                                                    selectInput(
-                                                      "modelResultChoice", label = h6("Choose one or more sets of model results to display."), 
-                                                      choices=list("No model results to display"="None"),
-                                                      multiple=TRUE, selected="None"
-                                                    )
-                                                    #=======
-                                                    #           br(),
-                                                    #           h5("Choose the model results to display."),
-                                                    #           selectInput("modelResultChoice", label = h6("Choose one or more sets of model results"), 
-                                                    #                       choices= models,
-                                                    #                       multiple=TRUE
-                                                                
-                                                    #           )
-                                                    ##>>>>>>> lfiondella/master
-                                             )
-                                           ),
-                                           
-                                           fluidRow(
-                                             #column(12, 
-                                             #       h5("Choose the type of plot for model results."),
-                                             #      selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
-                                             #                   choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
-                                             #                                 "Failure Intensity" = "FI", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
-                                             #),
-                                             column(12, 
-                                                    h5("Choose the type of plot for model results."),
-                                                    selectInput("modelPlotChoice", label = h6("Choose a plot type"), 
-                                                                choices = list("Times Between Failures" = "MTTF", "Cumulative Failures" = "MVF",
-                                                                               "Failure Intensity" = "FI", "Reliability Growth"="R_growth"), selected = "MVF")
-                                             ),
-                                             column(12,
-                                                    conditionalPanel(
-                                                      condition = "input.modelPlotChoice == 'R_growth'",
-                                                      numericInput("modelRelMissionTime", 
-                                                                   label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                   min = 0, value = 1)
-#                                                      numericInput("modelTargetReliability",
-#                                                                   label=h6("Specify the reliability to be achieved"),
-#                                                                   min=0, max=1, step=0.01, value=0.9) 
-                                                      
-                                                    )
-                                             ),
-                                             column(12,
-                                                    numericInput("modelCurveAdditionalTime",
-                                                                 label=h6("Enter the duration for which the model results curves should extend beyond the last prediction point."),
-                                                                 min=0, value=100, step=1000)
-                                                    )
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    checkboxInput("checkboxDataOnPlot", label = "Show data on plot", value = TRUE)
-                                             ),
-                                             column(12, 
-                                                    checkboxInput("checkboxDataEndOnPlot", label = "Show end of data on plot", value = TRUE)
-                                             )
-                                           ),
-                                           
-                                           # ModelPlotType was used .. may thats more right but changed it to rapid functionality programming
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("ModelDataPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
-                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
-                                                                 inline=TRUE,
-                                                                 selected = "points_and_lines")
-                                             )
-                                             
-                                           ),
-                                           
-                                           fluidRow(
-                                             column(12, 
-                                                    radioButtons("saveModelResultsType", label = h6("Choose the type of file to save plots.  Tables are saved as CSV files."),
-                                                                 choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
-                                                                 selected = "JPG")
-                                             ),
-                                             column(8, downloadButton(outputId = "saveModelResults", label = "Save"))
-                                           ),width=4
-                                           
+                              sidebarPanel(
+                               uiOutput("tab2UI")
+                               
                               ),
                               
                               mainPanel(
@@ -158,101 +46,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    
                    tabPanel("Query Model Results",
                             sidebarLayout(
-                              sidebarPanel(h4("Make Detailed Predictions From Model Results"),
-                                           fluidRow(
-                                             column(12,
-                                                    selectInput(
-                                                      "modelDetailChoice", label = h6("Choose one or more sets of model results to display."), 
-                                                      choices=list("No model results to display"="None"),
-                                                      multiple=TRUE, selected="None"
-                                                    )
-                                                    #           br(),
-                                                    #           h5("Choose one or more models for which detailed predictions will be made."),
-                                                    #           selectInput("modelDetailChoice", label = h6("Choose one or more sets of model results"), 
-                                                    #                       choices=models,
-                                                    #                       multiple=TRUE,
-                                                    #                       )
-                                             ),
-                                             
-                                             column(12, 
-                                                    h5("How much time will be required to observe the next N failures")
-                                             ),
-                                             
-                                             column(12,
-                                                    numericInput("modelDetailPredFailures", 
-                                                                 label = h6("Specify the number of failures that are to be observed."),
-                                                                 min = 1, value = 1)
-                                             ),
-                                             
-                                             column(12, 
-                                                    h5("How many failures will be observed over the next N time units?")
-                                             ),
-                                             
-                                             column(12,
-                                                    numericInput("modelDetailPredTime", 
-                                                                 label = h6("Specify the amount of additional time for which the software will run."),
-                                                                 min = 1, value = 1)
-                                             ),
-                                             
-                                             column(12, 
-                                                    h5("How much more test time to achieve a specified reliability?")
-                                             ),
-                                             
-                                             column(12,
-                                                    numericInput("modelTargetReliability", 
-                                                                 label = h6("Specify the desired reliability."),
-                                                                 min = 0, max = 1, value = 0.9, step = 0.01)
-                                             ),
-                                             
-                                             column(12,
-                                                    numericInput("modelRelMissionTime2", 
-                                                                 label = h6("Specify the length of the interval for which reliability will be computed"),
-                                                                 min = 0, value = 1)
-                                             ),
-                                             column(12,
-                                                    h5("Optimal Release Time Input")
-                                                    
-                                             ),
-                                             column(12,
-                                                    numericInput("T", 
-                                                                 label = h6("Software lifecycle"),
-                                                                 min = 0, value = 100000)
-                                             ),
-                                             
-                                             column(12,
-                                                    numericInput("C0", 
-                                                                 label = h6("Expected cost of removing fault during testing."),
-                                                                 min = 0, value = 50)
-                                             ),
-                                             column(12,
-                                                    numericInput("C1", 
-                                                                 label = h6("Expected cost of removing the fault during operation."),
-                                                                 min = 0, value = 1000)
-                                             ),
-                                             column(12,
-                                                    numericInput("C2", 
-                                                                 label = h6("Expected cost per unit time of software testing."),
-                                                                 min = 0, value = 1)
-                                             ),
-                                             column(12, 
-                                                    radioButtons("queryResultsPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
-                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
-                                                                 inline=TRUE,
-                                                                 selected = "points_and_lines"),
-                                                    radioButtons("saveQueryResultsType", label = h6("Choose the type of file to save plots."),
-                                                                 choices = list("JPG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
-                                                                 selected = "JPG")
-                                             ),
-                                             
-                                             column(8, downloadButton(outputId = "saveQueryResults", label = "Save")),
-                                             
-                                             column(12, 
-                                                    radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
-                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "CSV"),
-                                                    downloadButton('downloadData', 'Save Model Predictions')
-                                             )
-                                           )
+                              sidebarPanel(
+                                uiOutput("tab3UI")
+                                
                               ),
                               
                               mainPanel(
@@ -275,49 +71,9 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                    
                    tabPanel("Evaluate Models",
                             sidebarLayout(
-                                sidebarPanel(h4("Evaluate Model goodness of fit and Applicability"),
-                                    fluidRow(
-                                     column(12, 
-                                            br(),
-                                            h5("Choose one or more models for which the results will be evaluated."),
-                                            selectInput(
-                                              "modelResultsForEval", label = h6("Choose one or more sets of model results"), 
-                                              choices=list("No model results to display"="None"),
-                                              multiple=TRUE, selected="None"
-                                            )
-                                     )
-                                    ),
-                                             
-                                    fluidRow(
-#                                             column(12, 
-#                                                    h5("Select a model evaluation technique to apply"),
-#                                                    selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
-#                                                                choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
-#                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
-#                                                                               "Predictive Sum Of Squares" = "PSSE"
-#                                                                               ), selected = "PSSE")
-#                                             ),
-                                             
-                                             column(12,
-#                                                    numericInput("numericEvalSigValue", 
-#                                                                 label = h6("Specify the significance level for the selected test"),
-#                                                                 min = 0, max = 1, step = 0.001,
-#                                                                 value = .05),
-                                                    numericInput("percentData", 
-                                                                 label = h6("Specify the Percent Data for PSSE"),
-                                                                 min = 0.1, max = 1.0, step = 0.001,
-                                                                 value = .90)
-                                             ),
-                                             
-                                             column(12, 
-                                                    radioButtons("saveModelEvalType", label = h6("Save model evaluations as PDF or CSV?"),
-                                                                 choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "CSV"),
-                                                    downloadButton('saveModelEvals', 'Save Model Evaluations')
-                                             )
-
-                                           )
-
+                                sidebarPanel(
+                                  uiOutput("tab4UI")
+                                  
                                   ),
                               
                             # sidebarLayout(
