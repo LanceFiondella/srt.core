@@ -1,6 +1,6 @@
 
 TNorm_makedata_FT <- function(x) {
-  faultdata.time(time=diff(c(0,x)), te=0)
+  faultdata(time=diff(c(0,x)), te=0)
 }
 
 TNorm_makemodel_FT <- function(params) {
