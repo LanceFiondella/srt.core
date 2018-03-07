@@ -18,96 +18,13 @@ fluidRow(
     #UI Elements
     ##########
     
-output$tab1UI <- renderUI({
-                     
-fluidRow(
-    h4(translate("str_select")),
-        column(8, 
-        h5(translate("str_upload")),
-        fileInput("file", label = h5(translate("str_failure")),
-                            accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx'))),
-    
-        column(10,
-            uiOutput("sheetChoice")                                                   
-        ),
-    
-    
-    
-        column(11, 
-            h5(translate("str_choose")),
-            
-            selectInput("dataPlotChoice", label = "", 
-                        choices = list("Times Between Failures" = "IF", "Cumulative Failures" = "CF",
-                                        "Failure Intensity" = "FI"), selected = "CF")
-        ),
-    
-    
-    
-        column(11, 
-            radioButtons("DataPlotType", label = h6(translate("str_draw")),
-                            choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
-                            inline=TRUE,
-                            selected = "points_and_lines")
-        ),
-    
-        column(10,
-            radioButtons("PlotDataOrTrend", label = h6(translate("str_trend")),
-                            choices = list("Data" = 1, "Trend test" = 2), inline = TRUE,
-                            selected = 1)
-        ),
-    
-    
-    
-        column(11, 
-            h5(translate("str_growth")),
-            selectInput("trendPlotChoice", label = "", 
-                        choices = list("Laplace Test" = "LP", "Running Arithmetic Average" = "RA"))
-        ),
-        column(11,
-            conditionalPanel(
-                condition = "input.trendPlotChoice == 'LP'",
-                numericInput("confidenceLP", 
-                            label = h6(translate("str_conflevel")),
-                            min = 0, max=1, value = 0.9, step=0.01)
-            )
-        ),
-        column(8, textOutput("trendMessage")),
-    
-    
-    
-        column(12, 
-            radioButtons("saveDataFileType", label = h6(translate("str_filetype")),
-                            choices = list("JPEG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
-                            selected = "JPG")
-        ),
-        column(8, downloadButton('saveDataOrTrend', translate("b_savedisplay"))),
-    
-    
-        column(8,
-            uiOutput("message")
-        ),
-    
-    
-    
-        br(),
-        column(9, h5(translate("str_subset"))),
-        #     column(9,
-        #            sliderInput("sliderDataSubsetChoice", h6("Select one or more failure categories to retain"),
-        #                        min = 1, max = 5, value = c(1, 5), step = 1)),
-        column(9,
-            sliderInput("modelDataRange", h6(translate("str_specify")),
-                        min = 1, max = 5, value = c(1, 5), step = 1))
-    )
-    
-    })
-
 
 
 output$sheetChoice <- renderUI({ 
       inFile <- input$file
       fileType <- getFileType(inFile)
       if(is.na(fileType)){
-        return("Please upload an excel or cvs file")
+        return("Please upload an excel or csv file")
       } else 
       if(fileType == "xls"){
         sheets_present <- sheetNames(xls=inFile$datapath)
@@ -193,8 +110,7 @@ getFileType <- function(inFile){
             # Includes a "failure counts" view which IF/FT data does not.
             
             updateSelectInput(session, "dataPlotChoice",
-                            choices = list( "Cumulative Failures" = "CF",
-                                            "Failure Intensity" = "FI", "Times Between Failures" = "IF"), selected = "CF")
+                            choices = setNames(list("IF", "CF", "FI"), c(translate("sel_tfailure"), translate("sel_cfailure"), translate("sel_ifailure"))), selected = "CF")
             # updateSelectInput(session, "modelPlotChoice",
             #                   choices = list("Failure Counts" = "FC", "Cumulative Failures" = "MVF",
             #                                  "Failure Intensity" = "FI", "Times Between Failures" = "IF", "Reliability" = "R","Reliability Growth"="R_growth"), selected = "MVF")
@@ -229,10 +145,10 @@ getFileType <- function(inFile){
       DataTrendTable <- NULL
       #if (!(is.null(input$file) && (input$type == 2)) || (!(is.null(input$dataSheetChoice)) && (input$type == 1))) {
       if(!(is.null(input$file))){
-        if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
-          data <- data.frame(x=data_global()$FRate)
-          DataTrendTable <- data_or_trend_table(data, input$modelDataRange, input$PlotDataOrTrend, input$trendPlotChoice)
-        }
+        #if (input$DataPlotAndTableTabset == "Data and Trend Test Table") {
+        data <- data.frame(x=data_global()$FRate)
+        DataTrendTable <- data_or_trend_table(data, input$modelDataRange, input$PlotDataOrTrend, input$trendPlotChoice)
+        #}
       }
       DataTrendTable
     })

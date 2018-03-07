@@ -1,1 +1,74 @@
-﻿variable, en, jpstr_title, Software Reliability Assessment in R, Rによるソフトウェア信頼性評価str_tab1," Select,  Analyze, and Filter Data",選択，分析，およびデータフィルタリングstr_lang_sel, Select Language,言語選択str_select," Select,  Analyze,  and Subset Failure Data",選択，分析，および故障データstr_upload," Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)""",CSVファイルもしくはエクセルフォーマット(.xls or xlsx)のアップロードstr_failure, Select a failure data file,故障データファイルの選択x_browse,Browse,x_nofile,No file,x_upload,Upload complete,str_sheet,Choose Sheet,シート選択x_selectbox,,str_please,Please upload an excel or cvs file,str_choose,Choose a view of the failure data,故障データの表示選択x_selectbox2,,str_draw,"Draw the plot with data points and lines, points only, or lines only","プロットの選択 点および線, 点のみ, or 線のみ"str_trend,Plot Data or Trend Test?,データプロット　or　トレンドテストx_radio2,,str_growth,Does data show reliability growth?,テスト選択（信頼度成長）x_selectbox3,,str_conflevel,Specify the confidence level for the Laplace Test,ラプラステストのための信頼区間の設定x_numberbox,,str_filetype,Choose the type of file to save plots. Tables are saved as CSV files.,プロットファイルの選択．表をCSV形式で保存．b_savedisplay,Save Display,プロットの保存str_subset,Subset the failure data by data range,故障データの選択str_specify,Specify the data range to which models will be applied.,データ範囲の選択x_slider,,str_plottab,Plot,プロットx_graph,,str_trendtab,Data and Trend Test Table,データおよびトレンドテストテーブルx_trendtable,,str_tab2,Set Up and Apply Models,str_configure,Configure and Apply Models,モデルの確認および適用str_specfail,Specify the number of failures for which the models will make predictions,故障データの選択（予測）str_howmany,Specify for how many failures into the future the models will predict,故障数の選択（予測）str_choosemodels,"Choose one or more models to run,  or exclude one or more models",モデルの追加選択x_selectbox4,,x_runmodels,Run Selected Models,選択モデルの実行str_display,Display Model Results,モデル結果の表示str_chooseresult,Choose one or more sets of model results to display.,モデルの追加選択x_selectbox5,,str_chooseplot,Choose the type of plot for model results.,プロットタイプの選択str_plottype,Choose a plot type,x_selectbox6,,str_duration,Enter the duration for which the model results curves should extend beyond the last prediction point.,評価期間の入力chk_showdata,Show data on plot,データプロットchk_showend,Show end of data on plot,データプロットの終了str_rplottab,Model Result Plot,モデルプロットstr_rtabletab,Model Result Table,モデル結果表x_rtable,,str_tab3,Query Model Results,str_predict,Make Detailed Predictions From Model Results,モデルから予測（詳細表示）str_time,How much time will be required to observe the next N failures,次のN番目の故障までの時間str_numfail,Specify the number of failures that are to be observed.,今後観測される故障数str_obsfail,How many failures will be observed over the next N time units?,次のN番目の故障が観測されるまでの故障数str_addtime,Specify the amount of additional time for which the sopftware will run.,追加時間str_testtime,How much more test time to achieve a specified reliability?,信頼度目標達成必要テスト時間str_reliability,Specify the desired reliability.,信頼度目標str_interval,Specify the length of the interval for which reliability will be computed,時間区間の設定str_optimal,Optimal Release Time Input,最適リリース時刻の入力str_lifecycle,Software lifecycle,ソフトウェアライフサイクルstr_cost,Expected cost of removing fault during testing.,テスト期間中のフォールト除去コストstr_softtest,Expected cost per unit time of software testing.,テストに要する単位時間あたりのコストx_radio,,x_radio3,,str_detailed,Save detailed model results as PDF or CSV?,x_radio4,,x_savemodel,,x_predicttab,Prediction table,予測表x_predicttable,,str_resultplottab,Model Prediction Result Plot,モデルに基づく予測結果のプロットx_resultplot,,str_tab4,Evaluate Models,str_fitness,Evaluate Model goodness of fit and Applicability,モデルの適合性評価str_chooseeval,Choose one or more models for which the results will be evaluated.,適合性評価のためのモデル追加str_sets,Choose one or more sets of model results,x_selectbox7,,str_percent,Specify the Percent Data for PSSE,PSSEのためのパーセントデータstr_eval,Save model evaluations as PDF or CSV?,x_saveeval,Save Model Evaluations,モデル評価の保存str_tabletab,Table,表x_evaluatetable,,sel_cfailure,Cumulative Failures,累積フォールト数sel_tfailure,Times Between Failures,故障時間間隔sel_ifailure,Failure Intensity,故障強度r_both,Points and Lines,点および線r_points,Points only,点のみr_lines,Lines only,線のみr_data,Data,データr_trendtest,Trend test,トレンドテストsel_laplace,Laplace Test,ラプラステストsel_raa,Running Arithmetic Average,算術平均の実行
+variable, en, jp
+str_title, Software Reliability Assessment in R, Rによるソフトウェア信頼性評価
+str_tab1," Select,  Analyze, and Filter Data",選択，分析，およびデータフィルタリング
+str_lang_sel, Select Language,言語選択
+str_select," Select,  Analyze,  and Subset Failure Data",選択，分析，および故障データ
+str_upload," Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)""",CSVファイルもしくはエクセルフォーマット(.xls or xlsx)のアップロード
+str_failure, Select a failure data file,故障データファイルの選択
+str_sheet,Choose Sheet,シート選択
+str_please,Please upload an excel or csv file,Please upload an excel or csv file
+str_choose,Choose a view of the failure data,故障データの表示選択
+str_draw,"Draw the plot with data points and lines, points only, or lines only","プロットの選択 点および線, 点のみ, or 線のみ"
+str_trend,Plot Data or Trend Test?,データプロット　or　トレンドテスト
+str_growth,Does data show reliability growth?,テスト選択（信頼度成長）
+str_conflevel,Specify the confidence level for the Laplace Test,ラプラステストのための信頼区間の設定
+str_filetype,Choose the type of file to save plots. Tables are saved as CSV files.,プロットファイルの選択．表をCSV形式で保存．
+b_savedisplay,Save Display,プロットの保存
+str_subset,Subset the failure data by data range,故障データの選択
+str_specify,Specify the data range to which models will be applied.,データ範囲の選択
+str_plottab,Plot,プロット
+str_trendtab,Data and Trend Test Table,データおよびトレンドテストテーブル
+str_tab2,Set Up and Apply Models,モデルの確認および適用
+str_configure,Configure and Apply Models,モデルの確認および適用
+str_specfail,Specify the number of failures for which the models will make predictions,故障データの選択（予測）
+str_howmany,Specify for how many failures into the future the models will predict,故障数の選択（予測）
+str_choosemodels,"Choose one or more models to run,  or exclude one or more models",モデルの追加選択
+x_runmodels,Run Selected Models,選択モデルの実行
+str_display,Display Model Results,モデル結果の表示
+str_chooseresult,Choose one or more sets of model results to display.,モデルの追加選択
+str_chooseplot,Choose the type of plot for model results.,プロットタイプの選択
+str_plottype,Choose a plot type,Choose a plot type
+str_duration,Enter the duration for which the model results curves should extend beyond the last prediction point.,評価期間の入力
+chk_showdata,Show data on plot,データプロット
+chk_showend,Show end of data on plot,データプロットの終了
+str_rplottab,Model Result Plot,モデルプロット
+str_rtabletab,Model Result Table,モデル結果表
+str_tab3,Query Model Results,Query Model Results
+str_predict,Make Detailed Predictions From Model Results,モデルから予測（詳細表示）
+str_time,How much time will be required to observe the next N failures,次のN番目の故障までの時間
+str_numfail,Specify the number of failures that are to be observed.,今後観測される故障数
+str_obsfail,How many failures will be observed over the next N time units?,次のN番目の故障が観測されるまでの故障数
+str_addtime,Specify the amount of additional time for which the sopftware will run.,追加時間
+str_testtime,How much more test time to achieve a specified reliability?,信頼度目標達成必要テスト時間
+str_reliability,Specify the desired reliability.,信頼度目標
+str_interval,Specify the length of the interval for which reliability will be computed,時間区間の設定
+str_optimal,Optimal Release Time Input,最適リリース時刻の入力
+str_lifecycle,Software lifecycle,ソフトウェアライフサイクル
+str_cost,Expected cost of removing fault during testing.,テスト期間中のフォールト除去コスト
+str_softtest,Expected cost per unit time of software testing.,テストに要する単位時間あたりのコスト
+str_detailed,Save detailed model results as PDF or CSV?,Save detailed model results as PDF or CSV?
+x_predicttab,Prediction table,予測表
+str_resultplottab,Model Prediction Result Plot,モデルに基づく予測結果のプロット
+str_tab4,Evaluate Models,Evaluate Models
+str_fitness,Evaluate Model goodness of fit and Applicability,モデルの適合性評価
+str_chooseeval,Choose one or more models for which the results will be evaluated.,適合性評価のためのモデル追加
+str_sets,Choose one or more sets of model results,Choose one or more sets of model results
+str_percent,Specify the Percent Data for PSSE,PSSEのためのパーセントデータ
+str_eval,Save model evaluations as PDF or CSV?,Save model evaluations as PDF or CSV?
+x_saveeval,Save Model Evaluations,モデル評価の保存
+str_tabletab,Table,表
+sel_cfailure,Cumulative Failures,累積フォールト数
+sel_tfailure,Times Between Failures,故障時間間隔
+sel_ifailure,Failure Intensity,故障強度
+sel_relgrowth,Reliability growth,Reliability growth
+r_both,Points and Lines,点および線
+r_points,Points only,点のみ
+r_lines,Lines only,線のみ
+r_data,Data,データ
+r_trendtest,Trend test,トレンドテスト
+sel_laplace,Laplace Test,ラプラステスト
+sel_raa,Running Arithmetic Average,算術平均の実行
+str_opendata,Open a data set to run models,Open a data set to run models
+str_nomodels,No model results to display,No model results to display
+str_costop,Expected cost of removing the fault during operation,Expected cost of removing the fault during operation
+str_savepred,Save Model Predictions,Save Model Predictions

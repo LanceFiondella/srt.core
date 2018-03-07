@@ -30,17 +30,17 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
         # Interfailure Times vs. Elapsed Test Time
         
         plot_data <- data.frame(FT, IF)
-        localDataPlot <- localDataPlot+ggtitle(paste(c("Interfailure Times vs. Cumulative Test Time of"),DataName))
-        localDataPlot <- localDataPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Times Between Successive Failures"),values = c("blue","red"))
-        localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab("Times Between Successive Failures")
+        localDataPlot <- localDataPlot+ggtitle(paste(translate("sel_tfailure"), c(" vs. Cumulative Test Time of"),DataName))
+        localDataPlot <- localDataPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", translate("sel_ifailure")),values = c("blue","red"))
+        localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab(translate("sel_ifailure"))
       } else if(DataView == "CF") {
         
         # Cumulative Failures vs. Elapsed Test Time
         
         plot_data <- data.frame(FT, FN)
-        localDataPlot <- localDataPlot+ggtitle(paste(c("Cumulative Failures vs. Cumulative Test Time of"),DataName))
-        localDataPlot <- localDataPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Cumulative Number of Failures"),values = c("blue","red"))
-        localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab("Cumulative Number of Failures")
+        localDataPlot <- localDataPlot+ggtitle(paste(translate("sel_cfailure"), c(" vs. Cumulative Test Time of"),DataName))
+        localDataPlot <- localDataPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", translate("sel_cfailure")),values = c("blue","red"))
+        localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab(translate("sel_cfailure"))
       } else if(DataView == "FI") {
         
         # Empirical Failure Intensity vs. Elapsed Test Time
@@ -54,9 +54,9 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
         # DIVIDING BY 0 IN OTHER PROGRAMMING LANGUAGES!!
         
         plot_data <- data.frame(FT, c(1/IF))
-        localDataPlot <- localDataPlot+ggtitle(paste(c("Empirical Failure Intensity vs. Cumulative Test Time of"),DataName))
-        localDataPlot <- localDataPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", "Number of Failures per Unit Time"),values = c("blue","red"))
-        localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab("Number of Failures per Unit Time")
+        localDataPlot <- localDataPlot+ggtitle(paste(translate("sel_ifailure"), c(" vs. Cumulative Test Time of"),DataName))
+        localDataPlot <- localDataPlot + scale_color_manual(name = "Legend",  labels = c("Cumulative Test Time", translate("sel_ifailure")),values = c("blue","red"))
+        localDataPlot <- localDataPlot + xlab("Cumulative Test Time")+ylab(translate("sel_ifailure"))
       } else {
         # Couldn't identify view of data to display.
         # #print an error message.

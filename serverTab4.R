@@ -4,46 +4,7 @@
 
 output$tab4UI <- renderUI({
   
-  fluidRow(
-      h4(translate("str_fitness")),
-      column(12, 
-             br(),
-             h5(translate("str_chooseeval")),
-             selectInput(
-               "modelResultsForEval", label = h6(translate("str_sets")), 
-               choices=list("No model results to display"="None"),
-               multiple=TRUE, selected="None"
-             )
-      ),
-    
-      #                                             column(12, 
-      #                                                    h5("Select a model evaluation technique to apply"),
-      #                                                    selectInput("modelEvalChoice", label = h6("Choose a model evaluation test"), 
-      #                                                                choices = list("Kolmogorov-Smirnov GOF Test" = "KS", "-ln Prequential Likelihood" = "LPL",
-      #                                                                               "Prequential Likelihood Ratio" = "PLR", "Akaike Information Criterion" = "AIC",
-      #                                                                               "Predictive Sum Of Squares" = "PSSE"
-      #                                                                               ), selected = "PSSE")
-      #                                             ),
-      
-      column(12,
-             #                                                    numericInput("numericEvalSigValue", 
-             #                                                                 label = h6("Specify the significance level for the selected test"),
-             #                                                                 min = 0, max = 1, step = 0.001,
-             #                                                                 value = .05),
-             numericInput("percentData", 
-                          label = h6(translate("str_percent")),
-                          min = 0.1, max = 1.0, step = 0.001,
-                          value = .90)
-      ),
-      
-      column(12, 
-             radioButtons("saveModelEvalType", label = h6("Save model evaluations as PDF or CSV?"),
-                          choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                          selected = "CSV"),
-             downloadButton('saveModelEvals', translate("x_saveeval"))
-      )
-      
-    )
+  
     
 })
 
