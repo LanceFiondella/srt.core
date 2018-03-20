@@ -1,121 +1,163 @@
+#Vector of failure times data
 library(rootSolve)
+#rm(list=ls())
 
-Wei_NM_FT_MLE <- function(tVec){
-      tVec <- as.numeric(tVec)
+#tVec <- c(39,49,53,89,93,98,102,193,242,243,268,269,273,303,345,354,403,447,479,482,560,561,591,796,801,930,1033,1257,1443,1496,1510,1519,1521,1531,1532,1566,1736,1865,1869,1873,1908,1913,1918,1940,1976,2011,2132,2155,2188,2236,2268,2289,2293,2316,2325,2338,2503,2517,2539,2580,2592,2730,2825,2874,2936,2938,2973,3062,3152,3221,3243,3258,3277,3319,3333,3344,3385,3595,3611,3641,3678,3744,3753,3769,3783,3807,3819,3978,4067,4185,4214,4235,4253,4255,4369,4406,4452,4469,4470,4620,5002,5162,5228,5434,5443,5469,5531,5770,5783,5787,5872,5957,6197,6375,6409,6511,6520,6666,6725,6773,6798,6823,6934,6939,6970,7021,7027,7220,7247,7272,7368,7394,7424,7454,7471,7791,7869,7908,7921,7934,7953,8081,8115,8199,8239,8416,8765,9039,9121,9179,9210,9324,9363,9451,9535,9767,9875,9913,9999,10006,10028,10108,10347,10350,10389,10452,10604,10667,10747,10992,11188,11234,11386,11488,11497,11725,11945,12153,12231,12234,12317,12323,12535,12626,12629,12639,12811,12832,13005,13376,13416,13464,13590,13680,13829,13859,14176,14676,15349,15781,15847,16015,16081,16147,16275,16324,16656)
+
+
+Wei_AEM_FT_MLE <- function(tVec){
+
+
+      #Define n, tn and sumT
       n <- length(tVec)
       tn <- tVec[n]
       sumT <- sum(tVec)
 
-      #estimate starting point for 'b'
-      b0 <- (n/sumT)
+      #Define non adaptive EM function for use in adaptive procedure
 
-      MLEeq<-function(b){
-        c <- 1.0
-        sumi = 0
+      aEM <- numeric(0)
+      bEM <- numeric(0)
+      llEM <- numeric(0)
+
+      nonAdaptive <- function(c0){
+        b0 <- n/sum(tVec^c0)
+        a0 <- n
+        aEM[1] <- a0
+        bEM[1] <- b0
+        llEM[1] <- -(1-exp(-(tn^c0)*bEM[1]))*aEM[1]+sum(log(exp(-bEM[1]*(tVec^c0))*bEM[1]*aEM[1]*c0*(tVec^(c0-1))))
+        LLError <- 0
+        i <- 2
+        while(LLError <= 1e-15){
+          aEM[i] <- n+aEM[i-1]*exp(-bEM[i-1]*(tn^c0))
+          bEM[i] <- (n+aEM[i-1]*exp(-bEM[i-1]*(tn^c0)))/((sum(tVec^c0))+aEM[i-1]*((tn^c0)+(1/bEM[i-1]))*exp(-bEM[i-1]*(tn^c0)))
+          llEM[i] <- -(1-exp(-(tn^c0)*bEM[i]))*aEM[i]+sum(log(exp(-bEM[i]*(tVec^c0))*bEM[i]*aEM[i]*c0*(tVec^(c0-1))))
+          LLError <- llEM[i]-llEM[i-1]
+          i <- i+1
+        }
+        llEM[length(llEM)]
+      }
+
+      #Works fine till here
+
+
+      #Perfrom multiple iterations of adaptive algorithm
+
+      iterationsEM <- 1000;
+      c0 <- 1
+      cStep <- 0.1
+      leftlnL <- nonAdaptive(c0-cStep)
+      presentlnL <- nonAdaptive(c0)
+      rightlnL <- nonAdaptive(c0+cStep)
+
+      c0iteration <- numeric(0)
+      lnpresentiteration <- numeric(0)
+
+      for(adaptiveIteration in 1:20){
+        lnpresentiteration[adaptiveIteration] <- presentlnL
+        c0iteration[adaptiveIteration] <- c0
+        #Go left
+        if(leftlnL>presentlnL){#print(1)
+          c0 <- c0-cStep
+          rightlnL <- presentlnL
+          presentlnL <- leftlnL
+          leftlnL <- nonAdaptive(c0-cStep)
+        }
+        #Go right
+        if(rightlnL>presentlnL){#print(2)
+          c0 <- c0+cStep
+          leftlnL <- presentlnL
+          presentlnL <- rightlnL
+          rightlnL <- nonAdaptive(c0+cStep)
+        }
+        #Decrease step size
+        if(leftlnL<presentlnL && rightlnL<presentlnL){#print(3)
+          cStep <- cStep/2
+          leftlnL <- nonAdaptive(c0-cStep)
+          rightlnL <- nonAdaptive(c0+cStep)
+        }
+      }
+
+      #print(c0)
+
+
+        b0 <- n/sum(tVec^c0)
+        a0 <- n
+        aEM[1] <- a0
+        bEM[1] <- b0
+        #Log likelihood function
+        llEM[1] <- -(1-exp(-(tn^c0)*bEM[1]))*aEM[1]+sum(log(exp(-bEM[1]*(tVec^c0))*bEM[1]*aEM[1]*c0*(tVec^(c0-1))))
+        LLError <- 0
+        i <- 2
+        while(LLError <= 1e-15){
+          aEM[i] <- n+aEM[i-1]*exp(-bEM[i-1]*(tn^c0))
+          bEM[i] <- (n+aEM[i-1]*exp(-bEM[i-1]*(tn^c0)))/((sum(tVec^c0))+aEM[i-1]*((tn^c0)+(1/bEM[i-1]))*exp(-bEM[i-1]*(tn^c0)))
+          llEM[i] <- -(1-exp(-(tn^c0)*bEM[i]))*aEM[i]+sum(log(exp(-bEM[i]*(tVec^c0))*bEM[i]*aEM[i]*c0*(tVec^(c0-1))))
+          LLError <- llEM[i]-llEM[i-1]
+          i <- i+1
+        }
+      #print(bEM[length(bEM)])
+      #print(aEM[length(aEM)])
+      #print(llEM[length(llEM)])
+
+      b0 <- bEM[length(bEM)]
+
+      model1 <- function(x) {
+        sumi <- c(0,0)
         for(i in 1:n)
         {
-          sumi= sumi + (1/b) - ((tVec[i]))    
+          sumi[1] <- sumi[1] + (1/x[1]) - ((tVec[i])^x[2])   
+          sumi[2] <- sumi[2] + (1/x[2]) - (((tVec[i])^x[2])*log(tVec[i])*x[1]) + (log(tVec[i]))      #calculating the values for the summation 
         }
-
-        b_MLE <- (((-n*(tn))/(exp(b*(tn))-1)) + sumi)
+        #print(x)
         
-        return(b_MLE)
+        c(F1 = ((-1*n*(tn^x[2]))/(exp(x[1]*(tn^x[2]))-1) + sumi[1]),
+          F2 = ((-1*x[1]*n*(tn^x[2])*log(tn))/(exp(x[1]*(tn^x[2]))-1) + sumi[2]))
       }
-
-      i <- 0 
-      maxIterations <- 200
-      leftEndPoint <- b0
-      leftEndPointMLE <- MLEeq(leftEndPoint)
-      rightEndPoint <- 2*b0
-      rightEndPointMLE <- MLEeq(rightEndPoint)
-
-      while(leftEndPointMLE*rightEndPointMLE > 0 & i <= maxIterations){
-        ##print('In Step 2 while loop of Wei_BM.R')
-        leftEndPoint <- leftEndPoint/2
-        leftEndPointMLE <- MLEeq(leftEndPoint)
-        rightEndPoint <- 2*rightEndPoint
-        rightEndPointMLE <- MLEeq(rightEndPoint)
-        i <- i+1  
-      }
-
-      if(leftEndPointMLE*rightEndPointMLE > 0 ){
-        return('nonconvergence')
-      } else {
-        maxiter <<- 20
-        soln <- function(maxiter){
-          sol <- tryCatch(
-            stats::uniroot(MLEeq, c(leftEndPoint,rightEndPoint), maxiter=maxiter, tol=1e-10, extendInt="yes")$root,
-            warning = function(w){
-            ##print(f.lower)
-              if(length(grep("_NOT_ converged",w[1]))>0){
-                maxiter <<- maxiter+1 
-                ##print(paste("recursive", maxiter,sep='_'))
-                soln(maxiter)
-              }
-            },
-            error = function(e){
-              # #print(e)
-              return("nonconvergence")
-            })
-          sol
-        }
-
-        b_initial <- soln(maxiter)
+      ab <- multiroot(f=model1,start=c(b0,c0),maxiter = 4000, ctol = 1e-24)$root
+      bMLE <- ab[1]
+      cMLE <- ab[2]
 
 
-        #b_initial <- stats::uniroot(MLEeq,lower=leftEndPoint,upper=rightEndPoint, extendInt="yes", tol = 1e-10)$root
-      }
+      aMLE <- (n*exp(bMLE*tn^cMLE))/(exp(bMLE*tn^cMLE)-1)
+      #print(aMLE)
+      #print(ab)
 
-
-        b0 <- b_initial
-
-        #Estimate starting point for 'c'
-        c0 <- 1.0
-        a0 <- n
-
-
-          model1 <- function(x) {
-            sumi <- c(0,0)
-            for(i in 1:n)
-            {
-              sumi[1] <- sumi[1] + (1/x[2]) - ((tVec[i])^x[3])   
-              sumi[2] <- sumi[2] + (1/x[3]) - (((tVec[i])^x[3])*log(tVec[i])*x[2]) + (log(tVec[i]))      #calculating the values for the summation 
-            }
-            ##print(x)
-
-            c(F1 = -1 + exp(-x[2]*(tn^x[3])) + (n/x[1]),
-            F2 = (-x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))) + sumi[1],
-            F3 = (-x[2]*x[1]*(tn^x[3])*exp(-x[2]*(tn^x[3]))*log(tn)) + sumi[2])
-          }
-          abc <- tryCatch(
-            rootSolve::multiroot(f=model1,start=c(a0,b0,c0), ctol = 1e-10)$root,
-            warning = function(w){
-            ##print(f.lower)
-                #print(w)
-                return('nonconvergence')
-            },
-            error = function(e){
-              #print(e)
-              return("nonconvergence")
-            })
-        # abc <- rootSolve::multiroot(f=model1,start=c(a0,b0,c0), ctol = 1e-24)$root
-
-        # --------------------------------------------------------------------------------
-        # Instructions to be followed
-        # --------------------------------------------------------------------------------
-        # Params are from model_specifications.R file 
-        # Please follow the convention  as follows
-        # Instead of hard code Wei_aMLE as in equation below equation in commented section
-        # use paste("Wei",Wei_params[1],sep="_") as shown for names of dataframes
-        # 'params <- data.frame("Wei_aMLE"=abc[1],"Wei_bMLE"=abc[2],"Wei_cMLE"=abc[3])'
-        # --------------------------------------------------------------------------------
-
-        #params <- data.frame(paste("Wei",Wei_params[1],sep="_")=abc[1],paste("Wei",Wei_params[1],sep="_")=abc[2],paste("Wei",Wei_params[1],sep="_")=abc[3])
-        params <- data.frame(abc[1],abc[2],abc[3])
-        names(params) <- c(paste("Wei",Wei_params[1],sep="_"),paste("Wei",Wei_params[2],sep="_"),paste("Wei",Wei_params[3],sep="_"))
-
-        params
+      if(is.nan(ab[1])){
+  bMLE <- bEM[length(bEM)]
+  cMLE <- c0
+  aMLE <- aEM[length(aEM)]
+#  print(-(1-exp(-(tn^cMLE)*bMLE))*aMLE+sum(log(exp(-bMLE*(tVec^cMLE))*bMLE*aMLE*cMLE*(tVec^(cMLE-1)))))
 }
+
+      params <- data.frame(aMLE,bMLE,cMLE)
+      names(params) <- c(paste("Wei",Wei_params[1],sep="_"),paste("Wei",Wei_params[2],sep="_"),paste("Wei",Wei_params[3],sep="_"))
+      print("Wei AEM Params")
+      print(params)
+      params
+}
+
+
+#print(-(1-exp(-(tn^cMLE)*bMLE))*aMLE+sum(log(exp(-bMLE*(tVec^cMLE))*bMLE*aMLE*cMLE*(tVec^(cMLE-1)))))
+
+#if(is.nan(ab[1])){
+#  bMLE <- bEM[length(bEM)]
+#  cMLE <- c0
+#  aMLE <- aEM[length(aEM)]
+#  print(-(1-exp(-(tn^cMLE)*bMLE))*aMLE+sum(log(exp(-bMLE*(tVec^cMLE))*bMLE*aMLE*cMLE*(tVec^(cMLE-1)))))
+#}
+#par(mfrow=c(2,2))
+#plot(aEM, type="l",col="red",main="parameter a")
+#plot(bEM, type="l",col="green",main="parameter b")
+#plot(llEM, type="l",main="Improvements in log-likelihood")
+#plot(aEM,bEM, type="b",main="parameter search")
+
+#Newton's method routine -- doesn't work !! :-( x[1] -> bmle, x[2]->cmle
+#Model <- function(x){
+# c(
+# f1=((-(n*(1-tn^(x[2]*x[1])+(tn^x[2])*x[1]+exp((tn^x[1])*x[2])*(-1+(tVec^x[1])*x[1])))/((-1+exp((tn^x[2])*x[1])*x[1]))), f2=((n*(1-exp((tn^x[2])*x[1]))+((1-exp((tn^x[2])*x[1])*x[2]*(-1+(tVec^x[2])*x[1])*log(tVec)))+(tn^x[2])*x[2]*x[1]*log(tn))/((1-exp((tn^x[2])*x[1])*x[2])))	)
+#}
+#multiroot(Model, c(bMLE,c0))
+
 
 Wei_lnL <- function(x,params){
   n <- length(x)
@@ -315,3 +357,6 @@ library(emdbook)
 Wei_cost <- function(params,c1,c2,c3,t,t_lifecycle){
   return(c1*Wei_MVF_cont(params,t) + c2*(Wei_MVF_cont(params,t_lifecycle) - Wei_MVF_cont(params,t)) + c3*t)
 }
+
+
+

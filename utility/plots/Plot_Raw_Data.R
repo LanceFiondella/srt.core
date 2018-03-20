@@ -6,11 +6,16 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
   
   DataIntervalStart <- DataRange[1]
   DataIntervalEnd <- DataRange[2]
-  
-  
   # Initialize the plot.
   
   localDataPlot <- ggplot()
+  if('FCount' %in% names(in_data)){
+            convertedFCData <- in_data.FC
+  }
+  
+  if('FRate' %in% names(in_data)){
+  in_data <- in_data.FR
+  }
   
   if((DataIntervalEnd - DataIntervalStart + 1) >= MinIntervalWidth) {
     localDataPlot <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
@@ -113,7 +118,9 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
       
       names(plot_data) = c("Index","FailureDisplayType")
       
-    } else {
+    }
+    
+     else {
       # Couldn't determine whether we're working with IF or FC data.
       # #print an error message.
       

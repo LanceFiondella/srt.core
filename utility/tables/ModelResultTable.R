@@ -1,7 +1,6 @@
 model_result_table <- function (in_data, NumObservations, ResultsToShow, RelMissionTime) {
   
   # First column holds failure numbers.
-  
   local_MR_Table <- data.frame("Failure"=in_data$Failure)
   
   MR_Table_Error <- FALSE
@@ -9,7 +8,9 @@ model_result_table <- function (in_data, NumObservations, ResultsToShow, RelMiss
   if(length(ResultsToShow) > 0) {
     for(modelID in ResultsToShow) {
       for (paramNum in 1:length(get(paste(modelID,"params",sep="_")))) {
-        local_MR_Table[[paste0(modelID, "_parm_", paramNum)]] <- as.character(in_data[[paste0(modelID, "_parm_", paramNum)]])
+        #local_MR_Table[[paste0(modelID, "_parm_", paramNum)]] <- as.character(in_data[[paste0(modelID, "_parm_", paramNum)]])
+        param_name <- paste(modelID, get(paste0(modelID, "_params"))[paramNum], sep="_")
+        local_MR_Table[[param_name]] <- as.character(in_data[[param_name]])
       }
       local_MR_Table[[paste0(modelID, "_CumTime")]] <- as.character(in_data[[paste0(modelID, "_CumTime")]])
       local_MR_Table[[paste0(modelID, "_MVF")]] <- as.character(in_data[[paste0(modelID, "_MVF")]])
@@ -24,7 +25,9 @@ model_result_table <- function (in_data, NumObservations, ResultsToShow, RelMiss
       names(rg_input_data) <- c("FT")
       model_params <- c()
       for (parmIndex in 1:length(get(paste0(modelID, "_params")))) {
-        model_params <- c(model_params, in_data[[paste0(modelID, "_parm_", parmIndex)]][NumObservations])
+        #model_params <- c(model_params, in_data[[paste0(modelID, "_parm_", parmIndex)]][NumObservations])
+        param_name <- paste(modelID, get(paste0(modelID, "_params"))[parmIndex], sep="_")
+        model_params <- c(model_params, in_data[[param_name]][NumObservations])
       }
       names(model_params) <- paste(modelID, get(paste0(modelID, "_params")), sep="_")
       temp_R_growth <- data.frame("Reliability_Growth"=c(get(paste(modelID,"R_growth",sep="_"))(model_params, rg_input_data, RelMissionTime)[["Reliability_Growth"]], rep(1, length(in_data[[paste(modelID, "CumTime", sep="_")]])-length(rg_input_data[[1]]))))

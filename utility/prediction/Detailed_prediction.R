@@ -2,28 +2,8 @@
 
 
 get_prediction_k <- function(model,params, t_offset,tn,n){
-	# ! -----> #print(">>>>>>>>>")
-	# ! -----> #print(params)
-	if("JM_N0" %in% names(params)){
-		est_faults <- JM_MVF_cont(params,tn + t_offset) - JM_MVF_cont(params,tn)
-	}
-	else if("GM_D0" %in% names(params)){
-		est_faults <- GM_MVF_cont(params,tn + t_offset) - GM_MVF_cont(params,tn)
-	}
-	else if("GO_aMLE" %in% names(params)){
-		est_faults <- GO_MVF_cont(params,tn + t_offset) - GO_MVF_cont(params,tn)
-	}
-	else if("DSS_aMLE" %in% names(params)){
-		est_faults <- DSS_MVF_cont(params,tn + t_offset) - DSS_MVF_cont(params,tn)
-	}
-	else if("Wei_aMLE" %in% names(params)){
-		est_faults <- Wei_MVF_cont(params,tn + t_offset) - Wei_MVF_cont(params,tn)
-	}
-	else{
-		est_faults <- "Not Implemented"
-	}
-  # return(floor(est_faults))
-  
+	est_faults <- get(paste(model,"MVF_cont",sep="_"))(params,tn+t_offset) - get(paste(model,"MVF_cont",sep="_"))(params,tn)
+	
   # est_faults is an expected value, so it may not be a
   # whole number.  Nevertheless, we return the unaltered
   # value.
@@ -33,6 +13,7 @@ get_prediction_k <- function(model,params, t_offset,tn,n){
 
 
 get_prediction_t <- function(model, params, faults, tn, n){
+        
 	time_indexes <- c()
 	if(faults!=0){
 		for(i in 1: faults){
@@ -148,6 +129,29 @@ est_t <- function(model,params,tn,steps){
   sol
 }
 
+get_optimal_release_time_CC <- function(model, params, c1,c2,c3){
+	return(get(paste(model,"OR_CC",sep="_"))(params,c1,c2,c3))
+}
+
+#Get the cost at a specified time
+get_cost_at_time <- function(model, params, time, t_lifecycle, c1,c2,c3){
+	if(is.numeric(time)){
+		return(get(paste(model,"cost",sep="_"))(params,c1,c2,c3,time,t_lifecycle))
+	}
+	else{
+		return(0)
+	}
+    
+}
+
+get_rel_at_opt_release_time <- function(model, params, opt_release_time, delta){
+  print(delta)
+    return(get(paste(model,"R_delta",sep="_"))(params,opt_release_time,delta))
+}
+
+get_release_release_time_RC <- function(model, params){
+	return(0)
+}
 
 
 
