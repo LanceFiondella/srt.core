@@ -1,7 +1,7 @@
 # require("Rmpfr") # This was our option if precision is a problem. It stays here as long we are not sure.
 require("utils") # depends on utils library
 
-JM_BM_MLE<-function(interFail){
+JM_BM_IF_MLE<-function(interFail){
   # ---------------------------------------------------------------------------------
   # Maximumum likelihood estimation method is used to estimate the parameters 
   # 'N0' and 'Phi'. The initial estimate leftinterval and right interval are expanded
@@ -404,6 +404,8 @@ JM_MVF_cont <- function(params,t){
   #----------------------------------------------------------------------------
   # TODO:
   #============================================================================
+  #print("---")
+  #print(params$JM_N0[[1]]*(1-exp(-params$JM_Phi[[1]]*t)))
   return(params$JM_N0*(1-exp(-params$JM_Phi*t)))
 }
 
@@ -577,3 +579,16 @@ JM_R_growth <- function(params,d,delta){
  #  }
  #  return(MTTF)
  # }
+ 
+ 
+ #Jelinski-Moranda - Equation is same as GO
+ 
+
+JM_OR_CC <- function(param,c1,c2,c3){
+  return((1/param$JM_Phi)*log((param$JM_N0*param$JM_Phi*(c2-c1))/c3))
+}
+
+#Cost equation for JM optimal release plots
+JM_cost <- function(params,c1,c2,c3,t,t_lifecycle){
+  return(c1*JM_MVF_cont(params,t) + c2*(JM_MVF_cont(params,t_lifecycle) - JM_MVF_cont(params,t)) + c3*t)
+}

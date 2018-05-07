@@ -1,0 +1,89 @@
+\documentclass{report}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\begin{tabular}{l|l|l|l|c|c|c|c|r}
+\hline
+Model & Time to R=0.9 & Num failures in 4116 & Failure & Times to failures & NA & NA & NA & NA\\
+\hline
+Delayed S-Shape & 12401.1541529981 & 0.246856 & 1 & NA & 1372.207 & 115527.34 & 0.000130 & 137202.93\\
+\hline
+Geometric & 1592716.45936287 & 1.877473 & 1 & 2170.03088926781 & 37064.352 & 1487679.02 & 0.016101 & 82265.84\\
+\hline
+Goel-Okumoto & 62829.7672027733 & 0.903615 & 1 & 4591.28466949961 & 44886.823 & 81128.36 & 0.017572 & 76595.18\\
+\hline
+Jelinski-Moranda & 59915.2917457156 & 0.856125 & 1 & 4869.80650205625 & 44342.002 & 79301.31 & 0.017681 & 75736.47\\
+\hline
+Weibull & 259865.770847692 & 1.725954 & 1 & 2353.05254648438 & 40651.072 & 243055.13 & 0.015992 & 82845.57\\
+\hline
+\end{tabular}
+
+
+\end{knitrout}
+
+<!-- html table generated in R 3.2.3 by xtable 1.8-2 package -->
+<!-- Thu Mar  9 13:26:02 2017 -->
+<table border=1>
+<tr> <th>  </th> <th> Model </th> <th> Time to R=0.9 </th> <th> Num failures in 4116 </th> <th> Failure </th> <th> Times to failures </th> <th> NA </th> <th> NA </th> <th> NA </th> <th> NA </th>  </tr>
+  <tr> <td align="right"> 1 </td> <td> Delayed S-Shape </td> <td> 12401.1541529981 </td> <td align="right"> 0.25 </td> <td align="right">   1 </td> <td> NA </td> <td align="right"> 1372.21 </td> <td align="right"> 115527.34 </td> <td align="right"> 0.00 </td> <td align="right"> 137202.93 </td> </tr>
+  <tr> <td align="right"> 2 </td> <td> Geometric </td> <td> 1592716.45936287 </td> <td align="right"> 1.88 </td> <td align="right">   1 </td> <td> 2170.03088926781 </td> <td align="right"> 37064.35 </td> <td align="right"> 1487679.02 </td> <td align="right"> 0.02 </td> <td align="right"> 82265.84 </td> </tr>
+  <tr> <td align="right"> 3 </td> <td> Goel-Okumoto </td> <td> 62829.7672027733 </td> <td align="right"> 0.90 </td> <td align="right">   1 </td> <td> 4591.28466949961 </td> <td align="right"> 44886.82 </td> <td align="right"> 81128.36 </td> <td align="right"> 0.02 </td> <td align="right"> 76595.18 </td> </tr>
+  <tr> <td align="right"> 4 </td> <td> Jelinski-Moranda </td> <td> 59915.2917457156 </td> <td align="right"> 0.86 </td> <td align="right">   1 </td> <td> 4869.80650205625 </td> <td align="right"> 44342.00 </td> <td align="right"> 79301.31 </td> <td align="right"> 0.02 </td> <td align="right"> 75736.47 </td> </tr>
+  <tr> <td align="right"> 5 </td> <td> Weibull </td> <td> 259865.770847692 </td> <td align="right"> 1.73 </td> <td align="right">   1 </td> <td> 2353.05254648438 </td> <td align="right"> 40651.07 </td> <td align="right"> 243055.13 </td> <td align="right"> 0.02 </td> <td align="right"> 82845.57 </td> </tr>
+   </table>
+
+
+\end{document}

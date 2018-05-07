@@ -2,7 +2,7 @@
 # x <- c(3, 33, 146, 227, 342, 351, 353, 444, 556, 571, 709, 759, 836, 860, 968, 1056, 1726, 1846, 1872, 1986, 2311, 2366, 2608, 2676, 3098, 3278, 3288, 4434, 5034, 5049, 5085, 5089, 5089, 5097, 5324, 5389, 5565, 5623, 6080, 6380, 6477, 6740, 7192, 7447, 7644, 7837, 7843, 7922, 8738, 10089, 10237, 10258, 10491, 10625, 10982, 11175, 11411, 11442, 11811, 12559, 12559, 12791, 13121, 13486, 14708, 15251, 15261, 15277, 15806, 16185, 16229, 16358, 17168, 17458, 17758, 18287, 18568, 18728, 19556, 20567, 21012, 21308, 23063, 24127, 25910, 26770, 27753, 28460, 28493, 29361, 30085, 32408, 35338, 36799, 37642, 37654, 37915, 39715, 40580, 42015, 42045, 42188, 42296, 42296, 45406, 46653, 47596, 48296, 49171, 49416, 50145, 52042, 52489, 52875, 53321, 53443, 54433, 55381, 56463, 56485, 56560, 57042, 62551, 62651, 62661, 63732, 64103, 64893, 71043, 74364, 75409,76057, 81542, 82702, 84566, 88682)
 
 #Define n, tn and sumT
-DSS_BM_MLE <- function(x){
+DSS_BM_FT_MLE <- function(x){
   x <- as.numeric(x)
   n <- length(x)
   tn <- x[n]
@@ -127,12 +127,14 @@ DSS_lnL <- function(x,params){ # ----> params should be the option to generalize
   #lnL <- -aMLE*(1-(1+bMLE*tn)*exp(-bMLE*tn))+n*log(aMLE)+2*n*log(bMLE)+sum(log(x))-bMLE*sum(x)
   n <- length(x)
   tn <- x[n]
-  firstSumTerm=0
-  secondSumTerm = 0
+  firstSumTerm <- 0
+  secondSumTerm <- 0
   
+  
+
   for(i in 1:n){
-    firstSumTerm = firstSumTerm + log(x[i])
-    secondSumTerm = secondSumTerm + (-params$DSS_bMLE*x[i])
+    firstSumTerm <- firstSumTerm + log(x[i])
+    secondSumTerm <- secondSumTerm + (-params$DSS_bMLE*x[i])
   }
   lnL <- -params$DSS_aMLE*(1-(1+params$DSS_bMLE*tn)*exp(-params$DSS_bMLE*tn))+ n*(log(params$DSS_aMLE)) + 2*n*log(params$DSS_bMLE) +  firstSumTerm + secondSumTerm
   return(lnL)
@@ -190,6 +192,7 @@ DSS_Faults_Remain <- function(){
 }
 
 DSS_MVF_cont <- function(param,t){
+
   return(param$DSS_aMLE*(1-exp(-1*t*param$DSS_bMLE)*(1+param$DSS_bMLE*t)))
 }
 
@@ -208,12 +211,15 @@ dlt <- 100
 maxiter <- 1000
 
 DSS_Target_T <- function(params,cur_time,delta, reliability){
+
   
   f <- function(t){
     return(DSS_R_MLE_root(params,t,delta, reliability))
   }
   
   current_rel <- DSS_R_delta(params,cur_time,delta)
+  #print(current_rel)
+  #print(params)
   if(current_rel < reliability){
     # Bound the estimation interval
     
@@ -278,4 +284,18 @@ DSS_R_growth <- function(params,d,delta){
   g <- data.frame(r[1],r[2],rep("DSS", length(d$FT)))
   names(g) <- c("Time","Reliability_Growth","Model")
   g
+}
+
+
+
+DSS_OR_CC <- function(param,c1,c2,c3){
+   library(emdbook)
+   aMLE <-  param$DSS_aMLE
+   bMLE <- param$DSS_bMLE
+  return(-(lambertW(c3/(aMLE*bMLE*(c1-c2))))/(bMLE))
+}
+
+#Cost equation for DSS optimal release plots
+DSS_cost <- function(params,c1,c2,c3,t,t_lifecycle){
+  return(c1*DSS_MVF_cont(params,t) + c2*(DSS_MVF_cont(params,t_lifecycle) - DSS_MVF_cont(params,t)) + c3*t)
 }

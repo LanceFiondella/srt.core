@@ -1,3 +1,5 @@
+library(gdata)
+
 isDataFR <- function(d){
 	# input is names of input data file
 	# d <- names(data)
@@ -222,11 +224,12 @@ FC_to_FT <- function(time_vec,num_count) #failure count to failure time
   return(failure_T)
 }
 
+
 isPlural <- function(){
 	#-----> required to fix the plural forms
 }
 
-generate_dataFrame <- function(raw_data){
+generateDataFrame <- function(raw_data){
 	d <- names(raw_data)
 	if(isDataSafe()){ # Hard coded data safety as TRUE (sraise issue)
 		if(dataType(d)=="FR"){
@@ -243,7 +246,11 @@ generate_dataFrame <- function(raw_data){
 			else{
 				# To be programmed
 			}
-			data_gen <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
+			FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
+			data_gen <- list(FR)
+			names(data_gen) <- c("FRate")
+			currentDatasetType <<- "FRate"
+			
 		}
 		else if(dataType(d)=="FC"){
 			if(isCFCCol(d)){
@@ -264,11 +271,48 @@ generate_dataFrame <- function(raw_data){
             	IF 	<- FT_to_IF(failure_T = FT)
             	FN 	<- 1:length(FT)
 			}
-			data_gen.FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
-			data_gen.FC <- data.frame("FC"=FC, "CFC"=CFC)
-			data_gen <- list(data_gen.FR,data_gen.FC)
+			FR <- data.frame("FT"=FT,"IF"=IF,"FN"=FN)
+			FC <- data.frame("T"=raw_data$T,"FC"=FC, "CFC"=CFC)
+			data_gen <- list(FR,FC)
 			names(data_gen) <- c("FRate","FCount")
+			currentDatasetType <<- "FCount"
 		}
 	}
-	data_gen
+	#print(data_gen)
+	return(data_gen)
+}
+
+
+  
+
+
+FCFrame_to_IFFrame <- function(time_vec_in,num_count_in) #transforms FC data to an IF/FT frame
+{
+  failure_T <- c()
+  failure_IF <- c()
+  failure_IntTag <- c()
+  time_vec <- c(0,c(unlist(time_vec_in), use.names=FALSE))
+  num_count <- c(unlist(num_count_in), use.names=FALSE)
+  m <- 1
+  for(j in 1:(length(time_vec)-1))
+  {
+    for(i in 1:num_count[j])
+    {
+      if(num_count[j]!=0)
+      {
+        failure_T[m] <- time_vec[j]+ ((i-0.5)*((time_vec[j+1]-time_vec[j])/num_count[j]))
+        failure_IntTag[m] <- j
+        m <- m+1
+      }
+    }
+  }
+  temp <- c(0, failure_T)
+  for (i in 1:length(failure_T)) {
+    failure_IF[i] <- failure_T[i] - temp[i]
+  }
+  temp <- c()
+  
+  result <- data.frame("FC_FN" = c(1:length(failure_T)), "FC_TI" = failure_IntTag, "FC_IF" = failure_IF, "FC_FT" = failure_T)
+  
+  return(result)
 }

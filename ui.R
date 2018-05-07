@@ -8,17 +8,19 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Select, Analyze, and Subset Failure Data"),
-                                           fluidRow(
-                                             column(10, 
-                                                    h5("Specify the input file format"),
-                                                    
-                                                    radioButtons("type", label = "", 
-                                                                 choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), inline = TRUE, selected = 1)
-                                             )
-                                           ),
+                                           #fluidRow(
+                                           #  column(10, 
+                                           #         h5("Upload an input file in csv or Excel format (.xls or .xlsx)"),
+                                           #         
+                                           #         radioButtons("type", label = "", 
+                                           #                      choices = list('Excel (.xlsx)' = 1, " CSV (.csv)" = 2), inline = TRUE, selected = 1)
+                                           #  )
+                                           #),
                                            
                                            fluidRow(
-                                             column(8, fileInput("file", label = h5("Select a failure data file"),
+                                             column(8, 
+                                              h5("Upload an input file in CSV (Comma Separated Value) or Excel format (.xls or .xlsx)"),
+                                             fileInput("file", label = h5("Select a failure data file"),
                                                                  accept=c('text/csv','text/comma-separated-values,text/plain','Excel Spreadsheet','.csv','.xlsx')))
                                            ),
                                            
@@ -295,20 +297,68 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                                                  label = h6("Specify the length of the interval for which reliability will be computed"),
                                                                  min = 0, value = 1)
                                              ),
-
+                                             column(12,
+                                                    h5("Optimal Release Time Input")
+                                                    
+                                             ),
+                                             column(12,
+                                                    numericInput("T", 
+                                                                 label = h6("Software lifecycle"),
+                                                                 min = 0, value = 100000)
+                                             ),
+                                             
+                                             column(12,
+                                                    numericInput("C0", 
+                                                                 label = h6("Expected cost of removing fault during testing."),
+                                                                 min = 0, value = 50)
+                                             ),
+                                             column(12,
+                                                    numericInput("C1", 
+                                                                 label = h6("Expected cost of removing the fault during operation."),
+                                                                 min = 0, value = 1000)
+                                             ),
+                                             column(12,
+                                                    numericInput("C2", 
+                                                                 label = h6("Expected cost per unit time of software testing."),
+                                                                 min = 0, value = 1)
+                                             ),
+                                             column(12, 
+                                                    radioButtons("queryResultsPlotType", label = h6("Draw the plot with data points and lines, points only, or lines only?"),
+                                                                 choices = list("Both" = "points_and_lines", "Points" = "points", "Lines" = "lines"),
+                                                                 inline=TRUE,
+                                                                 selected = "points_and_lines"),
+                                                    radioButtons("saveQueryResultsType", label = h6("Choose the type of file to save plots."),
+                                                                 choices = list("JPG" = "JPG", "PDF" = "PDF", "PNG" = "PNG", "TIFF" = "TIFF"), inline = TRUE,
+                                                                 selected = "JPG")
+                                             ),
+                                             
+                                             column(8, downloadButton(outputId = "saveQueryResults", label = "Save")),
+                                             
                                              column(12, 
                                                     radioButtons("saveModelDetailsType", label = h6("Save detailed model results as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "PDF"),
+                                                                 selected = "CSV"),
                                                     downloadButton('downloadData', 'Save Model Predictions')
                                              )
                                            )
                               ),
                               
                               mainPanel(
-                                DT::dataTableOutput('mytable1')
+                                tabsetPanel(
+                                  tabPanel("Prediction table",
+                                    DT::dataTableOutput('mytable1')
+                                    ),
+                                  tabPanel("Model Prediction Result Plot", 
+                                    # textOutput("ModelConfigError"), 
+                                    # textOutput("UnsuccessfulModels"), 
+                                    plotOutput("ModelPredictionPlot", dblclick="MPdblclick1", brush=brushOpts(id="MP_brush1", resetOnNew=TRUE))
+                                    ),
+                                 # DT::dataTableOutput('mytable1')
+                                 id="ModelPredictionPlotAndTableTabset"
+                                ), width=8
                               )
-                            )
+                        )
+                            
                    ),
                    
                    tabPanel("Evaluate Models",
@@ -350,7 +400,7 @@ shinyUI(navbarPage("Software Reliability Assessment in R",
                                              column(12, 
                                                     radioButtons("saveModelEvalType", label = h6("Save model evaluations as PDF or CSV?"),
                                                                  choices = list("CSV" = "CSV", "PDF" = "PDF"), inline = TRUE,
-                                                                 selected = "PDF"),
+                                                                 selected = "CSV"),
                                                     downloadButton('saveModelEvals', 'Save Model Evaluations')
                                              )
 

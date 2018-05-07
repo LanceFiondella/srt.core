@@ -37,6 +37,7 @@ aic <- function(p,lnL){
 #PSSE
 
 psse <- function(model, d, model_params,percent){
+	
 	t <- 0
 	n <- length(d)
 	k <- floor(percent*n)
