@@ -8,9 +8,19 @@ Lance Fiondella, University of Massachusetts Dartmouth
 Allen Nikora, Jet propulsion laboratory/ California Institute of technology
 
 
-Dependancies
+Installation
 -------
-Using `source("install_script.R")` located in this repository will resolve the dependancies for SRT
+Before installing R libraries. Please make sure you have some version of Perl installed. For Linux and Mac computers it is not usually required. For Windows machines you can download it here: http://strawberryperl.com/
+
+Perl is required to import excel files into the tool
+
+To install the required libraries, please run the following command in the R terminal
+```R
+source("/Path/To/SRT/install_script.R")
+```
+Replace `/Path/To/SRT/` with the path to the folder where you have extracted the tool. 
+A window will pop up for you to select the server from which to download the packages. Select a server and the script will download and install packages.
+
  
 
 To Run
@@ -18,7 +28,7 @@ To Run
 
 ```R
 library(shiny)  
-runApp("/Path/To/Dir/SRT/")
+runApp("/Path/To/SRT/")
 ```
 This will launch the app on localhost on a random port and attempt to open a browser.
 
