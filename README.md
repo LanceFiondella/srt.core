@@ -58,9 +58,11 @@ TODO:
 
 - [ ] Python port of this is in progress.
 
-Caution
+FOR USERS with JIRA Export Data
 -------
-- Under Heavy development use with caution.
+- Follow the script developed by MITRE, which is available at https://github.com/LanceFiondella/SRGM 
+     - To manipulate the JIRA export data to a form acceptable by the SFRAT
+     - Using the JIRA export evaluate a Mean Time between Fault(failure) - MTBF and Mean Time to Fix Code(Repair) 
 
 Versioning:
 ----------
