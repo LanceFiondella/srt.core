@@ -19,6 +19,9 @@ get_prediction_k <- function(model,params, t_offset,tn,n){
 	else if("Wei_aMLE" %in% names(params)){
 		est_faults <- Wei_MVF_cont(params,tn + t_offset) - Wei_MVF_cont(params,tn)
 	}
+  else if("ISS_aMLE" %in% names(params)){
+    est_faults <- ISS_MVF_cont(params,tn + t_offset) - ISS_MVF_cont(params,tn)
+  }
 	else{
 		est_faults <- "Not Implemented"
 	}
