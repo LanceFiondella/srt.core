@@ -12,7 +12,8 @@ plot_trend_tests <- function(in_data, convertedFCData, DataName, DataRange, Tren
   localTrendPlot <- ggplot()
   
   if((DataIntervalEnd - DataIntervalStart + 1) >= MinIntervalWidth) {
-    localTrendPlot <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
+    #localTrendPlot <- ggplot(,aes_string(x="index",y="trend_test_statistic"))
+    localTrendPlot <- ggplot(,aes(x = .data[["index"]], y = .data[["trend_test_statistic"]]))
     if((length(grep("FT",names(in_data)))>0) || (length(grep("IF",names(in_data))) > 0)) {
       IF <- c(unlist(subset(subset(in_data, in_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)
       FT <- c(unlist(subset(subset(in_data, in_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = FT)), use.names=FALSE)

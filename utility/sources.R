@@ -43,7 +43,7 @@ source("utility/plots/Plot_Trend_Tests.R")
 source("utility/plots/PlotModelResults.R")
 
 # Data utility functions
-sys.source("utility/data/Data_Tools.R")
+source("utility/data/Data_Tools.R")
 
 # Tables utility functions
 source("utility/tables/DataAndTrendTables.R")
