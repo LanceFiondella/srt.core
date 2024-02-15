@@ -13,7 +13,8 @@ plot_failure_data <- function(in_data, convertedFCData, DataName, DataRange, Dat
   localDataPlot <- ggplot()
   
   if((DataIntervalEnd - DataIntervalStart + 1) >= MinIntervalWidth) {
-    localDataPlot <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
+    #localDataPlot <- ggplot(,aes_string(x="Index",y="FailureDisplayType"))
+    localDataPlot <- ggplot(,aes(x = .data[["Index"]], y = .data[["FailureDisplayType"]]))
     if((length(grep("FT",names(in_data)))>0) || (length(grep("IF",names(in_data)))>0)) {
       
       IF <- c(unlist(subset(subset(in_data, in_data$FN >= DataIntervalStart, select = c(FN, IF, FT)), FN <= DataIntervalEnd, select = IF)), use.names=FALSE)

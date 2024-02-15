@@ -1,6 +1,7 @@
 library(shiny)
 library(DT)
-library(gdata) 
+#library(gdata) 
+library(readxl)
 library(ggplot2)
 library(knitr)
 
@@ -79,7 +80,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       if(is.null(inFile)){
       return("Please upload an excel file")
     }
-      sheets_present <- sheetNames(xls=inFile$datapath)
+      #sheets_present <- sheetNames(xls=inFile$datapath)
+      sheets_present <- excel_sheets(inFile$datapath)
       selectInput("dataSheetChoice","Choose Sheet", c(NULL,sheets_present))
     }
     else{
@@ -114,7 +116,8 @@ shinyServer(function(input, output, clientData, session) {#reactive shiny functi
       
       data_set <- input$dataSheetChoice
       
-      data <- read.xls(inFile$datapath,sheet=data_set)
+      #data <- read.xls(inFile$datapath,sheet=data_set)
+      data <- read_excel(inFile$datapath,sheet=data_set)
       data_original <<- data
     } else if (input$type==2){
       if(length(grep(".xls",inFile$name))>0){
