@@ -38,4 +38,5 @@ if(!require(gdata)) {install.packages("gdata", repos="http://cran.rstudio.com/")
 if(!require(ggplot2)) {install.packages("ggplot2", repos="http://cran.rstudio.com/");library(ggplot2)} #ggplot2 is used for crerating various plots
 if(!require(rootSolve)) {install.packages("rootSolve", repos="http://cran.rstudio.com/");library(rootSolve)} #rootSolve is used for finding a root of an equation
 if(!require(emdbook)) {install.packages("emdbook", repos="http://cran.rstudio.com/", dep = TRUE);library(emdbook)}
-
+if(!require(devtools)) {install.packages("devtools", repos="http://cran.rstudio.com/");library(devtools)}
+if(!require(Rsrat)) {devtools::install_github("okamumu/Rsrat");library(Rsrat)}
